@@ -6,17 +6,7 @@
   </head>
   <body>
     <div class="container">
-      <h1>Trello Dashboard</h1>
-
-      <form class="form-horizontal" id="boards_form">
-        <div class="form-group">
-          <label class="control-label">Choose your board</label>
-            <select class="form-control" id="boards"></select>
-        </div>
-      </form>
-      
-      <div id="labels"></div>
-      
+      <h1>HKG81 QM</h1>
       <div id="lists"></div>
     </div> 
   </body>
@@ -25,19 +15,13 @@
   <script src="https://api.trello.com/1/client.js?key=8a42b4468e08ca9f165c88d1327add61"></script>
   
   <script type="text/javascript">
-    var loadedBoards = function(boards) {
-      $.each(boards, function(index, value) {
-        $('#boards')
-          .append($("<option></option>")
-          .attr("value",value.id)
-          .text(value.name)); 
-      });
-    };
-
-    var loadBoards = function() {
+    var loadBoard = function() {
       //Get the users boards
       Trello.get(
         '/boards/OPFLEvqH/lists',
+        { cards: 'open',
+          card_fields: 'name,labels'
+        },
         loadedLists,
         function() { console.log("Failed to load lists"); }
       );
@@ -46,36 +30,22 @@
     var loadedLists = function(lists) {
       $.each(lists, function(index, list) {
         var list = $("<p>" + list.name + "</p>");
-        $('#lists').append(list)
+        $('#lists').append(list);
+        $.each(list.cards, function(index, card) {
+          var card = $("<p>Card: " + card.name + "</p>");
+          $('#lists').append(card)
+      });
       });
     };
-    
-    var loadedLabels = function(labels) {
-      $.each(labels, function(index, label) {
-        var label = $("<p><span class='badge' style='background:" + label.color + ";'>" + label.uses + "</span> " + label.name + "</p>");
-        $('#labels').append(label)
-      });
-    };
-
-    $('#boards').change(function() {
-      var boardId = $("option:selected", this).val();
-      $('#labels').empty();
-      
-      Trello.get(
-        '/boards/' + boardId + '/labels',
-        loadedLabels,
-        function() { console.log("Failed to load labels"); }
-      );
-    });
     
     Trello.authorize({
       type: "popup",
-      name: "Trello dashboard",
+      name: "HKG81 QM",
       scope: {
         read: true,
         write: false },
       expiration: "never",
-      success: loadBoards,
+      success: loadBoard,
       error: function() { console.log("Failed authentication"); }
     });
   </script>
