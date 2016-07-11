@@ -16,6 +16,8 @@
       </form>
       
       <div id="labels"></div>
+      
+      <div id="lists"></div>
     </div> 
   </body>
 
@@ -35,10 +37,17 @@
     var loadBoards = function() {
       //Get the users boards
       Trello.get(
-        '/members/me/boards/',
-        loadedBoards,
-        function() { console.log("Failed to load boards"); }
+        '/boards/OPFLEvqH/lists',
+        loadedLists,
+        function() { console.log("Failed to load lists"); }
       );
+    };
+    
+    var loadedLists = function(lists) {
+      $.each(lists, function(index, list) {
+        var list = $("<p>" + list.name + "</p>");
+        $('#lists').append(list)
+      });
     };
     
     var loadedLabels = function(labels) {
@@ -53,7 +62,7 @@
       $('#labels').empty();
       
       Trello.get(
-        '/boards/' + boardId + '/labels',
+        '/boards/' + boardId + '/labels',OPFLEvqH
         loadedLabels,
         function() { console.log("Failed to load labels"); }
       );
