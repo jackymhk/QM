@@ -29,12 +29,12 @@
     
     var loadedLists = function(lists) {
       $.each(lists, function(index, list) {
-        var list = $("<p>" + list.name + "</p>");
-        $('#lists').append(list);
+        var list_s = $("<p>" + list.name + "</p>");
+        $('#lists').append(list_s);
         $.each(list.cards, function(index, card) {
-          var card = $("<p>Card: " + card.name + "</p>");
-          $('#lists').append(card)
-      });
+          var card_s = $("<p>Card: " + card.name + "</p>");
+          $('#lists').append(card_s)
+        });
       });
     };
     
