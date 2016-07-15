@@ -70,8 +70,14 @@
             if (addLabelSuccCount + addLabelErrCount + addChklstItemSuccCount + addChklstItemErrCount >= total) {
                 if (addLabelErrCount > 0 || addChklstItemErrCount > 0) {
                     console.log("Add Card Failed");
+                    $("#alert-box").removeClass("hidden");
+                    $("#alert-box").addClass("alert-danger");
+                    $("#alert-msg").html("Add Card Failed");
                 } else {
                     console.log("Add Card Success");
+                    $("#alert-box").removeClass("hidden");
+                    $("#alert-box").addClass("alert-success");
+                    $("#alert-msg").html("Add Card Successfully");
                 }
             }
         }
@@ -143,9 +149,9 @@
       <h1>HKG81 QM</h1>
       <pre id="str"></pre>
       
-        <div class=" alert alert-warning alert-dismissible" role="alert">
+        <div class="hidden alert alert-dismissible" role="alert" id="alert-box">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <strong>Warning!</strong> Better check yourself, you're not looking too good.
+            <span id="alert-msg"></span>
         </div>
         
         <form name="form" class="form-horizontal">
