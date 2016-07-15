@@ -22,6 +22,7 @@
                 ];
     var allCards = [];
     var str = '';
+    var count = 0;
     
     var loadLists = function() {
       for (var i = 0; i < listId.length; i++) {
@@ -57,7 +58,9 @@
        str = JSON.stringify(allCards, null, 2);
       $('#str').append(str);
       console.log("333");
-      
+      count++;
+      if (count == listId.length)
+        finish();
       /*
       $.each(lists, function(index, list) {
         var list_s = $("<p>" + list.name + "</p>");
@@ -69,6 +72,10 @@
       });
       */
     };
+    
+    function finish() {
+      console.log("444");
+    }
     
     Trello.authorize({
       type: "popup",
