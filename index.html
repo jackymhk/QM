@@ -118,11 +118,11 @@
         }
         
         function hasLabel(card, labelId) {
-            $.each(card.labels, function(index, label){
+        	for (var i = 0; i < card.labels.length; i++) {
                 console.log("card.name="+card.name+" label.name="+label.name+" label.id="+label.id+'|');
-               if (label.id == labelId) 
+               if (card.labels[i].id == labelId) 
                    return true;
-            });
+            }
             return false;
         }
         
