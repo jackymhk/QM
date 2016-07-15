@@ -100,12 +100,12 @@
                 var checkbox = '<div class="button-checkbox col-xs-6 col-sm-4" style="padding-bottom: 5px;"><button type="button" class="btn" data-color="success">'+card.name;
                 
                 // have Damaged Label
-                if (hasLabel(card, damagedLabelId)) {
+                if (hasLabel(card, damagedLabelId) == true) {
                     checkbox += '&nbsp;<span class="glyphicon glyphicon-warning-sign" aria-hidden="true" style="color:#c9302c;"></span>';
                 }
                 
                 // have Broken Label
-                if (hasLabel(card, brokenLabelId)) {
+                if (hasLabel(card, brokenLabelId) == true) {
                     checkbox += '&nbsp;<span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>';
                 }
                 
@@ -117,7 +117,7 @@
         
         function hasLabel(card, labelId) {
             $.each(card.labels, function(index, label){
-                console.log("label.id="+label.id);
+                console.log("card.name="+card.name+" label.name="+label.name+" label.id="+label.id+'|');
                if (label.id == labelId) 
                    return true;
             });
