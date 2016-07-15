@@ -1,150 +1,154 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>A Trello Dashboard</title>
     <link rel="stylesheet" media="screen" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-	<link rel="stylesheet" type="text/css" href="bootstrap-datepicker3.min.css"/>
-	
-	<script src="http://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
-	<script src="https://api.trello.com/1/client.js?key=8a42b4468e08ca9f165c88d1327add61"></script>
-	<script src="bootstrap-datepicker.min.js" type="text/javascript"></script>
-	<!--<script src="cards.js" type="text/javascript"></script>-->
-	
-	<script type="text/javascript">
-		var listIds = ['5781353e2adfa093b77818bc'
-					 ,'578277ca48b1999e7ec8e9b8'
-					 //,'5780d6699daac89930dde53f'
-					];
-		var targetListId = '5783c8a9bf611133bd40bae1';
-		var cards = [];
-		var str = '';
-		var count = 0;
-		
-		var loadLists = function() {
-		  for (var i = 0; i < listIds.length; i++) {
-			Trello.get(
-			  '/lists/'+listIds[i]+'/cards',
-			  loadedLists,
-			  function() { console.log("Failed to load lists"); }
-			);
-		  }
-		};
-		
-		var loadedLists = function(lists) {
-		  cards = cards.concat(lists);
-		   
-		  count++;
-		  if (count == listIds.length)
-			main();
-		};
-		
-		function main() {
-		  //str = JSON.stringify(cards, null, 2);
-		  //$('#str').append(str);
-		  
-			$.each(cards, function(index, card) {
-				//var txt = '<label class="checkbox-inline"><input type="checkbox" value="">'+card.name+'</label>';
-				var txt = '<div class="checkbox col-xs-12 col-sm-4"><label><input type="checkbox" name="items" value="'+card.url+'">'+card.name+'</label></div>';
-				$('#items').append(txt);
-			});
-		}
-		
-		$(function(){
-			$(".datepicker").datepicker({
-				format: 'yyyy/mm/dd',
-				autoclose: true
-			});
-			
-			$("#submit").on("click", function() {
-				var itemUrls = "";
-				$('input:checked[name=items]').each(function(index){
-					itemUrls += $(this).val() + "\n";
-				});
-				
-				var newCard = {
-					name: "BF [" + $("#borrow_dt").val() + "]",
-					desc: "Borrow Date: " + $("#borrow_dt").val() + "\n" +
-						  "Borrower: " + $("#borrower").val() + "\n" +
-						  "Return Date: " + $("#return_dt").val() + "\n" +
-						  "\n\n-------\n" + itemUrls,
-					idList: targetListId,
-					due: null
-				};
-				
-				Trello.post('/cards/', newCard, 
-					function() { console.log("Add Card Success"); },
-					function() { console.log("Add Card Failed"); }
-				);
-				
-				str = JSON.stringify(newCard, null, 2);
-				$('#str').append(str);
-			});
-			
-			Trello.authorize({
-			  type: "popup",
-			  name: "HKG81 QM2",
-			  scope: {
-				read: true,
-				write: true },
-			  expiration: "never",
-			  success: loadLists,
-			  error: function() { console.log("Failed authentication"); }
-			});
-			
-			//main();
-		});
-	</script>
-	<style>
-		.checked_item {
-			background-color:#266c8e;
-		}
-	</style>
-  </head>
-  <body>
+    <link rel="stylesheet" type="text/css" href="bootstrap-datepicker3.min.css"/>
+    
+    <script src="http://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="https://api.trello.com/1/client.js?key=8a42b4468e08ca9f165c88d1327add61"></script>
+    <script src="bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <!--<script src="cards.js" type="text/javascript"></script>-->
+    
+    <script type="text/javascript">
+        var listIds = ['5781353e2adfa093b77818bc'
+                     ,'578277ca48b1999e7ec8e9b8'
+                     //,'5780d6699daac89930dde53f'
+                    ];
+        var targetListId = '5783c8a9bf611133bd40bae1';
+        var cards = [];
+        var str = '';
+        var count = 0;
+        
+        var loadLists = function() {
+          for (var i = 0; i < listIds.length; i++) {
+            Trello.get(
+              '/lists/'+listIds[i]+'/cards',
+              loadedLists,
+              function() { console.log("Failed to load lists"); }
+            );
+          }
+        };
+        
+        var loadedLists = function(lists) {
+          cards = cards.concat(lists);
+           
+          count++;
+          if (count == listIds.length)
+            main();
+        };
+        
+        var addLabel = function() {
+            
+        }
+        
+        function main() {
+          //str = JSON.stringify(cards, null, 2);
+          //$('#str').append(str);
+          
+            $.each(cards, function(index, card) {
+                //var txt = '<label class="checkbox-inline"><input type="checkbox" value="">'+card.name+'</label>';
+                var txt = '<div class="checkbox col-xs-12 col-sm-4"><label><input type="checkbox" name="items" value="'+card.url+'">'+card.name+'</label></div>';
+                $('#items').append(txt);
+            });
+        }
+        
+        $(function(){
+            $(".datepicker").datepicker({
+                format: 'yyyy/mm/dd',
+                autoclose: true
+            });
+            
+            $("#submit").on("click", function() {
+                var itemUrls = "";
+                $('input:checked[name=items]').each(function(index){
+                    itemUrls += $(this).val() + "\n";
+                });
+                
+                var newCard = {
+                    name: "BF [" + $("#borrow_dt").val() + "]",
+                    desc: "Borrow Date: " + $("#borrow_dt").val() + "\n" +
+                          "Borrower: " + $("#borrower").val() + "\n" +
+                          "Return Date: " + $("#return_dt").val() + "\n" +
+                          "\n\n-------\n" + itemUrls,
+                    idList: targetListId,
+                    due: null
+                };
+                
+                Trello.post('/cards/', newCard, 
+                    function(card) { alert(card.id) },
+                    function() { console.log("Add Card Failed"); }
+                );
+                
+                str = JSON.stringify(newCard, null, 2);
+                $('#str').append(str);
+            });
+            
+            Trello.authorize({
+                type: "popup",
+                name: "HKG81 QM2",
+                scope: {
+                    read: true,
+                    write: true },
+                expiration: "never",
+                success: loadLists,
+                error: function() { console.log("Failed authentication"); }
+            });
+            
+            //main();
+        });
+    </script>
+    <style>
+        .checked_item {
+            background-color:#266c8e;
+        }
+    </style>
+</head>
+<body>
     <div class="container">
       <h1>HKG81 QM</h1>
       <pre id="str"></pre>
-	  
-		<form name="form" class="form-horizontal">
-			<div id="item_info" class="panel panel-default">
-				<div class="panel-body">
-					<div class="form-group">
-						<label for="borrower" class="control-label col-xs-4 col-sm-2">Borrower</label>
-						<div class="col-xs-8 col-sm-10">
-							<input type="text" name="borrower" id="borrower" class="form-control" value=""/>
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="activity" class="control-label col-xs-4 col-sm-2">Activity</label>
-						<div class="col-xs-8 col-sm-10">
-							<input type="text" name="activity" id="activity" class="form-control" value=""/>
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="borrow_dt" class="control-label col-xs-4 col-sm-2">Borrow Date</label>
-						<div class="col-xs-8 col-sm-10">
-							<input type="text" name="borrow_dt" id="borrow_dt" class="form-control datepicker" placeholder="yyyy/mm/dd" value=""/>
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="return_dt" class="control-label col-xs-4 col-sm-2">Return Date</label>
-						<div class="col-xs-8 col-sm-10">
-							<input type="text" name="return_dt" id="borrow_dt" class="form-control datepicker" placeholder="yyyy/mm/dd" value=""/>
-						</div>
-					</div>
-					<div class="form-group" id="items">
-						<div class="checkbox col-xs-12 col-sm-4"><label class="checked_item"><input type="checkbox" name="items" value="">test 1</label></div>
-						<div class="checkbox col-xs-12 col-sm-4"><label class="btn btn-primary"><input type="checkbox" name="items" value="">test 2</label></div>
-					</div>
-					<div class="form-group">
-						<button type="button" class="btn btn-default" id="submit">Submit</button>
-					</div>
-				</div>
-			</div>
-		</form>
+      
+        <form name="form" class="form-horizontal">
+            <div id="item_info" class="panel panel-default">
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label for="borrower" class="control-label col-xs-4 col-sm-2">Borrower</label>
+                        <div class="col-xs-8 col-sm-10">
+                            <input type="text" name="borrower" id="borrower" class="form-control" value=""/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="activity" class="control-label col-xs-4 col-sm-2">Activity</label>
+                        <div class="col-xs-8 col-sm-10">
+                            <input type="text" name="activity" id="activity" class="form-control" value=""/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="borrow_dt" class="control-label col-xs-4 col-sm-2">Borrow Date</label>
+                        <div class="col-xs-8 col-sm-10">
+                            <input type="text" name="borrow_dt" id="borrow_dt" class="form-control datepicker" placeholder="yyyy/mm/dd" value=""/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="return_dt" class="control-label col-xs-4 col-sm-2">Return Date</label>
+                        <div class="col-xs-8 col-sm-10">
+                            <input type="text" name="return_dt" id="borrow_dt" class="form-control datepicker" placeholder="yyyy/mm/dd" value=""/>
+                        </div>
+                    </div>
+                    <div class="form-group" id="items">
+                        <div class="checkbox col-xs-12 col-sm-4"><label class="checked_item"><input type="checkbox" name="items" value="">test 1</label></div>
+                        <div class="checkbox col-xs-12 col-sm-4"><label class="btn btn-primary"><input type="checkbox" name="items" value="">test 2</label></div>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default" id="submit">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div> 
-  </body>
+</body>
 
   
   
