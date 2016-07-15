@@ -46,7 +46,7 @@
                 function() { console.log("Add Label Failed"); }
             );
             
-            Trello.post('/cards/'+card.id+'/checklists', {name: 'Return Checklist}, 
+            Trello.post('/cards/'+card.id+'/checklists', {name: 'Return Checklist'}, 
                 function(checklist) { console.log("Add Checklist Success "+ checklist.id); },
                 function() { console.log("Add Checklist Failed"); }
             );
