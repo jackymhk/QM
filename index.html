@@ -101,11 +101,13 @@
                 
                 // have Damaged Label
                 if (hasLabel(card, damagedLabelId) == true) {
+                	console.log("card.name="+card.name+" damaged!!");
                     checkbox += '&nbsp;<span class="glyphicon glyphicon-warning-sign" aria-hidden="true" style="color:#c9302c;"></span>';
                 }
                 
                 // have Broken Label
                 if (hasLabel(card, brokenLabelId) == true) {
+                	console.log("card.name="+card.name+" Broken!!");
                     checkbox += '&nbsp;<span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>';
                 }
                 
