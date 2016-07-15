@@ -17,10 +17,10 @@
   
   <script type="text/javascript">
     var listId = ['5781353e2adfa093b77818bc'
-                 //,'578277ca48b1999e7ec8e9b8'
+                 ,'578277ca48b1999e7ec8e9b8'
                  //,'5780d6699daac89930dde53f'
                 ];
-  
+    var allCards = [];
     var str = '';
     
     var loadLists = function() {
@@ -34,6 +34,8 @@
           function() { console.log("Failed to load lists"); }
         );
       }
+      str = JSON.stringify(allCards, null, 2);
+      $('#str').append(str);
     };
     
     var loadBoard = function() {
@@ -49,8 +51,10 @@
     };
     
     var loadedLists = function(lists) {
-      str = JSON.stringify(lists, null, 2);
-      $('#str').append(str);
+      allCards.concat(lists);
+      
+      
+      
       /*
       $.each(lists, function(index, list) {
         var list_s = $("<p>" + list.name + "</p>");
