@@ -17,12 +17,14 @@
     <!--<script src="cards.js" type="text/javascript"></script>-->
     
     <script type="text/javascript">
-        var listIds = ['5781353e2adfa093b77818bc'
-                     ,'578277ca48b1999e7ec8e9b8'
-                     //,'5780d6699daac89930dde53f'
-                    ];
-        var targetListId = '5783c8a9bf611133bd40bae1';
-        var labelId = '5783c8a384e677fd36794b48';
+        var listIds = ['5781353e2adfa093b77818bc', // List - 木櫃A
+                       '578277ca48b1999e7ec8e9b8', // List - 木櫃B
+                       '5780d6699daac89930dde53f', // List - 木櫃C
+                       '57812d4492e051d3bd9dbdd1']; // List - 木櫃外
+        var targetListId = '5788f02751619a8ccafcd442'; // List - Pending
+        var borrowLabelId = '5787b74784e677fd368578df'; //Label - 借用記錄
+        var damagedLabelId = '5780d65784e677fd36737247'; //Label - 損壞
+        var brokenLabelId = '5781209484e677fd3673e50a'; //Label - 不能使用
         var cards = [];
         
         var loadedListCount = 0;
@@ -95,10 +97,30 @@
         
         function createItemCheckboxes() {
             $.each(cards, function(index, card) {
-                var checkbox = '<div class="button-checkbox col-xs-6 col-sm-4" style="padding-bottom: 5px;"><button type="button" class="btn" data-color="success">'+card.name+'&nbsp;<span class="glyphicon glyphicon-warning-sign" aria-hidden="true" style="color:#c9302c;"></span></button><input type="checkbox" name="items" value="'+card.url+'" class="hidden" /></div>';
+                var checkbox = '<div class="button-checkbox col-xs-6 col-sm-4" style="padding-bottom: 5px;"><button type="button" class="btn" data-color="success">'+card.name;
+                
+                // have Damaged Label
+                if (hasLabel(card, damagedLabelId)) {
+                    checkbox += '&nbsp;<span class="glyphicon glyphicon-warning-sign" aria-hidden="true" style="color:#c9302c;"></span>';
+                }
+                
+                // have Broken Label
+                if (hasLabel(card, brokenLabelId)) {
+                    checkbox += '&nbsp;<span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>';
+                }
+                
+                checkbox += '</button><input type="checkbox" name="items" value="'+card.url+'" class="hidden" /></div>';
 				$('#items').append(checkbox);
             });
             button_checkbox_init();
+        }
+        
+        function hasLabel(card, labelId) {
+            $.each(card.labels, fucntion(index, label){
+               if (label.id == labelId) 
+                   return true;
+            });
+            return false;
         }
         
         $(function(){
