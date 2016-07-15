@@ -7,7 +7,7 @@
   <body>
     <div class="container">
       <h1>HKG81 QM</h1>
-      <div id="str"></div>
+      <pre id="str"></pre>
       <div id="lists"></div>
     </div> 
   </body>
@@ -30,7 +30,7 @@
     };
     
     var loadedLists = function(lists) {
-      str = JSON.stringify(lists, null, "<br>");
+      str = JSON.stringify(lists, null, 2);
       $('#str').append(str);
       
       $.each(lists, function(index, list) {
