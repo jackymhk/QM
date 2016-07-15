@@ -17,6 +17,7 @@
                      //,'5780d6699daac89930dde53f'
                     ];
         var targetListId = '5783c8a9bf611133bd40bae1';
+        var labelId = '5783c8a384e677fd36794b48';
         var cards = [];
         var str = '';
         var count = 0;
@@ -39,8 +40,11 @@
             main();
         };
         
-        var addLabel = function() {
-            
+        var addLabel = function(card) {
+            Trello.post('/cards/'+card.id+'/idLabels', {value: labelId}, 
+                function() { console.log("Add Label Success"); },
+                function() { console.log("Add Label Failed"); }
+            );
         }
         
         function main() {
@@ -77,7 +81,7 @@
                 };
                 
                 Trello.post('/cards/', newCard, 
-                    function(card) { alert(card.id) },
+                    addLabel,
                     function() { console.log("Add Card Failed"); }
                 );
                 
