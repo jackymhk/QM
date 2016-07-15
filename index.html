@@ -19,7 +19,7 @@
         var targetListId = '5783c8a9bf611133bd40bae1';
         var labelId = '5783c8a384e677fd36794b48';
         var cards = [];
-        var str = '';
+        
         var loadedListCount = 0;
         var addLabelSuccCount = 0;
         var addLabelErrCount = 0;
@@ -31,17 +31,17 @@
             Trello.get(
               '/lists/'+listIds[i]+'/cards',
               concatLists,
-              function() { console.log("Failed to load lists"); }
+              function() { failAlert("Failed to load lists"); }
             );
           }
         };
         
         var concatLists = function(lists) {
-          cards = cards.concat(lists);
-           
-          loadedListCount++;
-          if (loadedListCount == listIds.length)
-            main();
+            cards = cards.concat(lists);
+            
+            loadedListCount++;
+            if (loadedListCount == listIds.length)
+                createItemCheckboxes();
         };
         
         var addLabelAndChecklist = function(card) {
@@ -52,7 +52,7 @@
             
             Trello.post('/cards/'+card.id+'/checklists', {name: 'Return Checklist'}, 
                 addChecklistItems,
-                function() { console.log("Add Checklist Failed"); }
+                function() { failAlert("Add Checklist Failed"); }
             );
         }
         
@@ -69,23 +69,26 @@
             var total = $('input:checked[name=items]').length + 1;
             if (addLabelSuccCount + addLabelErrCount + addChklstItemSuccCount + addChklstItemErrCount >= total) {
                 if (addLabelErrCount > 0 || addChklstItemErrCount > 0) {
-                    console.log("Add Card Failed");
-                    $("#alert-box").removeClass("hidden");
-                    $("#alert-box").addClass("alert-danger");
-                    $("#alert-msg").html("Add Card Failed");
+                    failAlert("Add Card Failed");
                 } else {
-                    console.log("Add Card Success");
-                    $("#alert-box").removeClass("hidden");
-                    $("#alert-box").addClass("alert-success");
-                    $("#alert-msg").html("Add Card Successfully");
+                    successAlert("Add Card Successfully");
                 }
             }
         }
         
-        function main() {
-          //str = JSON.stringify(cards, null, 2);
-          //$('#str').append(str);
-          
+        function successAlert(msg) {
+            $("#alert-box").removeClass("hidden");
+            $("#alert-box").addClass("alert-success");
+            $("#alert-msg").html(msg);
+        }
+        
+        function failAlert(msg) {
+            $("#alert-box").removeClass("hidden");
+            $("#alert-box").addClass("alert-danger");
+            $("#alert-msg").html(msg);
+        }
+        
+        function createItemCheckboxes() {
             $.each(cards, function(index, card) {
                 //var txt = '<label class="checkbox-inline"><input type="checkbox" value="">'+card.name+'</label>';
                 var txt = '<div class="checkbox col-xs-12 col-sm-4"><label><input type="checkbox" name="items" value="'+card.url+'">'+card.name+'</label></div>';
@@ -117,11 +120,8 @@
                 
                 Trello.post('/cards/', newCard, 
                     addLabelAndChecklist,
-                    function() { console.log("Add Card Failed"); }
+                    function() { failAlert("Add Card Failed"); }
                 );
-                
-                str = JSON.stringify(newCard, null, 2);
-                $('#str').append(str);
             });
             
             Trello.authorize({
@@ -132,10 +132,8 @@
                     write: true },
                 expiration: "never",
                 success: loadLists,
-                error: function() { console.log("Failed authentication"); }
+                error: function() { failAlert("Failed authentication"); }
             });
-            
-            //main();
         });
     </script>
     <style>
@@ -146,8 +144,7 @@
 </head>
 <body>
     <div class="container">
-      <h1>HKG81 QM</h1>
-      <pre id="str"></pre>
+        <h1>HKG81 QM</h1>
       
         <div class="hidden alert alert-dismissible" role="alert" id="alert-box">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -193,8 +190,4 @@
         </form>
     </div> 
 </body>
-
-  
-  
-  
 </html>
