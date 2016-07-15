@@ -3,59 +3,122 @@
   <head>
     <title>A Trello Dashboard</title>
     <link rel="stylesheet" media="screen" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="bootstrap-datepicker3.min.css"/>
+	
+	<script src="http://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
+	<!--<script src="https://api.trello.com/1/client.js?key=8a42b4468e08ca9f165c88d1327add61"></script>-->
+	<script src="bootstrap-datepicker.min.js" type="text/javascript"></script>
+	<script src="cards.js" type="text/javascript"></script>
+	
+	<script type="text/javascript">
+		var listIds = ['5781353e2adfa093b77818bc'
+					 ,'578277ca48b1999e7ec8e9b8'
+					 //,'5780d6699daac89930dde53f'
+					];
+		//var cards = [];
+		var str = '';
+		var count = 0;
+		
+		var loadLists = function() {
+		  for (var i = 0; i < listIds.length; i++) {
+			Trello.get(
+			  '/lists/'+listIds[i]+'/cards',
+			  loadedLists,
+			  function() { console.log("Failed to load lists"); }
+			);
+		  }
+		};
+		
+		var loadedLists = function(lists) {
+		  cards = cards.concat(lists);
+		   
+		  count++;
+		  if (count == listIds.length)
+			main();
+		};
+		
+		function main() {
+		  //str = JSON.stringify(cards, null, 2);
+		  //$('#str').append(str);
+		  
+			$.each(cards, function(index, card) {
+				//var txt = '<label class="checkbox-inline"><input type="checkbox" value="">'+card.name+'</label>';
+				var txt = '<div class="checkbox col-xs-12 col-sm-4"><label><input type="checkbox" value="">'+card.name+'</label></div>';
+				$('#items').append(txt);
+			});
+		}
+		/*
+		Trello.authorize({
+		  type: "popup",
+		  name: "HKG81 QM",
+		  scope: {
+			read: true,
+			write: false },
+		  expiration: "never",
+		  success: loadLists,
+		  error: function() { console.log("Failed authentication"); }
+		});
+		*/
+		
+		$(function(){
+			$(".datepicker").datepicker({
+				format: 'yyyy/mm/dd',
+				autoclose: true
+			});
+			
+			main();
+		});
+	</script>
+	<style>
+		.checked_item {
+			background-color:#266c8e;
+		}
+	</style>
   </head>
   <body>
     <div class="container">
       <h1>HKG81 QM</h1>
       <pre id="str"></pre>
-      <div id="lists"></div>
+	  
+		<form name="form" class="form-horizontal">
+			<div id="item_info" class="panel panel-default">
+				<div class="panel-body">
+					<div class="form-group">
+						<label for="borrower" class="control-label col-xs-4 col-sm-2">Borrower</label>
+						<div class="col-xs-8 col-sm-10">
+							<input type="text" name="borrower" id="borrower" class="form-control" value=""/>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="activity" class="control-label col-xs-4 col-sm-2">Activity</label>
+						<div class="col-xs-8 col-sm-10">
+							<input type="text" name="activity" id="activity" class="form-control" value=""/>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="borrow_dt" class="control-label col-xs-4 col-sm-2">Borrow Date</label>
+						<div class="col-xs-8 col-sm-10">
+							<input type="text" name="borrow_dt" id="borrow_dt" class="form-control datepicker" placeholder="yyyy/mm/dd" value=""/>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="return_dt" class="control-label col-xs-4 col-sm-2">Return Date</label>
+						<div class="col-xs-8 col-sm-10">
+							<input type="text" name="return_dt" id="borrow_dt" class="form-control datepicker" placeholder="yyyy/mm/dd" value=""/>
+						</div>
+					</div>
+					<div class="form-group" id="items">
+						<div class="checkbox col-xs-12 col-sm-4"><label class="checked_item"><input type="checkbox" value="">test 1</label></div>
+						<div class="checkbox col-xs-12 col-sm-4"><label class="btn btn-primary"><input type="checkbox" value="">test 2</label></div>
+					</div>
+				</div>
+			</div>
+		</form>
     </div> 
   </body>
 
-  <script src="http://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"></script>
-  <script src="https://api.trello.com/1/client.js?key=8a42b4468e08ca9f165c88d1327add61"></script>
   
-  <script type="text/javascript">
-    var listIds = ['5781353e2adfa093b77818bc'
-                 ,'578277ca48b1999e7ec8e9b8'
-                 //,'5780d6699daac89930dde53f'
-                ];
-    var cards = [];
-    var str = '';
-    var count = 0;
-    
-    var loadLists = function() {
-      for (var i = 0; i < listIds.length; i++) {
-        Trello.get(
-          '/lists/'+listIds[i]+'/cards',
-          loadedLists,
-          function() { console.log("Failed to load lists"); }
-        );
-      }
-    };
-    
-    var loadedLists = function(lists) {
-      cards = cards.concat(lists);
-       
-      count++;
-      if (count == listIds.length)
-        main();
-    };
-    
-    function main() {
-      str = JSON.stringify(cards, null, 2);
-      $('#str').append(str);
-    }
-    
-    Trello.authorize({
-      type: "popup",
-      name: "HKG81 QM",
-      scope: {
-        read: true,
-        write: false },
-      expiration: "never",
-      success: loadLists,
-      error: function() { console.log("Failed authentication"); }
-    });
-  </script>
+  
+  
 </html>
