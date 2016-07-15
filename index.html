@@ -34,8 +34,7 @@
           function() { console.log("Failed to load lists"); }
         );
       }
-      str = JSON.stringify(allCards, null, 2);
-      $('#str').append(str);
+     
     };
     
     var loadBoard = function() {
@@ -52,7 +51,8 @@
     
     var loadedLists = function(lists) {
       allCards.concat(lists);
-      
+       str = JSON.stringify(allCards, null, 2);
+      $('#str').append(str);
       
       
       /*
