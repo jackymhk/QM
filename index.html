@@ -117,6 +117,7 @@
         
         function hasLabel(card, labelId) {
             $.each(card.labels, function(index, label){
+                console.log("label.id="+label.id);
                if (label.id == labelId) 
                    return true;
             });
