@@ -35,6 +35,8 @@
         );
       }
      
+     str = JSON.stringify(allCards, null, 2);
+      $('#str').append(str);
     };
     
     var loadBoard = function() {
@@ -51,9 +53,8 @@
     
     var loadedLists = function(lists) {
       console.log("lists.legnth="+lists.length);
-      allCards.concat(lists);
-       str = JSON.stringify(allCards, null, 2);
-      $('#str').append(str);
+      allCards = allCards.concat(lists);
+       
       
       
       /*
