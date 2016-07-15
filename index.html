@@ -40,10 +40,15 @@
             main();
         };
         
-        var addLabel = function(card) {
+        var addLabelAndChecklist = function(card) {
             Trello.post('/cards/'+card.id+'/idLabels', {value: labelId}, 
                 function() { console.log("Add Label Success"); },
                 function() { console.log("Add Label Failed"); }
+            );
+            
+            Trello.post('/cards/'+card.id+'/checklists', {name: 'Return Checklist}, 
+                function(checklist) { console.log("Add Checklist Success "+ checklist.id); },
+                function() { console.log("Add Checklist Failed"); }
             );
         }
         
@@ -81,7 +86,7 @@
                 };
                 
                 Trello.post('/cards/', newCard, 
-                    addLabel,
+                    addLabelAndChecklist,
                     function() { console.log("Add Card Failed"); }
                 );
                 
