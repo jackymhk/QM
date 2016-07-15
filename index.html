@@ -61,7 +61,7 @@
 				$('input:checked[name=items]').each(function(index){
 					itemUrls += $(this).val() + "\n";
 				});
-				
+				/*
 				var newCard = {
 					name: "BF [" + $("#borrow_dt").val() + "]",
 					desc: "Borrow Date: " + $("#borrow_dt").val() + "\n" +
@@ -70,7 +70,14 @@
 						  "\n\n-------\n" + itemUrls,
 					idList: targetListId,
 					due: null
-				};
+				};*/
+				var newCard = 
+			  {name: "I just created a new card!22", 
+			  desc: "Using the Trello API is fun and easy!",
+			  pos: "top", 
+			  due: null,
+			  idList: destinationList
+			  };
 				
 				Trello.post('/cards/', newCard, 
 					function() { console.log("Add Card Success"); },
