@@ -68,7 +68,8 @@
 						  "Borrower: " + $("#borrower").val() + "\n" +
 						  "Return Date: " + $("#return_dt").val() + "\n" +
 						  "\n\n-------\n" + itemUrls,
-					idList: targetListId
+					idList: targetListId,
+					due: null
 				};
 				
 				Trello.post('/cards/', newCard, 
