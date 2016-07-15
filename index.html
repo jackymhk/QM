@@ -47,9 +47,18 @@
             );
             
             Trello.post('/cards/'+card.id+'/checklists', {name: 'Return Checklist'}, 
-                function(checklist) { console.log("Add Checklist Success "+ checklist.id); },
+                addChecklistItems,
                 function() { console.log("Add Checklist Failed"); }
             );
+        }
+        
+        var addChecklistItems = function(checklist) {
+            $('input:checked[name=items]').each(function(index){
+                Trello.post('/checklists/'+checklist.id+'/checkItems', {name: $(this).val()}, 
+                    function() { console.log("Add ChecklistItem Success"); },
+                    function() { console.log("Add ChecklistItem Failed"); }
+                );
+            });
         }
         
         function main() {
