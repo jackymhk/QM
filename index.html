@@ -50,17 +50,6 @@
 			});
 		}
 		
-		Trello.authorize({
-			  type: "popup",
-			  name: "HKG81 QM",
-			  scope: {
-				read: true,
-				write: true },
-			  expiration: "never",
-			  success: loadLists,
-			  error: function() { console.log("Failed authentication"); }
-			});
-		
 		$(function(){
 			$(".datepicker").datepicker({
 				format: 'yyyy/mm/dd',
@@ -83,15 +72,24 @@
 				};
 				
 				Trello.post('/cards/', newCard, 
-					success: function() { console.log("Add Card Success"); },
-					error: function() { console.log("Add Card Failed"); }
+					function() { console.log("Add Card Success"); },
+					function() { console.log("Add Card Failed"); }
 				);
 				
 				str = JSON.stringify(newCard, null, 2);
 				$('#str').append(str);
 			});
 			
-			
+			Trello.authorize({
+			  type: "popup",
+			  name: "HKG81 QM",
+			  scope: {
+				read: true,
+				write: true },
+			  expiration: "never",
+			  success: loadLists,
+			  error: function() { console.log("Failed authentication"); }
+			});
 			
 			//main();
 		});
