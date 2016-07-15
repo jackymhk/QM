@@ -21,9 +21,9 @@
       //Get the users boards
       Trello.get(
         '/boards/OPFLEvqH/lists',
-        { cards: 'open',
+       /* { cards: 'open',
           card_fields: 'name,labels'
-        },
+        },*/
         loadedLists,
         function() { console.log("Failed to load lists"); }
       );
