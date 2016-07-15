@@ -24,17 +24,6 @@
     var str = '';
     var count = 0;
     
-    Trello.authorize({
-      type: "popup",
-      name: "HKG81 QM",
-      scope: {
-        read: true,
-        write: false },
-      expiration: "never",
-      success: loadLists,
-      error: function() { console.log("Failed authentication"); }
-    });
-    
     var loadLists = function() {
       for (var i = 0; i < listIds.length; i++) {
         Trello.get(
@@ -58,6 +47,15 @@
       $('#str').append(str);
     }
     
-    
+    Trello.authorize({
+      type: "popup",
+      name: "HKG81 QM",
+      scope: {
+        read: true,
+        write: false },
+      expiration: "never",
+      success: loadLists,
+      error: function() { console.log("Failed authentication"); }
+    });
   </script>
 </html>
