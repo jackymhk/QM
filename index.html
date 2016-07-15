@@ -30,7 +30,7 @@
     };
     
     var loadedLists = function(lists) {
-      str = JSON.stringify(lists, null, 2);
+      str = JSON.stringify(lists, null, "\t");
       $('#str').append(str);
       
       $.each(lists, function(index, list) {
