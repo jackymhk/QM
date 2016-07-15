@@ -16,66 +16,13 @@
   <script src="https://api.trello.com/1/client.js?key=8a42b4468e08ca9f165c88d1327add61"></script>
   
   <script type="text/javascript">
-    var listId = ['5781353e2adfa093b77818bc'
+    var listIds = ['5781353e2adfa093b77818bc'
                  ,'578277ca48b1999e7ec8e9b8'
                  //,'5780d6699daac89930dde53f'
                 ];
-    var allCards = [];
+    var cards = [];
     var str = '';
     var count = 0;
-    
-    var loadLists = function() {
-      for (var i = 0; i < listId.length; i++) {
-        Trello.get(
-          '/lists/'+listId[i]+'/cards',
-         /* { cards: 'open',
-            card_fields: 'name,labels'
-          },*/
-          loadedLists,
-          function() { console.log("Failed to load lists"); }
-        );
-      }
-     console.log("111");
-     
-    };
-    
-    var loadBoard = function() {
-      //Get the users boards
-      Trello.get(
-        '/boards/OPFLEvqH/lists',
-       /* { cards: 'open',
-          card_fields: 'name,labels'
-        },*/
-        loadedLists,
-        function() { console.log("Failed to load lists"); }
-      );
-    };
-    
-    var loadedLists = function(lists) {
-      console.log("222");
-      console.log("3 lists.legnth="+lists.length);
-      allCards = allCards.concat(lists);
-       str = JSON.stringify(allCards, null, 2);
-      $('#str').append(str);
-      console.log("333");
-      count++;
-      if (count == listId.length)
-        finish();
-      /*
-      $.each(lists, function(index, list) {
-        var list_s = $("<p>" + list.name + "</p>");
-        $('#lists').append(list_s);
-        $.each(list.cards, function(index, card) {
-          var card_s = $("<p>Card: " + card.name + "</p>");
-          $('#lists').append(card_s);
-        });
-      });
-      */
-    };
-    
-    function finish() {
-      console.log("444");
-    }
     
     Trello.authorize({
       type: "popup",
@@ -87,5 +34,30 @@
       success: loadLists,
       error: function() { console.log("Failed authentication"); }
     });
+    
+    var loadLists = function() {
+      for (var i = 0; i < listIds.length; i++) {
+        Trello.get(
+          '/lists/'+listIds[i]+'/cards',
+          loadedLists,
+          function() { console.log("Failed to load lists"); }
+        );
+      }
+    };
+    
+    var loadedLists = function(lists) {
+      cards = cards.concat(lists);
+       
+      count++;
+      if (count == listIds.length)
+        main();
+    };
+    
+    function main() {
+      str = JSON.stringify(cards, null, 2);
+      $('#str').append(str);
+    }
+    
+    
   </script>
 </html>
