@@ -34,7 +34,7 @@
           function() { console.log("Failed to load lists"); }
         );
       }
-     
+     console.log("111");
      
     };
     
@@ -51,11 +51,12 @@
     };
     
     var loadedLists = function(lists) {
+      console.log("222");
       console.log("3 lists.legnth="+lists.length);
       allCards = allCards.concat(lists);
        str = JSON.stringify(allCards, null, 2);
       $('#str').append(str);
-      
+      console.log("333");
       
       /*
       $.each(lists, function(index, list) {
