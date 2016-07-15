@@ -16,7 +16,26 @@
   <script src="https://api.trello.com/1/client.js?key=8a42b4468e08ca9f165c88d1327add61"></script>
   
   <script type="text/javascript">
+    var listId = ['5781353e2adfa093b77818bc'
+                 //,'578277ca48b1999e7ec8e9b8'
+                 //,'5780d6699daac89930dde53f'
+                ];
+  
     var str = '';
+    
+    var loadLists = function() {
+      for (var i = 0; i < listId.length; i++) {
+        Trello.get(
+          '/lists/'+listId[i]+'/cards',
+         /* { cards: 'open',
+            card_fields: 'name,labels'
+          },*/
+          loadedLists,
+          function() { console.log("Failed to load lists"); }
+        );
+      }
+    };
+    
     var loadBoard = function() {
       //Get the users boards
       Trello.get(
@@ -32,7 +51,7 @@
     var loadedLists = function(lists) {
       str = JSON.stringify(lists, null, 2);
       $('#str').append(str);
-      
+      /*
       $.each(lists, function(index, list) {
         var list_s = $("<p>" + list.name + "</p>");
         $('#lists').append(list_s);
@@ -41,6 +60,7 @@
           $('#lists').append(card_s);
         });
       });
+      */
     };
     
     Trello.authorize({
@@ -50,7 +70,7 @@
         read: true,
         write: false },
       expiration: "never",
-      success: loadBoard,
+      success: loadLists,
       error: function() { console.log("Failed authentication"); }
     });
   </script>
