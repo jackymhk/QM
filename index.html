@@ -50,6 +50,7 @@
     };
     
     var loadedLists = function(lists) {
+      console.log("lists.legnth="+lists.length);
       allCards.concat(lists);
        str = JSON.stringify(allCards, null, 2);
       $('#str').append(str);
