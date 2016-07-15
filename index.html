@@ -119,7 +119,7 @@
         
         function hasLabel(card, labelId) {
         	for (var i = 0; i < card.labels.length; i++) {
-                console.log("card.name="+card.name+" label.name="+label.name+" label.id="+label.id+'|');
+                console.log("card.name="+card.name+" label.name="+card.labels[i].name+" label.id="+card.labels[i].id+'|');
                if (card.labels[i].id == labelId) 
                    return true;
             }
