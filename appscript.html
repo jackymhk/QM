@@ -54,6 +54,39 @@
             if (loadedListCount == listIds.length)
                 createItemCheckboxes();
         };
+        
+        var addCard = function() {
+            var itemUrls = "";
+            $('input:checked[name=items]').each(function(index){
+                itemUrls += $(this).val() + "\n";
+            });
+            
+            var newCard = {
+                name: "BF [" + $("#borrow_dt").val() + "]",
+                desc: "Borrow Date: " + $("#borrow_dt").val() + "\n" +
+                      "Borrower: " + $("#borrower").val() + "\n" +
+                      "Return Date: " + $("#return_dt").val() + "\n" +
+                      "\n\n-------\n" + itemUrls,
+                idList: targetListId,
+                due: null
+            };
+            
+            Trello.post('/cards/', newCard, 
+                addLabelAndChecklist,
+                function() { failAlert("Add Card Failed"); }
+            );
+            
+            var p_name = "BF [" + $("#borrow_dt").val() + "]";
+            var p_desc = "Borrow Date: " + $("#borrow_dt").val() + "\n" +
+                         "Borrower: " + $("#borrower").val() + "\n" +
+                         "Return Date: " + $("#return_dt").val() + "\n" +
+                         "\n\n-------\n" + itemUrls;
+            var p_idList = targetListId;
+            var p_due = "null";
+            
+            trelloGet('/cards?name='+p_name+'&desc='+p_desc+'&idList='+p_idList+'&due='+p_due, function() { successAlert("Add Card Success"); });
+        }
+        
         /*
         var addLabelAndChecklist = function(card) {
             Trello.post('/cards/'+card.id+'/idLabels', {value: labelId}, 
@@ -127,9 +160,8 @@
         
         function hasLabel(card, labelId) {
         	for (var i = 0; i < card.labels.length; i++) {
-                console.log("card.name="+card.name+" label.name="+card.labels[i].name+" label.id="+card.labels[i].id+'|');
-               if (card.labels[i].id == labelId) 
-                   return true;
+                if (card.labels[i].id == labelId) 
+                    return true;
             }
             return false;
         }
@@ -139,29 +171,9 @@
                 format: 'yyyy/mm/dd',
                 autoclose: true
             });
-            /*
-            $("#submit").on("click", function() {
-                var itemUrls = "";
-                $('input:checked[name=items]').each(function(index){
-                    itemUrls += $(this).val() + "\n";
-                });
-                
-                var newCard = {
-                    name: "BF [" + $("#borrow_dt").val() + "]",
-                    desc: "Borrow Date: " + $("#borrow_dt").val() + "\n" +
-                          "Borrower: " + $("#borrower").val() + "\n" +
-                          "Return Date: " + $("#return_dt").val() + "\n" +
-                          "\n\n-------\n" + itemUrls,
-                    idList: targetListId,
-                    due: null
-                };
-                
-                Trello.post('/cards/', newCard, 
-                    addLabelAndChecklist,
-                    function() { failAlert("Add Card Failed"); }
-                );
-            });
-            */
+            
+            $("#submit").on("click", addCard);
+            
             loadLists();
             
         });
