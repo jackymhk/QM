@@ -88,11 +88,11 @@
                 function() { failAlert("Add Card Failed"); }
             );
             */
-            
+            //
             
             //trelloGet('/cards?name='+p_name+'&desc='+p_desc+'&idList='+p_idList+'&due='+p_due, function() { successAlert("Add Card Success"); });
             
-            trelloPost('/cards/', newCard, function() { successAlert("Add Card Success"); });
+            trelloPost('/cards', newCard, function() { successAlert("Add Card Success"); });
         }
         
         /*
