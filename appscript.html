@@ -34,17 +34,12 @@
         var addChklstItemErrCount = 0;
         
         var loadLists = function() {
-          //for (var i = 0; i < listIds.length; i++) {
-            $.get("https://script.google.com/macros/s/AKfycbyhle-PX-nb9GK_a3z0Zv4hOFSP8mHeoaKe3Gws_KsFvX2pYf0/exec", 
-                //{ "trello_url": '/lists/'+listIds[i]+'/cards' },
-                { "trello_url": '/lists/5781353e2adfa093b77818bc/cards' },
-                //concatLists ff
-                function (data) {
-                	var s = JSON.stringify(data);
-            		$('#str').append(s);
-                }
-            );
-          //}
+            for (var i = 0; i < listIds.length; i++) {
+                $.get("https://script.google.com/macros/s/AKfycbyhle-PX-nb9GK_a3z0Zv4hOFSP8mHeoaKe3Gws_KsFvX2pYf0/exec", 
+                    { "trello_url": '/lists/'+listIds[i]+'/cards' },
+                    concatLists
+                );
+            }
         };
         
         var concatLists = function(lists) {
