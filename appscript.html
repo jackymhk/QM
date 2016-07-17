@@ -44,7 +44,7 @@
         }
         
         function trelloPost(url, payload, success) {
-            $.get(appscript_url, 
+            $.post(appscript_url, 
                 {   "trello_url": url,
                     "trello_opt": { "method": "post", 
                                     "payload" : payload }
