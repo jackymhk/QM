@@ -47,6 +47,7 @@
             $.get(appscript_url, 
                 {   "trello_url": url,
                     "trello_opt": { "method": "post", 
+                                    'muteHttpExceptions' : true,
                                     "payload" : payload }
                 },
                 success
