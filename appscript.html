@@ -23,9 +23,9 @@
                        '5780d6699daac89930dde53f', // List - 木櫃C
                        '57812d4492e051d3bd9dbdd1']; // List - 木櫃外
         var targetListId = '5788f02751619a8ccafcd442'; // List - Pending
-        var borrowLabelId = '5787b74784e677fd368578df'; //Label - 借用記錄
-        var damagedLabelId = '5780d65784e677fd36737247'; //Label - 損壞
-        var brokenLabelId = '5781209484e677fd3673e50a'; //Label - 不能使用
+        var borrowLabelId = '5787b74784e677fd368578df'; // Label - 借用記錄
+        var damagedLabelId = '5780d65784e677fd36737247'; // Label - 損壞
+        var brokenLabelId = '5781209484e677fd3673e50a'; // Label - 不能使用
         var cards = [];
         
         var loadedListCount = 0;
@@ -44,10 +44,10 @@
         }
         
         function trelloPost(url, payload, success) {
-            $.get(appscript_url, 
+            $.post(appscript_url, 
                 {   "trello_url": url,
-                    "trello_opt": { "method": "post", 
-                                    'muteHttpExceptions' : true,
+                    "trello_opt": { "method": "POST", 
+                                    //'muteHttpExceptions' : true,
                                     "payload" : payload }
                 },
                 success
