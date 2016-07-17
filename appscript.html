@@ -44,7 +44,7 @@
         }
         
         function trelloPost(url, payload, success) {
-            $.post(appscript_url, 
+            $.get(appscript_url, 
                 {   "trello_url": url,
                     "trello_opt": { "method": "post", 
                                     "payload" : payload }
@@ -92,7 +92,11 @@
             
             //trelloGet('/cards?name='+p_name+'&desc='+p_desc+'&idList='+p_idList+'&due='+p_due, function() { successAlert("Add Card Success"); });
             
-            trelloPost('/cards', newCard, function() { successAlert("Add Card Success"); });
+            trelloPost('/cards', newCard, succ_alert);
+        }
+        
+        var succ_alert = function () {
+        	successAlert("Add Card Success");
         }
         
         /*
