@@ -36,8 +36,13 @@
         var loadLists = function() {
           for (var i = 0; i < listIds.length; i++) {
             $.get("https://script.googleusercontent.com/macros/echo?user_content_key=yM1BMo0ECjtJGSJr6CCAP5qdjhVTrJUETp_GWmGLZe2ih4w2z0WPI6YdevSUdIgmNtfSMqq_s5Ku97AWroP8291rVVaXtEqKm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnCJathBTnXCBwfR01I0G19lN40DOzINg3mdqFqj6hpYP0t2krT2QVsYJ-g-l_6KXFsTvy1m0tLyP&lib=MY77X7E5F4whfQsT36nLl7C0IYhry-gtr", 
-                { "trello_url": '/lists/'+listIds[i]+'/cards' },
-                concatLists
+                //{ "trello_url": '/lists/'+listIds[i]+'/cards' },
+                { "trello_url": '/lists/5781353e2adfa093b77818bc/cards' },
+                //concatLists
+                function (data) {
+                	var s = JSON.stringify(data);
+            		$('#str').append(s);
+                }
             );
           }
         };
