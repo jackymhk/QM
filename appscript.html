@@ -60,7 +60,7 @@
             $('input:checked[name=items]').each(function(index){
                 itemUrls += $(this).val() + "\n";
             });
-            
+            /*
             var newCard = {
                 name: "BF [" + $("#borrow_dt").val() + "]",
                 desc: "Borrow Date: " + $("#borrow_dt").val() + "\n" +
@@ -75,7 +75,7 @@
                 addLabelAndChecklist,
                 function() { failAlert("Add Card Failed"); }
             );
-            
+            */
             var p_name = "BF [" + $("#borrow_dt").val() + "]";
             var p_desc = "Borrow Date: " + $("#borrow_dt").val() + "\n" +
                          "Borrower: " + $("#borrower").val() + "\n" +
