@@ -124,8 +124,16 @@
 				    $('#tent-items').append(checkbox);
                 } else if (hasLabel(card, yurtLabelId)) {
 				    $('#yurt-items').append(checkbox);
+                } else if (hasLabel(card, tentpegLabelId)) {
+				    $('#tentpeg-items').append(checkbox);
+                } else if (hasLabel(card, flyLabelId)) {
+				    $('#fly-items').append(checkbox);
+                } else if (hasLabel(card, cooksetLabelId)) {
+				    $('#cookset-items').append(checkbox);
+                } else if (hasLabel(card, stoveLabelId)) {
+				    $('#stove-items').append(checkbox);
                 } else {
-                    $('#items').append(checkbox);
+                    $('#other-items').append(checkbox);
                 }
             });
             button_checkbox_init();
@@ -257,13 +265,26 @@
                         	<img src="loading.gif"/>
                         </div>
                     </div>
-                    <div class="form-group" id="items">
-                    </div>
                     <div class="form-group" id="tent-items">
                         <div class="col-xs-12 col-sm-12" style="text-align:center;">Tent</div>
                     </div>
                     <div class="form-group" id="yurt-items">
                         <div class="col-xs-12 col-sm-12" style="text-align:center;">Yurt</div>
+                    </div>
+                    <div class="form-group" id="tentpeg-items">
+                        <div class="col-xs-12 col-sm-12" style="text-align:center;">Tent Peg</div>
+                    </div>
+                    <div class="form-group" id="fly-items">
+                        <div class="col-xs-12 col-sm-12" style="text-align:center;">Fly</div>
+                    </div>
+                    <div class="form-group" id="cookset-items">
+                        <div class="col-xs-12 col-sm-12" style="text-align:center;">Cookset</div>
+                    </div>
+                    <div class="form-group" id="stove-items">
+                        <div class="col-xs-12 col-sm-12" style="text-align:center;">Stove</div>
+                    </div>
+                    <div class="form-group" id="other-items">
+                        <div class="col-xs-12 col-sm-12" style="text-align:center;">Other</div>
                     </div>
                 </div>
                 <div class="panel-footer">
