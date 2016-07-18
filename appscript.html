@@ -82,28 +82,39 @@
                 due: null
             };
             
-            trelloPost('/cards', newCard, function() { successAlert("Add Card Success"); });
+            trelloPost('/cards', newCard, addLabelAndChecklist);
             
         }
         
-        /*
         var addLabelAndChecklist = function(card) {
-            Trello.post('/cards/'+card.id+'/idLabels', {value: labelId}, 
+            /*Trello.post('/cards/'+card.id+'/idLabels', {value: labelId}, 
                 function() { addLabelSuccCount++; addCardFinishing(); },
                 function() { addLabelErrCount++; addCardFinishing(); }
+            );*/
+            trelloPost('/cards/'+card.id+'/idLabels', 
+                { value: labelId }, 
+                function() { addLabelSuccCount++; addCardFinishing(); }
             );
             
-            Trello.post('/cards/'+card.id+'/checklists', {name: 'Return Checklist'}, 
+            /*Trello.post('/cards/'+card.id+'/checklists', {name: 'Return Checklist'}, 
                 addChecklistItems,
                 function() { failAlert("Add Checklist Failed"); }
+            );*/
+            trelloPost('/cards/'+card.id+'/checklists', 
+                { name: 'Return Checklist' }, 
+                addChecklistItems
             );
         }
         
         var addChecklistItems = function(checklist) {
             $('input:checked[name=items]').each(function(index){
-                Trello.post('/checklists/'+checklist.id+'/checkItems', {name: $(this).val()}, 
+                /*Trello.post('/checklists/'+checklist.id+'/checkItems', {name: $(this).val()}, 
                     function() { addChklstItemSuccCount++; addCardFinishing(); },
                     function() { addChklstItemErrCount++; addCardFinishing(); }
+                );*/
+                trelloPost('/checklists/'+checklist.id+'/checkItems', 
+                    { name: $(this).val() }, 
+                    function() { addChklstItemSuccCount++; addCardFinishing(); }
                 );
             });
         }
@@ -118,7 +129,7 @@
                 }
             }
         }
-        */
+        
         function successAlert(msg) {
             $("#alert-box").removeClass("hidden");
             $("#alert-box").addClass("alert-success");
@@ -132,9 +143,7 @@
         }
         
         function createItemCheckboxes() {
-            var s = JSON.stringify(cards);
-            $('#str').append(s);
-        	
+            	
             $.each(cards, function(index, card) {
                 var checkbox = '<div class="button-checkbox col-xs-6 col-sm-4" style="padding-bottom: 5px;"><button type="button" class="btn" data-color="success">'+card.name;
                 
@@ -191,8 +200,6 @@
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <span id="alert-msg"></span>
         </div>
-        
-        <pre id="str"></pre>
         
         <form name="form" class="form-horizontal">
             <div id="item_info" class="panel panel-default">
