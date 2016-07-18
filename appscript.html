@@ -25,7 +25,23 @@
         var borrowLabelId = '5787b74784e677fd368578df'; // Label - 借用記錄
         var damagedLabelId = '5780d65784e677fd36737247'; // Label - 損壞
         var brokenLabelId = '5781209484e677fd3673e50a'; // Label - 不能使用
+        
+        var tentLabelId = '5780d7d084e677fd3673747b'; // Label - A字營
+        var yurtLabelId = '578277dd84e677fd367594b9'; // Label - 蒙古包
+        var tentpegLabelId = '5781336184e677fd367404f3'; // Label - 營釘
+        var flyLabelId = '578131ea84e677fd36740230'; // Label - 天幕
+        var cooksetLabelId = '5781327284e677fd36740338'; // Label - Cookset
+        var stoveLabelId = '578136e584e677fd36740a0f'; // Label - 爐頭
+        var otherLabelId = '578133eb84e677fd367405aa'; // Label - 其他
+        
         var cards = [];
+        var tentCards = [];
+        var yurtCards = [];
+        var tentpegCards = [];
+        var flyCards = [];
+        var cooksetCards = [];
+        var stoveCards = [];
+        var otherCards = [];
         
         var loadedListCount = 0;
         var addLabelSuccCount = 0;
@@ -52,6 +68,19 @@
             .fail(fail);
         }
         
+        function successAlert(msg) {
+            $("#alert-box").removeClass("hidden");
+            $("#alert-box").addClass("alert-success");
+            $("#alert-msg").html(msg);
+        }
+        
+        function failAlert(msg) {
+            console.log("FAIL - " + msg);
+            $("#alert-box").removeClass("hidden");
+            $("#alert-box").addClass("alert-danger");
+            $("#alert-msg").html(msg);
+        }
+        
         var loadLists = function() {
             for (var i = 0; i < listIds.length; i++) {
                 trelloGet('/lists/'+listIds[i]+'/cards', 
@@ -70,6 +99,39 @@
                 createItemCheckboxes();
             }
         };
+        
+        function createItemCheckboxes() {
+            cards.sort( function(a, b) {
+                return a.name - b.name;
+            });
+            
+            $.each(cards, function(index, card) {
+                var checkbox = '<div class="button-checkbox col-xs-6 col-sm-4" style="padding-bottom: 5px;"><button type="button" class="btn" data-color="success">'+card.name;
+                
+                // have Damaged Label
+                if (hasLabel(card, damagedLabelId) == true) {
+                    checkbox += '&nbsp;<span style="border-right: 5px #c9302c solid;">&nbsp;</span>';
+                }
+                
+                // have Broken Label
+                if (hasLabel(card, brokenLabelId) == true) {
+                    checkbox += '&nbsp;<span style="border-right: 5px black solid;">&nbsp;</span>';
+                    
+                }
+                
+                checkbox += '</button><input type="checkbox" name="items" value="'+card.url+'" class="hidden" /></div>';
+				$('#items').append(checkbox);
+            });
+            button_checkbox_init();
+        }
+        
+        function hasLabel(card, labelId) {
+        	for (var i = 0; i < card.labels.length; i++) {
+                if (card.labels[i].id == labelId) 
+                    return true;
+            }
+            return false;
+        }
         
         var addCard = function() {
             var itemUrls = "";
@@ -96,20 +158,12 @@
         }
         
         var addLabelAndChecklist = function(card) {
-            /*Trello.post('/cards/'+card.id+'/idLabels', {value: labelId}, 
-                function() { addLabelSuccCount++; addCardFinishing(); },
-                function() { addLabelErrCount++; addCardFinishing(); }
-            );*/
             trelloPost('/cards/'+card.id+'/idLabels', 
                 { value: borrowLabelId }, 
                 function() { addLabelSuccCount++; addCardFinishing(); },
                 function() { addLabelErrCount++; addCardFinishing(); }
             );
             
-            /*Trello.post('/cards/'+card.id+'/checklists', {name: 'Return Checklist'}, 
-                addChecklistItems,
-                function() { failAlert("Add Checklist Failed"); }
-            );*/
             trelloPost('/cards/'+card.id+'/checklists', 
                 { name: 'Return Checklist' }, 
                 addChecklistItems,
@@ -119,10 +173,6 @@
         
         var addChecklistItems = function(checklist) {
             $('input:checked[name=items]').each(function(index){
-                /*Trello.post('/checklists/'+checklist.id+'/checkItems', {name: $(this).val()}, 
-                    function() { addChklstItemSuccCount++; addCardFinishing(); },
-                    function() { addChklstItemErrCount++; addCardFinishing(); }
-                );*/
                 trelloPost('/checklists/'+checklist.id+'/checkItems', 
                     { name: $(this).val() }, 
                     function() { addChklstItemSuccCount++; addCardFinishing(); },
@@ -140,51 +190,6 @@
                     successAlert("Add Card Successfully");
                 }
             }
-        }
-        
-        function successAlert(msg) {
-            $("#alert-box").removeClass("hidden");
-            $("#alert-box").addClass("alert-success");
-            $("#alert-msg").html(msg);
-        }
-        
-        function failAlert(msg) {
-            console.log("FAIL - " + msg);
-            $("#alert-box").removeClass("hidden");
-            $("#alert-box").addClass("alert-danger");
-            $("#alert-msg").html(msg);
-        }
-        
-        function createItemCheckboxes() {
-            	
-            $.each(cards, function(index, card) {
-                var checkbox = '<div class="button-checkbox col-xs-6 col-sm-4" style="padding-bottom: 5px;"><button type="button" class="btn" data-color="success">'+card.name;
-                
-                // have Damaged Label
-                if (hasLabel(card, damagedLabelId) == true) {
-                    //checkbox += '&nbsp;<span class="glyphicon glyphicon-warning-sign" aria-hidden="true" style="color:#c9302c;"></span>';
-                    checkbox += '&nbsp;<span style="border-right: 5px #c9302c solid;">&nbsp;</span>';
-                }
-                
-                // have Broken Label
-                if (hasLabel(card, brokenLabelId) == true) {
-                    //checkbox += '&nbsp;<span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>';
-                    checkbox += '&nbsp;<span style="border-right: 5px black solid;">&nbsp;</span>';
-                    
-                }
-                
-                checkbox += '</button><input type="checkbox" name="items" value="'+card.url+'" class="hidden" /></div>';
-				$('#items').append(checkbox);
-            });
-            button_checkbox_init();
-        }
-        
-        function hasLabel(card, labelId) {
-        	for (var i = 0; i < card.labels.length; i++) {
-                if (card.labels[i].id == labelId) 
-                    return true;
-            }
-            return false;
         }
         
         $(function(){
