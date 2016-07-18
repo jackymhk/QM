@@ -107,19 +107,19 @@
             });
             
             $.each(cards, function(index, card) {
-                var checkbox = '<div class="button-checkbox col-xs-6 col-sm-4" style="padding-bottom: 5px;"><button type="button" class="btn" data-color="success">'+card.name;
+                var checkbox = '<div class="button-checkbox col-xs-6 col-sm-4" style="padding-bottom: 5px;">';
                 
                 // have Damaged Label
                 if (hasLabel(card, damagedLabelId)) {
-                    checkbox += '&nbsp;<span style="border-right: 5px #c9302c solid;">&nbsp;</span>';
-                }
-                
+                    checkbox += '<button type="button" class="btn" data-color="success">'+card.name+'&nbsp;<span style="border-right: 5px #c9302c solid;">&nbsp;</span></button>';
                 // have Broken Label
-                if (hasLabel(card, brokenLabelId)) {
-                    checkbox += '&nbsp;<span style="border-right: 5px black solid;">&nbsp;</span>';
+                } else if (hasLabel(card, brokenLabelId)) {
+                    checkbox += '<button type="button" class="btn" data-color="success" disabled>'+card.name+'&nbsp;<span style="border-right: 5px black solid;">&nbsp;</span></button>';
+                } else {
+                    checkbox += '<button type="button" class="btn" data-color="success">'+card.name+'</button>';
                 }
                 
-                checkbox += '</button><input type="checkbox" name="items" value="'+card.url+'" class="hidden" /></div>';
+                checkbox += '<input type="checkbox" name="items" value="'+card.url+'" class="hidden" /></div>';
                 
                 if (hasLabel(card, tentLabelId)) {
 				    $('#tent-items').append(checkbox);
