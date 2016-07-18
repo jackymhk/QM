@@ -21,7 +21,7 @@
                        '578277ca48b1999e7ec8e9b8', // List - 木櫃B
                        '5780d6699daac89930dde53f', // List - 木櫃C
                        '57812d4492e051d3bd9dbdd1']; // List - 木櫃外
-        var targetListId = '5788f02751619a8ccafcd442'; // List - Pending
+        var pendingListId = '5788f02751619a8ccafcd442'; // List - Pending
         var borrowLabelId = '5787b74784e677fd368578df'; // Label - 借用記錄
         var damagedLabelId = '5780d65784e677fd36737247'; // Label - 損壞
         var brokenLabelId = '5781209484e677fd3673e50a'; // Label - 不能使用
@@ -43,6 +43,7 @@
         var addChklstItemErrCount = 0;
         
         function trelloGet(url, done, fail) {
+            //Trello.get(url, done, fail);
             $.get(appscript_url, {
                 "trello_url": url,
                 "method": "get"
@@ -52,6 +53,7 @@
         }
         
         function trelloPost(url, data, done, fail) {
+        	//Trello.post(url, data, done, fail);
         	$.get(appscript_url, {
         	    "trello_url": url,
         	    "method": "post",
@@ -160,7 +162,7 @@
                       "Borrower: " + $("#borrower").val() + "\n" +
                       "Return Date: " + $("#return_dt").val() + "\n" +
                       "\n\n-------\n" + itemUrls,
-                idList: targetListId,
+                idList: pendingListId,
                 due: null
             };
             
@@ -216,14 +218,21 @@
             $("#submit").on("click", addCard);
             
             loadLists();
+            /*
+            Trello.authorize({
+                type: "popup",
+                name: "HKG81 QM",
+                scope: {
+                    read: true,
+                    write: true },
+                expiration: "never",
+                success: loadLists,
+                error: function() { failAlert("Failed authentication"); }
+            });
+            */
             
         });
     </script>
-    <style>
-        .checked_item {
-            background-color:#266c8e;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
@@ -267,7 +276,7 @@
                         </div>
                     </div>
                     <div class="form-group hidden" id="tent-items">
-                        <label class="col-xs-12 col-sm-12">Tent</label>
+                        <label class="col-xs-4 col-sm-2">Tent</label>
                     </div>
                     <div class="form-group hidden" id="yurt-items">
                         <label class="col-xs-12 col-sm-12">Yurt</label>
