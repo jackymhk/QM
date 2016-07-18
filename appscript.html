@@ -109,18 +109,24 @@
                 var checkbox = '<div class="button-checkbox col-xs-6 col-sm-4" style="padding-bottom: 5px;"><button type="button" class="btn" data-color="success">'+card.name;
                 
                 // have Damaged Label
-                if (hasLabel(card, damagedLabelId) == true) {
+                if (hasLabel(card, damagedLabelId)) {
                     checkbox += '&nbsp;<span style="border-right: 5px #c9302c solid;">&nbsp;</span>';
                 }
                 
                 // have Broken Label
-                if (hasLabel(card, brokenLabelId) == true) {
+                if (hasLabel(card, brokenLabelId)) {
                     checkbox += '&nbsp;<span style="border-right: 5px black solid;">&nbsp;</span>';
-                    
                 }
                 
                 checkbox += '</button><input type="checkbox" name="items" value="'+card.url+'" class="hidden" /></div>';
-				$('#items').append(checkbox);
+                
+                if (hasLabel(card, tentLabelId)) {
+				    $('#tent-items').append(checkbox);
+                } else if (hasLabel(card, yurtLabelId)) {
+				    $('#yurt-items').append(checkbox);
+                } else {
+                    $('#items').append(checkbox);
+                }
             });
             button_checkbox_init();
         }
@@ -252,6 +258,12 @@
                         </div>
                     </div>
                     <div class="form-group" id="items">
+                    </div>
+                    <div class="form-group" id="tent-items">
+                        <div class="col-xs-12 col-sm-12" style="text-align:center;">Tent</div>
+                    </div>
+                    <div class="form-group" id="yurt-items">
+                        <div class="col-xs-12 col-sm-12" style="text-align:center;">Yurt</div>
                     </div>
                 </div>
                 <div class="panel-footer">
