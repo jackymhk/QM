@@ -102,7 +102,7 @@
         
         function createItemCheckboxes() {
             cards.sort( function(a, b) {
-                return a.name - b.name;
+                return a.name.localeCompare(b.name);
             });
             
             $.each(cards, function(index, card) {
