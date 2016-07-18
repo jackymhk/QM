@@ -11,10 +11,9 @@
     
     <script src="http://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
-    <script src="https://api.trello.com/1/client.js?key=8a42b4468e08ca9f165c88d1327add61"></script>
+    <!--<script src="https://api.trello.com/1/client.js?key=8a42b4468e08ca9f165c88d1327add61"></script>-->
     <script src="bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="button-checkbox.js" type="text/javascript"></script>
-    <!--<script src="cards.js" type="text/javascript"></script>-->
     
     <script type="text/javascript">
     	var appscript_url = 'https://script.google.com/macros/s/AKfycbyhle-PX-nb9GK_a3z0Zv4hOFSP8mHeoaKe3Gws_KsFvX2pYf0/exec';
@@ -66,8 +65,10 @@
             cards = cards.concat(lists);
             
             loadedListCount++;
-            if (loadedListCount == listIds.length)
+            if (loadedListCount == listIds.length) {
+                $('#loader').hide();
                 createItemCheckboxes();
+            }
         };
         
         var addCard = function() {
