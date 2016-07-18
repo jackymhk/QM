@@ -34,27 +34,31 @@
         var addChklstItemSuccCount = 0;
         var addChklstItemErrCount = 0;
         
-        function trelloGet(url, success) {
-            $.get(appscript_url, 
-                {   "trello_url": url,
-                    "method": "get"
-                },
-                success
-            );
+        function trelloGet(url, done, fail) {
+            $.get(appscript_url, {
+                "trello_url": url,
+                "method": "get"
+            })
+            .done(done)
+            .fail(fail);
         }
         
-        function trelloPost(url, data, success) {
+        function trelloPost(url, data, done, fail) {
         	$.get(appscript_url, {
         	    "trello_url": url,
         	    "method": "post",
         	    "data": JSON.stringify(data)
-        	},
-        	success);
+        	})
+            .done(done)
+            .fail(fail);
         }
         
         var loadLists = function() {
             for (var i = 0; i < listIds.length; i++) {
-                trelloGet('/lists/'+listIds[i]+'/cards', concatLists);
+                trelloGet('/lists/'+listIds[i]+'/cards', 
+                    concatLists, 
+                    failAlert("load list "+listIds[i]+" fail")
+                );
             }
         };
         
@@ -82,7 +86,7 @@
                 due: null
             };
             
-            trelloPost('/cards', newCard, addLabelAndChecklist);
+            trelloPost('/cards', newCard, addLabelAndChecklist, failAlert("Add Card Failed"));
             
         }
         
@@ -93,7 +97,8 @@
             );*/
             trelloPost('/cards/'+card.id+'/idLabels', 
                 { value: borrowLabelId }, 
-                function() { addLabelSuccCount++; addCardFinishing(); }
+                function() { addLabelSuccCount++; addCardFinishing(); },
+                function() { addLabelErrCount++; addCardFinishing(); }
             );
             
             /*Trello.post('/cards/'+card.id+'/checklists', {name: 'Return Checklist'}, 
@@ -102,7 +107,8 @@
             );*/
             trelloPost('/cards/'+card.id+'/checklists', 
                 { name: 'Return Checklist' }, 
-                addChecklistItems
+                addChecklistItems,
+                function() { failAlert("Add Checklist Failed"); }
             );
         }
         
@@ -114,7 +120,8 @@
                 );*/
                 trelloPost('/checklists/'+checklist.id+'/checkItems', 
                     { name: $(this).val() }, 
-                    function() { addChklstItemSuccCount++; addCardFinishing(); }
+                    function() { addChklstItemSuccCount++; addCardFinishing(); },
+                    function() { addChklstItemErrCount++; addCardFinishing(); }
                 );
             });
         }
@@ -227,6 +234,9 @@
                         <div class="col-xs-8 col-sm-10">
                             <input type="text" name="return_dt" id="return_dt" class="form-control datepicker" placeholder="yyyy/mm/dd" value=""/>
                         </div>
+                    </div>
+                    <div class="form-group" id="loader">
+                        <img src="loader.gif"/>
                     </div>
                     <div class="form-group" id="items">
                     </div>
