@@ -37,14 +37,14 @@
         function trelloGet(url, success) {
             $.get(appscript_url, 
                 {   "trello_url": url,
-                    "trello_opt": { "method": "GET" }
+                    "action": "get"
                 },
                 success
             );
         }
         
         function trelloPost(url, payload, success) {
-            $.post(appscript_url, 
+            $.get(appscript_url, 
                 {   "trello_url": url,
                     "trello_opt": { "method": "POST", 
                                     'muteHttpExceptions' : false,
@@ -93,7 +93,20 @@
             
             //trelloGet('/cards?name='+p_name+'&desc='+p_desc+'&idList='+p_idList+'&due='+p_due, function() { successAlert("Add Card Success"); });
             
-            trelloPost('/cards', newCard, succ_alert);
+            //trelloPost('/cards', newCard, succ_alert);
+            $.get(appscript_url, 
+                {   "trello_url": '/cards',
+                    "action": "add_card", 
+                    "name": "BF [" + $("#borrow_dt").val() + "]",
+	                "desc": "Borrow Date: " + $("#borrow_dt").val() + "\n" +
+	                      "Borrower: " + $("#borrower").val() + "\n" +
+	                      "Return Date: " + $("#return_dt").val() + "\n" +
+	                      "\n\n-------\n" + itemUrls,
+	                "idList": targetListId,
+	                "due": null
+                },
+                succ_alert
+            );
         }
         
         var succ_alert = function () {
