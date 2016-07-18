@@ -37,21 +37,19 @@
         function trelloGet(url, success) {
             $.get(appscript_url, 
                 {   "trello_url": url,
-                    "action": "get"
+                    "method": "get"
                 },
                 success
             );
         }
         
-        function trelloPost(url, payload, success) {
-            $.get(appscript_url, 
-                {   "trello_url": url,
-                    "trello_opt": { "method": "POST", 
-                                    'muteHttpExceptions' : false,
-                                    "payload" : payload }
-                },
-                success
-            );
+        function trelloPost(url, data, success) {
+        	$.get(appscript_url, {
+        	    "trello_url": url,
+        	    "method": "post",
+        	    "data": JSON.stringify(data)
+        	},
+        	success);
         }
         
         var loadLists = function() {
@@ -83,34 +81,9 @@
                 idList: targetListId,
                 due: null
             };
-            /*
-            Trello.post('/cards/', newCard, 
-                addLabelAndChecklist,
-                function() { failAlert("Add Card Failed"); }
-            );
-            */
-            //
             
-            //trelloGet('/cards?name='+p_name+'&desc='+p_desc+'&idList='+p_idList+'&due='+p_due, function() { successAlert("Add Card Success"); });
+            trelloPost('/cards', newCard, function() { successAlert("Add Card Success"); });
             
-            //trelloPost('/cards', newCard, succ_alert);
-            $.get(appscript_url, 
-                {   "trello_url": '/cards',
-                    "action": "add_card", 
-                    "name": "BF [" + $("#borrow_dt").val() + "]",
-	                "desc": "Borrow Date: " + $("#borrow_dt").val() + "\n" +
-	                      "Borrower: " + $("#borrower").val() + "\n" +
-	                      "Return Date: " + $("#return_dt").val() + "\n" +
-	                      "\n\n-------\n" + itemUrls,
-	                "idList": targetListId,
-	                "due": null
-                },
-                succ_alert
-            );
-        }
-        
-        var succ_alert = function () {
-        	successAlert("Add Card Success");
         }
         
         /*
