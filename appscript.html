@@ -57,7 +57,7 @@
             for (var i = 0; i < listIds.length; i++) {
                 trelloGet('/lists/'+listIds[i]+'/cards', 
                     concatLists, 
-                    failAlert("load list "+listIds[i]+" fail")
+                    function() { failAlert("load list "+listIds[i]+" fail"); }
                 );
             }
         };
@@ -86,7 +86,11 @@
                 due: null
             };
             
-            trelloPost('/cards', newCard, addLabelAndChecklist, failAlert("Add Card Failed"));
+            trelloPost('/cards', 
+                newCard, 
+                addLabelAndChecklist, 
+                function() { failAlert("Add Card Failed"); }
+            );
             
         }
         
@@ -144,6 +148,7 @@
         }
         
         function failAlert(msg) {
+            console.log("FAIL - " + msg);
             $("#alert-box").removeClass("hidden");
             $("#alert-box").addClass("alert-danger");
             $("#alert-msg").html(msg);
