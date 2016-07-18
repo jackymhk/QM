@@ -91,13 +91,13 @@
                 createItemCheckboxes();
                 
                 $('#loader').hide();
-                $('#tent-items').show();
-                $('#yurt-items').show();
-                $('#tentpeg-items').show();
-                $('#fly-items').show();
-                $('#cookset-items').show();
-                $('#stove-items').show();
-                $('#other-items').show();
+                $('#tent-items').removeClass('hidden');
+                $('#yurt-items').removeClass('hidden');
+                $('#tentpeg-items').removeClass('hidden');
+                $('#fly-items').removeClass('hidden');
+                $('#cookset-items').removeClass('hidden');
+                $('#stove-items').removeClass('hidden');
+                $('#other-items').removeClass('hidden');
             }
         };
         
@@ -289,11 +289,11 @@
                     </div>
                 </div>
                 <div class="panel-footer">
-					<div class="form-group">
-						<div class="col-xs-12 col-sm-12">
-							<button type="button" class="btn btn-default" id="submit">Submit</button>
-						</div>
-					</div>
+                    <div class="form-group">
+                        <div class="col-xs-12 col-sm-12">
+                            <button type="button" class="btn btn-default" id="submit">Submit</button>
+                        </div>
+                    </div>
 				</div>
             </div>
         </form>
