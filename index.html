@@ -8,9 +8,11 @@
     <title>HKG81 QM Dashboard</title>
     <link rel="stylesheet" media="screen" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="bootstrap-datepicker3.min.css"/>
+    <link rel="stylesheet" type="text/css" href="main.css"/>
     
     <script src="http://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.11.5/validator.min.js" type="text/javascript"></script>
     <!--<script src="https://api.trello.com/1/client.js?key=8a42b4468e08ca9f165c88d1327add61"></script>-->
     <script src="bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="button-checkbox.js" type="text/javascript"></script>
@@ -18,12 +20,9 @@
     
     <script type="text/javascript">
         var cards = [];
+        var param;
         
         var loadedListCount = 0;
-        var addLabelSuccCount = 0;
-        var addLabelErrCount = 0;
-        var addChklstItemSuccCount = 0;
-        var addChklstItemErrCount = 0;
         
         var loadLists = function() {
             for (var i = 0; i < listIds.length; i++) {
@@ -64,7 +63,7 @@
                     checkbox += '<button type="button" class="btn" data-color="success">'+card.name+'</button>';
                 }
                 
-                checkbox += '<input type="checkbox" name="items" value="'+card.url+'" class="hidden" /></div>';
+                checkbox += '<input type="checkbox" name="items" value="'+card.shortLink+'" class="hidden" data-name="'+card.name+'" data-url="'+card.url+'"/></div>';
                 
                 if (hasLabel(card, tentLabelId)) {
                     $('#tent-items').append(checkbox);
@@ -82,71 +81,91 @@
                     $('#other-items').append(checkbox);
                 }
             });
+            
+            if (param !== null) {
+                $.each(param.items, function(index, item) {
+                    $('input[name=items][value="'+item.shortLink+'"]').attr('checked', true);
+                });
+            }
             button_checkbox_init();
         }
         
-        var addCard = function() {
-            var itemUrls = "";
+        var serializeFormAndSubmit = function() {
+            var items = [];
             $('input:checked[name=items]').each(function(index){
-                itemUrls += $(this).val() + "\n";
+                var i = {
+                    name: $(this).data('name'),
+                    url: $(this).data('url'),
+                    shortLink: $(this).val()
+                };
+                items.push(i);
             });
             
-            var newCard = {
-                name: "BF [" + $("#borrow_dt").val() + "]",
-                desc: "Borrow Date: " + $("#borrow_dt").val() + "\n" +
-                      "Applicant: " + $("#applicant").val() + "\n" +
-                      "Return Date: " + $("#return_dt").val() + "\n" +
-                      "\n\n-------\n" + itemUrls,
-                idList: pendingListId,
-                due: null
+            var data = {
+                branch: $('input:checked[name=branch]').val(),
+                applicant: $('#applicant').val(),
+                post: $('#post').val(),
+                email: $('#email').val(),
+                activity: $('#activity').val(),
+                borrow_dt: $('#borrow_dt').val(),
+                return_dt: $('#return_dt').val(),
+                items: items,
+                remarks: $('#remarks').val()
             };
             
-            trelloPost('/cards', 
-                newCard, 
-                addLabelAndChecklist, 
-                function() { failAlert("Add Card Failed"); }
-            );
+            var param = encodeURIComponent(JSON.stringify(data));
+            window.location.href = "confirm.html?param="+param;
+        }
+        
+        var resetForm = function() {
+            $('input:checked[name=branch]').attr('checked', false);
+            $('#applicant').val("");
+            $('#post').val("");
+            $('#email').val("");
+            $('#activity').val("");
+            $('#borrow_dt').val("");
+            $('#return_dt').val("");
+            $('#remarks').val("");
+            $('input:checked[name=items]').attr('checked', false);
+            button_checkbox_reset();
+        }
+        
+        var loadUrlParam = function() {
+            param = JSON.parse(urlParam('param'));
             
-        }
-        
-        var addLabelAndChecklist = function(card) {
-            trelloPost('/cards/'+card.id+'/idLabels', 
-                { value: borrowLabelId }, 
-                function() { addLabelSuccCount++; addCardFinishing(); },
-                function() { addLabelErrCount++; addCardFinishing(); }
-            );
-            
-            trelloPost('/cards/'+card.id+'/checklists', 
-                { name: 'Return Checklist' }, 
-                addChecklistItems,
-                function() { failAlert("Add Checklist Failed"); }
-            );
-        }
-        
-        var addChecklistItems = function(checklist) {
-            $('input:checked[name=items]').each(function(index){
-                trelloPost('/checklists/'+checklist.id+'/checkItems', 
-                    { name: $(this).val() }, 
-                    function() { addChklstItemSuccCount++; addCardFinishing(); },
-                    function() { addChklstItemErrCount++; addCardFinishing(); }
-                );
-            });
-        }
-        
-        var addCardFinishing = function() {
-            var total = $('input:checked[name=items]').length + 1;
-            if (addLabelSuccCount + addLabelErrCount + addChklstItemSuccCount + addChklstItemErrCount >= total) {
-                if (addLabelErrCount > 0 || addChklstItemErrCount > 0) {
-                    failAlert("Add Card Failed");
-                } else {
-                    successAlert("Add Card Successfully");
-                }
+            if (param !== null) {
+                $('input[name=branch][value='+param.branch+']').attr('checked', true);
+                $('#applicant').val(param.applicant);
+                $('#post').val(param.post);
+                $('#email').val(param.email);
+                $('#activity').val(param.activity);
+                $('#borrow_dt').val(param.borrow_dt);
+                $('#return_dt').val(param.return_dt);
+                $('#remarks').val(param.remarks);
             }
         }
         
         $(function(){
-            $("#submit").on("click", addCard);
+            //$("#next").on("click", serializeFormAndSubmit);$('#myForm').validator()
+            $("#next").on("click", function() {
+                $('#borrow_form').validator('validate');
+                $('#borrow_form').submit();
+            });
             
+            //$('#borrow_form').on('submit', serializeFormAndSubmit);
+            $('#borrow_form').validator().on('submit', function (e) {
+                if (e.isDefaultPrevented()) {
+                    // handle the invalid form...
+                } else {
+                    // everything looks good!
+                    e.preventDefault();
+                    serializeFormAndSubmit();
+                }
+            });
+            
+            $("#reset").on("click", resetForm);
+            
+            loadUrlParam();
             loadLists();
             /*
             Trello.authorize({
@@ -172,56 +191,56 @@
             <span id="alert-msg"></span>
         </div>
         
-        <form name="form" class="form-horizontal">
+        <form name="form" id="borrow_form" class="form-horizontal" data-toggle="validator">
             <div id="item_info" class="panel panel-default">
                 <div class="panel-body">
                     <div class="form-group">
                         <label class="control-label col-xs-4 col-sm-2">支部</label>
                         <div class="col-xs-4 col-sm-2">
                             <label class="radio-inline ">
-                                <input type="radio" name="branch" value="scout"> 童軍
+                                <input type="radio" name="branch" value="scout" required> 童軍
                             </label>
                         </div>
                         <div class="col-xs-4 col-sm-2">
                             <label class="radio-inline ">
-                                <input type="radio" name="branch" value="venture"> 深資童軍
+                                <input type="radio" name="branch" value="venture" required> 深資童軍
                             </label>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="borrower" class="control-label col-xs-4 col-sm-2">申請人</label>
+                        <label for="applicant" class="control-label col-xs-4 col-sm-2">申請人</label>
                         <div class="col-xs-8 col-sm-10">
-                            <input type="text" name="applicant" id="applicant" class="form-control" value=""/>
+                            <input type="text" name="applicant" id="applicant" class="form-control" value="" required/>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="borrower" class="control-label col-xs-4 col-sm-2">職位</label>
+                        <label for="post" class="control-label col-xs-4 col-sm-2">職位</label>
                         <div class="col-xs-8 col-sm-10">
-                            <input type="text" name="post" id="post" class="form-control" value=""/>
+                            <input type="text" name="post" id="post" class="form-control" value="" required/>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="borrower" class="control-label col-xs-4 col-sm-2">E-mail</label>
+                        <label for="email" class="control-label col-xs-4 col-sm-2">E-mail</label>
                         <div class="col-xs-8 col-sm-10">
-                            <input type="text" name="email" id="email" class="form-control" value=""/>
+                            <input type="email" name="email" id="email" class="form-control" value="" required/>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="activity" class="control-label col-xs-4 col-sm-2">活動</label>
                         <div class="col-xs-8 col-sm-10">
-                            <input type="text" name="activity" id="activity" class="form-control" value=""/>
+                            <input type="text" name="activity" id="activity" class="form-control" value="" required/>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="borrow_dt" class="control-label col-xs-4 col-sm-2">借用日期</label>
                         <div class="col-xs-8 col-sm-10">
-                            <input type="text" name="borrow_dt" id="borrow_dt" class="form-control datepicker" placeholder="yyyy/mm/dd" value=""/>
+                            <input type="text" name="borrow_dt" id="borrow_dt" class="form-control datepicker" placeholder="yyyy/mm/dd" value="" required/>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="return_dt" class="control-label col-xs-4 col-sm-2">歸還日期</label>
                         <div class="col-xs-8 col-sm-10">
-                            <input type="text" name="return_dt" id="return_dt" class="form-control datepicker" placeholder="yyyy/mm/dd" value=""/>
+                            <input type="text" name="return_dt" id="return_dt" class="form-control datepicker" placeholder="yyyy/mm/dd" value="" required/>
                         </div>
                     </div>
                     <div class="form-group" id="loader">
@@ -274,7 +293,9 @@
                 <div class="panel-footer">
                     <div class="form-group">
                         <div class="col-xs-12 col-sm-12">
-                            <button type="button" class="btn btn-default" id="submit">Submit</button>
+                            <button type="button" class="btn btn-default" id="reset">重設</button>
+                            &nbsp;&nbsp;
+                            <button type="button" class="btn btn-default" id="next">下一步</button>
                         </div>
                     </div>
                 </div>

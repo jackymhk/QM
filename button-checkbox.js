@@ -65,3 +65,35 @@ function button_checkbox_init() {
         init();
     });
 }
+
+function button_checkbox_reset() {
+    $('.button-checkbox').each(function () {
+
+        // Settings
+        var $widget = $(this),
+            $button = $widget.find('button'),
+            $checkbox = $widget.find('input:checkbox'),
+            color = $button.data('color');
+
+        // Actions
+        function updateDisplay() {
+            var isChecked = $checkbox.is(':checked');
+
+            // Set the button's state
+            $button.data('state', (isChecked) ? "on" : "off");
+
+            // Update the button's color
+            if (isChecked) {
+                $button
+                    .removeClass('btn-default')
+                    .addClass('btn-' + color + ' active');
+            }
+            else {
+                $button
+                    .removeClass('btn-' + color + ' active')
+                    .addClass('btn-default');
+            }
+        }
+        updateDisplay();
+    });
+}
