@@ -6,9 +6,26 @@
 	padding-bottom: 5px;
 }
 
+.list-title {
+    font-weight: 700;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    /*border-bottom: 1px solid #bbb;*/
+}
+
 /*
  * Override bootstrap.min.css
  */
+body { 
+    padding-top: 110px;
+}
+
+@media (min-width: 768px) { 
+    body { 
+        padding-top: 70px;
+    }
+}
+ 
 .panel-footer {
     background-color: #eee;
 }
@@ -30,7 +47,6 @@
 @media (min-width: 768px) {
     .navbar-nav {
         float: left;
-        margin: 0;
     }
 }
 
@@ -59,6 +75,7 @@
     box-shadow: 0 8px 6px -6px #999;
     border: 0px;
 }
+
 .navbar-default {
     background-color: #026aa7;
     border-color: #fff;
