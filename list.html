@@ -28,7 +28,7 @@
         var showCards = function(data) {
             $('#loader').remove();
             $('.items').removeClass('hidden');
-            
+
             cards = data;
             cards.sort( function(a, b) {
                 /*
@@ -44,29 +44,28 @@
 
             $.each(cards, function(index, card) {
                 if (!hasLabel(card, Label.borrowRec) && !hasLabel(card, Label.repairRec)) {
-                    var html = '<div class="col-xs-12 col-sm-4 col-md-3">'+
+                    var html = '<div class="list-card col-xs-12 col-sm-4 col-md-3">'+
                                '<a href="#">' +
-                               '<div id="'+card.id+'" class="panel panel-default">' +
-                               '<div class="panel-body">' +
-                               card.name;
+                               '<div id="'+card.id+'" class="list-item">' +
+                               card.name +
+                               '<span class="glyphicon glyphicon-option-vertical pull-right" aria-hidden="true" style="color: #cccccc;"></span>' +
+                               '<span class="pull-right">&nbsp;&nbsp;&nbsp;</span>';
                     // Borrowed
                     if (isBorrowed(card))
-                        html += '&nbsp;&nbsp;<span class="glyphicon glyphicon-share-alt pull-right" aria-hidden="true" style="color: #5cb85c;"></span>';
-                        
+                        html += '<span class="glyphicon glyphicon-share-alt pull-right" aria-hidden="true" style="color: #5cb85c;"></span>';
+
                     // have Damaged Label
                     if (hasLabel(card, Label.damaged))
-                        html += '&nbsp;&nbsp;<span class="glyphicon glyphicon-alert pull-right" aria-hidden="true" style="color: #d9534f;"></span>';
-                        
+                        html += '<span class="glyphicon glyphicon-alert pull-right" aria-hidden="true" style="color: #d9534f;"></span>';
+
                     // have Broken Label
                     if (hasLabel(card, Label.broken))
-                        html += '&nbsp;&nbsp;<span class="glyphicon glyphicon-ban-circle pull-right" aria-hidden="true" style="color: #d9534f;"></span>';
-                    
+                        html += '<span class="glyphicon glyphicon-ban-circle pull-right" aria-hidden="true" style="color: #d9534f;"></span>';
+
                     html += '</div>' +
-                            '</div>' +
                             '</a>' +
                             '</div>';
 
-                    //$('#card-container').append(html);
                     if (hasLabel(card, Label.tent)) {
                         $('#tent-items').append(html);
                     } else if (hasLabel(card, Label.yurt)) {
@@ -82,6 +81,13 @@
                     } else {
                         $('#other-items').append(html);
                     }
+
+                    $('#'+card.id).on('click', function() {
+                        var desc = card.desc.replace(/\n/g, '<br>');
+                        $('#card-modal').modal('show');
+                        $('#card-modal-title').html(card.name);
+                        $('#card-modal-body').html(desc);
+                    });
                 }
             });
         }
@@ -106,7 +112,7 @@
     </nav>
 
     <div class="container">
-        
+
         <div class="alert alert-dismissible hidden" role="alert" id="alert-box">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <span id="alert-msg"></span>
@@ -143,7 +149,24 @@
             <div class="list-title">其他</div>
             <div id="other-items" class="row"></div>
         </div>
-        
+
     </div>
+
+    <div id="card-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 id="card-modal-title" class="modal-title"></h4>
+                </div>
+                <div id="card-modal-body" class="modal-body">
+                    <p>One fine body&hellip;</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 </body>
 </html>
