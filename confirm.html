@@ -13,7 +13,6 @@
     <script src="http://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
     <script src="js/bootstrap-datepicker.min.js" type="text/javascript"></script>
-    <script src="js/button-checkbox.js" type="text/javascript"></script>
     <script src="js/loadingoverlay.min.js" type="text/javascript"></script>
     <script src="js/main.js" type="text/javascript"></script>
 
@@ -48,20 +47,30 @@
             $.each(param.items, function(index, item) {
                 itemUrls += item.url + "\n";
             });
-
-            var return_dt2 = param.return_dt.split("/");
+            
+            var returnDtArray = param.return_dt.split("/");
+            
+            var branchDesc;
+            if (param.branch == 'scout')
+                branchDesc = '童軍';
+            else if (param.branch == 'venture')
+                branchDesc = '深資童軍';
+                
             var newCard = {
                 name: "借表 [" + param.borrow_dt + "]",
-                desc: "支部: " + param.branch + "\n" +
+                desc: "支部: " + branchDesc + "\n" +
                       "申請人: " + param.applicant + "\n" +
                       "職位: " + param.post + "\n" +
                       "E-mail: " + param.email + "\n" +
                       "活動: " + param.activity + "\n" +
                       "借用日期: " + param.borrow_dt + "\n" +
                       "歸還日期: " + param.return_dt + "\n" +
-                      "\n\n-------\n" + itemUrls,
-                idList: pendingListId,
-                due: new Date(return_dt2[0], return_dt2[1]-1, return_dt2[2])
+                      "\n\n-------\n" + 
+                      itemUrls +
+                      "\n\n-------\n" +
+                      "備註: \n" + param.remarks,
+                idList: ListId.pending,
+                due: new Date(returnDtArray[0], returnDtArray[1]-1, returnDtArray[2])
             };
 
             trelloPost('/cards',
@@ -74,7 +83,7 @@
 
         var addLabelAndChecklist = function(card) {
             trelloPost('/cards/'+card.id+'/idLabels',
-                { value: borrowLabelId },
+                { value: LabelId.borrowRec },
                 function() { addLabelSuccCount++; addCardFinishing(); },
                 function() { addLabelErrCount++; addCardFinishing(); }
             );
@@ -156,9 +165,20 @@
     </script>
 </head>
 <body>
-    <div class="container">
-        <h1>HKG81 QM</h1>
+    <nav class="navbar navbar-default navbar-static-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">HKG81 QM</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li><a href="#">首頁</a></li>
+                <li class="active"><a href="index.html">借用申請</a></li>
+                <li><a href="#">物資清單</a></li>
+            </ul>
+        </div>
+    </nav>
 
+    <div class="container">
         <div class="hidden alert" role="alert" id="alert-box">
             <span id="alert-msg"></span>
         </div>
