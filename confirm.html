@@ -69,7 +69,7 @@
                       itemUrls +
                       "\n\n-------\n" +
                       "備註: \n" + param.remarks,
-                idList: ListId.pending,
+                idList: List.pending,
                 due: new Date(returnDtArray[0], returnDtArray[1]-1, returnDtArray[2])
             };
 
@@ -83,7 +83,7 @@
 
         var addLabelAndChecklist = function(card) {
             trelloPost('/cards/'+card.id+'/idLabels',
-                { value: LabelId.borrowRec },
+                { value: Label.borrowRec },
                 function() { addLabelSuccCount++; addCardFinishing(); },
                 function() { addLabelErrCount++; addCardFinishing(); }
             );
@@ -165,7 +165,7 @@
     </script>
 </head>
 <body>
-    <nav class="navbar navbar-default navbar-static-top">
+    <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container-fluid">
             <div class="navbar-header">
                 <a class="navbar-brand" href="#">HKG81 QM</a>
@@ -173,7 +173,7 @@
             <ul class="nav navbar-nav">
                 <li><a href="#">首頁</a></li>
                 <li class="active"><a href="index.html">借用申請</a></li>
-                <li><a href="#">物資清單</a></li>
+                <li><a href="list.html">物資清單</a></li>
             </ul>
         </div>
     </nav>

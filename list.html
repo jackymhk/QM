@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>HKG81 QM Dashboard</title>
+    <link rel="stylesheet" media="screen" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-datepicker3.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/main.css"/>
+
+    <script src="http://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
+    <!--<script src="https://api.trello.com/1/client.js?key=8a42b4468e08ca9f165c88d1327add61"></script>-->
+    <script src="js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="js/main.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        var cards = [];
+        var loadCards = function() {
+            trelloGet('/boards/'+Board+'/cards',
+                showCards,
+                function() { failAlert("load cards fail"); }
+            );
+        };
+
+        var showCards = function(data) {
+            $('#loader').remove();
+            $('.items').removeClass('hidden');
+            
+            cards = data;
+            cards.sort( function(a, b) {
+                /*
+                var a_seq = getItemLabelSeq(a);
+                var b_seq = getItemLabelSeq(b);
+                if (a_seq != b_seq) {
+                    return (a_seq > b_seq ? 1 : -1);
+                } else {
+                */
+                    return a.name.localeCompare(b.name);
+                //}
+            });
+
+            $.each(cards, function(index, card) {
+                if (!hasLabel(card, Label.borrowRec) && !hasLabel(card, Label.repairRec)) {
+                    var html = '<div class="col-xs-12 col-sm-4 col-md-3">'+
+                               '<a href="#">' +
+                               '<div id="'+card.id+'" class="panel panel-default">' +
+                               '<div class="panel-body">' +
+                               card.name;
+                    // Borrowed
+                    if (isBorrowed(card))
+                        html += '&nbsp;&nbsp;<span class="glyphicon glyphicon-share-alt pull-right" aria-hidden="true" style="color: #5cb85c;"></span>';
+                        
+                    // have Damaged Label
+                    if (hasLabel(card, Label.damaged))
+                        html += '&nbsp;&nbsp;<span class="glyphicon glyphicon-alert pull-right" aria-hidden="true" style="color: #d9534f;"></span>';
+                        
+                    // have Broken Label
+                    if (hasLabel(card, Label.broken))
+                        html += '&nbsp;&nbsp;<span class="glyphicon glyphicon-ban-circle pull-right" aria-hidden="true" style="color: #d9534f;"></span>';
+                    
+                    html += '</div>' +
+                            '</div>' +
+                            '</a>' +
+                            '</div>';
+
+                    //$('#card-container').append(html);
+                    if (hasLabel(card, Label.tent)) {
+                        $('#tent-items').append(html);
+                    } else if (hasLabel(card, Label.yurt)) {
+                        $('#yurt-items').append(html);
+                    } else if (hasLabel(card, Label.tentpeg)) {
+                        $('#tentpeg-items').append(html);
+                    } else if (hasLabel(card, Label.fly)) {
+                        $('#fly-items').append(html);
+                    } else if (hasLabel(card, Label.cookset)) {
+                        $('#cookset-items').append(html);
+                    } else if (hasLabel(card, Label.stove)) {
+                        $('#stove-items').append(html);
+                    } else {
+                        $('#other-items').append(html);
+                    }
+                }
+            });
+        }
+
+        $(function(){
+            loadCards();
+        });
+    </script>
+</head>
+<body>
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">HKG81 QM</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li><a href="#">首頁</a></li>
+                <li><a href="index.html">借用申請</a></li>
+                <li class="active"><a href="list.html">物資清單</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <div class="alert alert-dismissible hidden" role="alert" id="alert-box">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <span id="alert-msg"></span>
+        </div>
+
+        <div id="loader" style="text-align:center;">
+            <img src="img/loading.gif"/>
+        </div>
+        <div class="hidden items">
+            <div class="list-title">A字營</div>
+            <div id="tent-items" class="row"></div>
+        </div>
+        <div class="hidden items">
+            <div class="list-title">蒙古包</div>
+            <div id="yurt-items" class="row"></div>
+        </div>
+        <div class="hidden items">
+            <div class="list-title">營釘</div>
+            <div id="tentpeg-items" class="row"></div>
+        </div>
+        <div class="hidden items">
+            <div class="list-title">天幕</div>
+            <div id="fly-items" class="row"></div>
+        </div>
+        <div class="hidden items">
+            <div class="list-title">炊具</div>
+            <div id="cookset-items" class="row"></div>
+        </div>
+        <div class="hidden items">
+            <div class="list-title">爐頭</div>
+            <div id="stove-items" class="row"></div>
+        </div>
+        <div class="hidden items">
+            <div class="list-title">其他</div>
+            <div id="other-items" class="row"></div>
+        </div>
+        
+    </div>
+</body>
+</html>

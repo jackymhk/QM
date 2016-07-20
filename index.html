@@ -24,10 +24,10 @@
         var loadedListCount = 0;
 
         var loadLists = function() {
-            for (var i = 0; i < ListId.inSchool.length; i++) {
-                trelloGet('/lists/'+ListId.inSchool[i]+'/cards',
+            for (var i = 0; i < List.inSchool.length; i++) {
+                trelloGet('/lists/'+List.inSchool[i]+'/cards',
                     concatLists,
-                    function() { failAlert("load list "+ListId.inSchool[i]+" fail"); }
+                    function() { failAlert("load list "+List.inSchool[i]+" fail"); }
                 );
             }
         };
@@ -36,7 +36,7 @@
             cards = cards.concat(lists);
 
             loadedListCount++;
-            if (loadedListCount == ListId.inSchool.length) {
+            if (loadedListCount == List.inSchool.length) {
                 createItemCheckboxes();
 
                 $('#loader').hide();
@@ -53,10 +53,10 @@
                 var checkbox = '<div class="button-checkbox col-xs-6 col-sm-4 col-md-3" style="padding-bottom: 5px;">';
 
                 // have Damaged Label
-                if (hasLabel(card, LabelId.damaged)) {
+                if (hasLabel(card, Label.damaged)) {
                     checkbox += '<button type="button" class="btn" data-color="success">'+card.name+'&nbsp;<span style="border-right: 5px #c9302c solid;">&nbsp;</span></button>';
                 // have Broken Label
-                } else if (hasLabel(card, LabelId.broken)) {
+                } else if (hasLabel(card, Label.broken)) {
                     checkbox += '<button type="button" class="btn" data-color="success" disabled>'+card.name+'&nbsp;<span style="border-right: 5px black solid;">&nbsp;</span></button>';
                 // Normal
                 } else {
@@ -65,17 +65,17 @@
 
                 checkbox += '<input type="checkbox" name="items" value="'+card.shortLink+'" class="hidden" data-name="'+card.name+'" data-url="'+card.url+'"/></div>';
 
-                if (hasLabel(card, LabelId.tent)) {
+                if (hasLabel(card, Label.tent)) {
                     $('#tent-items').append(checkbox);
-                } else if (hasLabel(card, LabelId.yurt)) {
+                } else if (hasLabel(card, Label.yurt)) {
                     $('#yurt-items').append(checkbox);
-                } else if (hasLabel(card, LabelId.tentpeg)) {
+                } else if (hasLabel(card, Label.tentpeg)) {
                     $('#tentpeg-items').append(checkbox);
-                } else if (hasLabel(card, LabelId.fly)) {
+                } else if (hasLabel(card, Label.fly)) {
                     $('#fly-items').append(checkbox);
-                } else if (hasLabel(card, LabelId.cookset)) {
+                } else if (hasLabel(card, Label.cookset)) {
                     $('#cookset-items').append(checkbox);
-                } else if (hasLabel(card, LabelId.stove)) {
+                } else if (hasLabel(card, Label.stove)) {
                     $('#stove-items').append(checkbox);
                 } else {
                     $('#other-items').append(checkbox);
@@ -269,26 +269,22 @@
     </script>
 </head>
 <body>
-    <nav class="navbar navbar-default navbar-static-top">
+    <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container-fluid">
-            <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
                 <a class="navbar-brand" href="#">HKG81 QM</a>
             </div>
-            <!--
-            <p class="navbar-text navbar-right">123</p>
-            -->
             <ul class="nav navbar-nav">
                 <li><a href="#">首頁</a></li>
                 <li class="active"><a href="index.html">借用申請</a></li>
-                <li><a href="#">物資清單</a></li>
+                <li><a href="list.html">物資清單</a></li>
             </ul>
         </div>
     </nav>
 
     <div class="container">
         
-        <div class="hidden alert alert-dismissible" role="alert" id="alert-box">
+        <div class="alert alert-dismissible hidden" role="alert" id="alert-box">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <span id="alert-msg"></span>
         </div>
