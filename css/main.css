@@ -13,19 +13,45 @@
     /*border-bottom: 1px solid #bbb;*/
 }
 
+.list-item {
+	color: #333;
+	font-weight: 400;
+	margin-bottom: 20px;
+    border: 1px solid #ddd;
+	padding: 15px;
+    /*border-radius: 4px;*/
+    -webkit-box-shadow: 0 3px 2px rgba(0,0,0,.05);
+    box-shadow: 0 3px 2px rgba(0,0,0,.05);
+}
+
+.list-card>a>.list-item, .list-card>a:focus>.list-item {
+	color: #333;
+	background-color: #fff;
+}
+
+.list-card>a:hover>.list-item {
+	color: #333;
+	background-color: #eee;
+	border: 1px solid #ccc;
+}
+
+.list-card>a:hover, .list-card>a:focus {
+	text-decoration: none;
+}
+
 /*
  * Override bootstrap.min.css
  */
-body { 
+body {
     padding-top: 110px;
 }
 
-@media (min-width: 768px) { 
-    body { 
+@media (min-width: 768px) {
+    body {
         padding-top: 70px;
     }
 }
- 
+
 .panel-footer {
     background-color: #eee;
 }
@@ -34,7 +60,7 @@ body {
     background-color: #ddd;
 }
 /*
-@media (min-width: 768px) { 
+@media (min-width: 768px) {
     .twoRow .navbar-2ndRow {
         clear: left;
     }
@@ -107,3 +133,12 @@ body {
     color: #fff;
 }
 
+.modal-dialog {
+    margin: 110px 10px;
+}
+
+@media (min-width: 768px) {
+	.modal-dialog {
+	    margin: 70px auto;
+	}
+}
