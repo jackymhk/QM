@@ -54,10 +54,10 @@
 
                 // have Damaged Label
                 if (hasLabel(card, Label.damaged)) {
-                    checkbox += '<button type="button" class="btn" data-color="success">'+card.name+'&nbsp;<span style="border-right: 5px #c9302c solid;">&nbsp;</span></button>';
+                    checkbox += '<button type="button" class="btn" data-color="success">'+card.name+'&nbsp;<span style="border-right: 5px #d9534f solid;">&nbsp;</span></button>';
                 // have Broken Label
                 } else if (hasLabel(card, Label.broken)) {
-                    checkbox += '<button type="button" class="btn" data-color="success" disabled>'+card.name+'&nbsp;<span style="border-right: 5px black solid;">&nbsp;</span></button>';
+                    checkbox += '<button type="button" class="btn" data-color="success" disabled>'+card.name+'&nbsp;<span style="border-right: 5px #666666 solid;">&nbsp;</span></button>';
                 // Normal
                 } else {
                     checkbox += '<button type="button" class="btn" data-color="success">'+card.name+'</button>';
@@ -343,9 +343,9 @@
                     </div>
                     <div class="form-group">
                         <div class="col-xs-12" style="text-align:right; font-size: 10px; color: #666666;">
-                            <span style="border-right: 5px #c9302c solid;">&nbsp;</span>&nbsp;&nbsp;損壞
+                            <span style="border-right: 5px #d9534f solid;">&nbsp;</span>&nbsp;&nbsp;損壞
                             &nbsp;&nbsp;&nbsp;&nbsp;
-                            <span style="border-right: 5px #000000 solid;">&nbsp;</span>&nbsp;&nbsp;不能使用
+                            <span style="border-right: 5px #666666 solid;">&nbsp;</span>&nbsp;&nbsp;不能使用
                         </div>
                     </div>
                     <div class="form-group" id="loader">
