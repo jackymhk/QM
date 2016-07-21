@@ -54,10 +54,10 @@
 
                 // have Damaged Label
                 if (hasLabel(card, Label.damaged)) {
-                    checkbox += '<button type="button" class="btn" data-color="success">'+card.name+'&nbsp;<span style="border-right: 5px #d9534f solid;">&nbsp;</span></button>';
+                    checkbox += '<button type="button" class="btn" data-color="success">'+card.name+'<span class="item-lbl-small item-lbl-damaged">&nbsp;</span></button>';
                 // have Broken Label
                 } else if (hasLabel(card, Label.broken)) {
-                    checkbox += '<button type="button" class="btn" data-color="success" disabled>'+card.name+'&nbsp;<span style="border-right: 5px #666666 solid;">&nbsp;</span></button>';
+                    checkbox += '<button type="button" class="btn" data-color="success" disabled>'+card.name+'<span class="item-lbl-small item-lbl-broken">&nbsp;</span></button>';
                 // Normal
                 } else {
                     checkbox += '<button type="button" class="btn" data-color="success">'+card.name+'</button>';
@@ -92,7 +92,7 @@
 
         var validateFrom = function() {
             var isValid = true;
-            
+
             // Check required
             $('[required]').each(function(index){
                 if ($(this).is(':text, [type=email]')) {
@@ -111,10 +111,10 @@
                     var helpBlock = '<span class="help-block">必須選擇。</span>';
                     var radioName = $(this).attr('name');
                     var $firstRadio = $(':radio[name='+radioName+']:first');
-                    
+
                     if ($(':radio:checked[name='+radioName+']').length == 0) {
                         $(this).closest('.form-group').addClass('has-error');
-                        
+
                         if ($firstRadio.closest('.radio-inline').next('.help-block').length == 0) {
                             $firstRadio.closest('.radio-inline').after(helpBlock);
                         }
@@ -125,7 +125,7 @@
                     }
                 }
             });
-            
+
             // Check items
             if ($(':checkbox:checked[name=items]').length == 0) {
                 var helpBlock = '<span class="help-block" style="color:#a94442;">必須至少選擇一項。</span>';
@@ -138,7 +138,7 @@
                 $('.items').removeClass('has-error');
                 $('.items:first').prev('.help-block').remove();
             }
-            
+
             // Check email
             $('[type=email]').each(function(index){
                 var helpBlock = '<span class="help-block">格式不正確。</span>';
@@ -155,7 +155,7 @@
                     }
                 }
             });
-            
+
             // Check Date
             if ($('#borrow_dt').val() != "" && $('#return_dt').val()) {
                 var borrowDtArray = $('#borrow_dt').val().split("/");
@@ -170,21 +170,21 @@
                     var helpBlock = '<span class="help-block">借用日期必須在歸還日期之前。</span>';
                     $('#borrow_dt').closest('.form-group').addClass('has-error');
                     $('#return_dt').closest('.form-group').addClass('has-error');
-                        
+
                     if ($('#borrow_dt').next('.help-block').length == 0) {
                         $('#borrow_dt').after(helpBlock);
                     }
                     isValid = false;
                 }
             }
-            
+
             // Change focus
             var $firstErrorInput = $(".has-error:first :input:first");
             if ($firstErrorInput.length !== 0) {
                 $('html, body').animate({scrollTop: $firstErrorInput.offset().top - 20}, 250);
                 $firstErrorInput.focus();
             }
-            
+
             return isValid;
         }
 
@@ -248,7 +248,7 @@
                 if (validateFrom())
                     serializeFormAndSubmit();
             });
-            
+
             $("#reset").on("click", resetForm);
 
             loadUrlParam();
@@ -283,7 +283,7 @@
     </nav>
 
     <div class="container">
-        
+
         <div class="alert alert-dismissible hidden" role="alert" id="alert-box">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <span id="alert-msg"></span>
@@ -343,9 +343,9 @@
                     </div>
                     <div class="form-group">
                         <div class="col-xs-12" style="text-align:right; font-size: 10px; color: #666666;">
-                            <span style="border-right: 5px #d9534f solid;">&nbsp;</span>&nbsp;&nbsp;損壞
-                            &nbsp;&nbsp;&nbsp;&nbsp;
-                            <span style="border-right: 5px #666666 solid;">&nbsp;</span>&nbsp;&nbsp;不能使用
+                            <span class="item-lbl-key"><span class="item-lbl item-lbl-damaged">&nbsp;</span>損壞</span>
+                            <span class="item-lbl-key"><span class="item-lbl item-lbl-broken">&nbsp;</span>不能使用</span>
+
                         </div>
                     </div>
                     <div class="form-group" id="loader">
