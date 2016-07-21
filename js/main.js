@@ -71,7 +71,7 @@ function failAlert(msg) {
 
 function hasLabel(card, Label) {
     for (var i = 0; i < card.labels.length; i++) {
-        if (card.labels[i].id == Label) 
+        if (card.labels[i].id == Label)
             return true;
     }
     return false;
