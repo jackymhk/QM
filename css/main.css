@@ -10,7 +10,6 @@
     font-weight: 700;
     padding-bottom: 5px;
     margin-bottom: 10px;
-    /*border-bottom: 1px solid #bbb;*/
 }
 
 .list-item {
@@ -19,7 +18,6 @@
 	margin-bottom: 20px;
     border: 1px solid #ddd;
 	padding: 15px;
-    /*border-radius: 4px;*/
     -webkit-box-shadow: 0 3px 2px rgba(0,0,0,.05);
     box-shadow: 0 3px 2px rgba(0,0,0,.05);
 }
@@ -37,6 +35,13 @@
 
 .list-card>a:hover, .list-card>a:focus {
 	text-decoration: none;
+}
+
+.card-modal-cover {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #e5e5e5;
+    background-color: #eeeeee;
 }
 
 /*
