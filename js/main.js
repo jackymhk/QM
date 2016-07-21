@@ -177,3 +177,37 @@ function button_checkbox_reset() {
         $checkbox.triggerHandler('change');
     });
 }
+
+// Custom url replacement function
+function cardUrlReplace(autolinker, match, cards) {
+    switch( match.getType() ) {
+        case 'url' :
+            var anchorText = match.getAnchorText().split('/');
+            if (anchorText[0] == 'trello.com' && anchorText[1] == 'c') {
+                return '<a href="'+match.getUrl()+'">'+getCardNameByUrl(cards, match.getUrl())+'</a>';
+            } else {
+                return true;
+            }
+
+        case 'email' :
+            return true;
+
+        case 'phone' :
+            return true;
+
+        case 'twitter' :
+            return true;
+
+        case 'hashtag' :
+            return true;
+    }
+}
+
+function getCardNameByUrl(cards, url) {
+    for (var i = 0; i < cards.length; i++) {
+        if (cards[i].url == url) {
+            return cards[i].name;
+        }
+    }
+    return url;
+}
