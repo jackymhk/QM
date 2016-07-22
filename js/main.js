@@ -203,6 +203,56 @@ function cardUrlReplace(autolinker, match, cards) {
     }
 }
 
+// Custom url replacement function
+function cardUrlToName(autolinker, match, cards) {
+    switch( match.getType() ) {
+        case 'url' :
+            var anchorText = match.getAnchorText().split('/');
+            if (anchorText[0] == 'trello.com' && anchorText[1] == 'c') {
+                return getCardNameByUrl(cards, match.getUrl());
+            } else {
+                return true;
+            }
+
+        case 'email' :
+            return true;
+
+        case 'phone' :
+            return true;
+
+        case 'twitter' :
+            return true;
+
+        case 'hashtag' :
+            return true;
+    }
+}
+
+// Custom url remove function
+function cardUrlRemove(autolinker, match, cards) {
+    switch( match.getType() ) {
+        case 'url' :
+            var anchorText = match.getAnchorText().split('/');
+            if (anchorText[0] == 'trello.com' && anchorText[1] == 'c') {
+                return '';
+            } else {
+                return true;
+            }
+
+        case 'email' :
+            return true;
+
+        case 'phone' :
+            return true;
+
+        case 'twitter' :
+            return true;
+
+        case 'hashtag' :
+            return true;
+    }
+}
+
 function getCardNameByUrl(cards, url) {
     for (var i = 0; i < cards.length; i++) {
         if (cards[i].url == url) {
