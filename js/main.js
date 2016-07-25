@@ -125,7 +125,7 @@ function isEmail(email) {
 
 $(function(){
     $(".datepicker").datepicker({
-        format: 'yyyy/mm/dd',
+        format: 'yyyy-mm-dd',
         autoclose: true
     });
 });
