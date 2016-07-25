@@ -47,17 +47,17 @@
             $.each(param.items, function(index, item) {
                 itemUrls += item.url + "\n";
             });
-            
+
             var returnDtArray = param.return_dt.split("/");
-            
+
             var branchDesc;
             if (param.branch == 'scout')
                 branchDesc = '童軍';
             else if (param.branch == 'venture')
                 branchDesc = '深資童軍';
-                
+
             var newCard = {
-                name: "借表 [" + param.borrow_dt + "]",
+                name: param.borrow_dt + " [" + param.activity + "]",
                 desc: "支部: " + branchDesc + "\n" +
                       "申請人: " + param.applicant + "\n" +
                       "職位: " + param.post + "\n" +
@@ -65,7 +65,7 @@
                       "活動: " + param.activity + "\n" +
                       "借用日期: " + param.borrow_dt + "\n" +
                       "歸還日期: " + param.return_dt + "\n" +
-                      "\n\n-------\n" + 
+                      "\n\n-------\n" +
                       itemUrls +
                       "\n\n-------\n" +
                       "備註: \n" + param.remarks,

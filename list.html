@@ -44,7 +44,8 @@
 
                 if ( (hasLabel(card, Label.borrowRec) || hasLabel(card, Label.repairRec)) &&
                         card.idList != List.pending && card.idList != List.completed &&
-                        (dueDt != null && dueDt < new Date())
+                        dueDt != null && dueDt < new Date() &&
+                        card.badges.checkItemsChecked < card.badges.checkItems
                         ) {
                     if (card.checklists.length > 0) {
                         for (var i = 0; i < card.checklists[0].checkItems.length; i++) {
@@ -59,7 +60,7 @@
             // Autolinker: utility to change url text to link
             var autolinker = new Autolinker({
                 replaceFn : function(autolinker, match) {
-                    // Custom function to get Trello card's name from card url 
+                    // Custom function to get Trello card's name from card url
                     return cardUrlReplace(autolinker, match, cards);
                 }
             });
@@ -74,7 +75,7 @@
                     var drying = (card.idList == List.drying);
                     var damaged = hasLabel(card, Label.damaged);
                     var broken = hasLabel(card, Label.broken);
-                    
+
                     // Add classes for filtering
                     var filterClass = '';
                     if (borrowed)
@@ -91,7 +92,7 @@
                         filterClass += ' filter-broken';
                     if (!broken && !damaged && !drying && !repair && !late && !borrowed)
                         filterClass += ' filter-available';
-                        
+
                     // Add status label
                     var status = '';
                     if (broken)
@@ -109,7 +110,7 @@
                     if (!broken && !damaged && !drying && !repair && !late && !borrowed)
                         status += '<span class="glyphicon glyphicon-option-vertical pull-right" aria-hidden="true" style="color: #cccccc;"></span>';
 
-                    
+
                     // Build DOM
                     var html = '<div class="list-card col-xs-12 col-sm-4 col-md-3 '+filterClass+'">'+
                                '<div id="'+card.id+'" class="list-item">' +
@@ -179,7 +180,7 @@
                 }
             });
         }
-        
+
         var toggleFilterStatus = function() {
             $('.list-card').hide();
             $('.status-toggle:checked').each(function(index) {
@@ -188,7 +189,7 @@
             });
             toggleFilterActive();
         }
-        
+
         var toggleFilterType = function() {
             $('.items').hide();
             $('.type-toggle:checked').each(function(index) {
@@ -197,7 +198,7 @@
             });
             toggleFilterActive();
         }
-        
+
         var toggleFilterActive = function() {
             if ($('.status-toggle').not(':checked').length > 0 || $('.type-toggle').not(':checked').length > 0) {
                 $('#filter-btn').addClass('filter-active');
@@ -205,7 +206,7 @@
                 $('#filter-btn').removeClass('filter-active');
             }
         }
-        
+
         var selectAll = function() {
             var target = $(this).data('target');
             $(target).prop('checked', true);
@@ -214,7 +215,7 @@
             else
                 toggleFilterType();
         }
-        
+
         var unselectAll = function() {
             var target = $(this).data('target');
             $(target).prop('checked', false);
@@ -226,7 +227,7 @@
 
         $(function(){
             loadCards();
-            
+
             $('#filter-modal .status-toggle:checkbox').on('change', toggleFilterStatus);
             $('#filter-modal .type-toggle:checkbox').on('change', toggleFilterType);
             $('#filter-modal .select-all').on('click', selectAll);
@@ -324,7 +325,7 @@
             </div>
         </div>
     </div>
-    
+
     <div id="filter-modal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -340,43 +341,43 @@
                             <button type="button" class="btn btn-xs btn-link unselect-all" data-target=".status-toggle">全部取消</button>
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox" id="toggle-available" class="status-toggle" data-target=".filter-available" checked> 
+                                    <input type="checkbox" id="toggle-available" class="status-toggle" data-target=".filter-available" checked>
                                     <span class="label item-lbl-label item-lbl-available">可借用</span>
                                 </label>
                             </div>
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox" id="toggle-borrowed" class="status-toggle" data-target=".filter-borrowed" checked> 
+                                    <input type="checkbox" id="toggle-borrowed" class="status-toggle" data-target=".filter-borrowed" checked>
                                     <span class="label item-lbl-label item-lbl-borrowed">借出</span>
                                 </label>
                             </div>
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox" id="toggle-late" class="status-toggle" data-target=".filter-late" checked> 
+                                    <input type="checkbox" id="toggle-late" class="status-toggle" data-target=".filter-late" checked>
                                     <span class="label item-lbl-label item-lbl-late">逾時未還</span>
                                 </label>
                             </div>
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox" id="toggle-repair" class="status-toggle" data-target=".filter-repair" checked> 
+                                    <input type="checkbox" id="toggle-repair" class="status-toggle" data-target=".filter-repair" checked>
                                     <span class="label item-lbl-label item-lbl-repair">維修中</span>
                                 </label>
                             </div>
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox" id="toggle-drying" class="status-toggle" data-target=".filter-drying" checked> 
+                                    <input type="checkbox" id="toggle-drying" class="status-toggle" data-target=".filter-drying" checked>
                                     <span class="label item-lbl-label item-lbl-drying">晾曬中</span>
                                 </label>
                             </div>
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox" id="toggle-damaged" class="status-toggle" data-target=".filter-damaged" checked> 
+                                    <input type="checkbox" id="toggle-damaged" class="status-toggle" data-target=".filter-damaged" checked>
                                     <span class="label item-lbl-label item-lbl-damaged">損壞</span>
                                 </label>
                             </div>
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox" id="toggle-broken" class="status-toggle" data-target=".filter-broken" checked> 
+                                    <input type="checkbox" id="toggle-broken" class="status-toggle" data-target=".filter-broken" checked>
                                     <span class="label item-lbl-label item-lbl-broken">不能使用</span>
                                 </label>
                             </div>

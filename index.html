@@ -32,21 +32,21 @@
 
             cards = data;
             cards.sort( function(a, b) {
-                return a.name.localeCompare(b.name);
+                return b.name.localeCompare(a.name);
             });
 
             // Autolinker: utility to change url text to link
             var autolinker = new Autolinker({
                 replaceFn : function(autolinker, match) {
-                    // Custom function to get Trello card's name from card url 
+                    // Custom function to get Trello card's name from card url
                     return cardUrlToName(autolinker, match, cards);
                 }
             });
-            
+
             // Autolinker: utility to change url text to link
             var urlRemover = new Autolinker({
                 replaceFn : function(autolinker, match) {
-                    // Custom function to remove card url 
+                    // Custom function to remove card url
                     return cardUrlRemove(autolinker, match, cards);
                 }
             });
@@ -57,42 +57,37 @@
                     var dueDt = null;
                     if (card.due != null)
                         dueDt = new Date(card.due.substring(0,4), card.due.substring(5,7)-1, card.due.substring(8,10));
-                    
+
                     // Check card status
                     var pending = (card.idList == List.pending);
                     var completed = (card.idList == List.completed);
-                    var repair = (card.idList == List.repair);
-                    var overdue = (dueDt != null && dueDt < new Date());
-                    var active = (!pending && !completed && !repair && !overdue);
-                    
+                    var overdue = (dueDt != null && dueDt < new Date() && card.badges.checkItemsChecked < card.badges.checkItems);
+                    var active = (!pending && !completed && !overdue);
+
                     // Add classes for filtering
                     var filterClass = '';
                     if (pending)
                         filterClass += ' filter-pending';
                     if (completed)
                         filterClass += ' filter-completed';
-                    if (repair)
-                        filterClass += ' filter-repair';
                     if (overdue)
                         filterClass += ' filter-overdue';
                     if (active)
                         filterClass += ' filter-active';
-                        
+
                     // Label
                     var label = '';
-                    if (pending)
-                        label += '<span class="label item-lbl-label item-lbl-pending">待定</span>';
-                    if (completed)
-                        label += '<span class="label item-lbl-label item-lbl-completed">完成</span>';
-                    if (repair)
-                        label += '<span class="label item-lbl-label item-lbl-repair">維修中</span>';
                     if (overdue)
                         label += '<span class="label item-lbl-label item-lbl-overdue">逾時未還</span>';
+                    if (pending)
+                        label += '<span class="label item-lbl-label item-lbl-pending">待處理</span>';
                     if (active)
                         label += '<span class="label item-lbl-label item-lbl-active">進行中</span>';
+                    if (completed)
+                        label += '<span class="label item-lbl-label item-lbl-completed">完成</span>';
                     if (label != '')
                         label = '<p>' + label + '</p>';
-                        
+
                     // Format Description
                     var desc = card.desc;
                     desc = desc.replace(/\n\n\n/g, '<br>'); // \n\n\n -> <br>
@@ -104,7 +99,7 @@
                     }
                     desc = desc.replace(/(<br>)+/g, '<br>'); // <br><br><br> -> <br>
                     desc = desc.replace(/-------<br>-------/g, '-------'); // <br><br><br> -> <br>
-                    
+
                     // Checklist
                     var checklist = '';
                     if (card.checklists.length > 0) {
@@ -119,13 +114,22 @@
                             checklist += '</div>';
                         }
                     }
-                    
+
+                    var borrowDt = card.name.substring(0, 10);
+                    var dueDt = card.due.substring(0, 10);
+                    var activity = card.name.substring(12, card.name.length-1);
+
                     // Build DOM
                     var html = '<div class="list-card col-xs-12 col-sm-6 col-md-4 '+filterClass+'">'+
                                '<div id="'+card.id+'" class="list-request">' +
                                '<div class="list-request-header">' +
                                label +
-                               '<strong>' + card.name + '</strong>' +
+                               '<strong>' + activity + '</strong>' +
+                               '<div class="list-request-subheader">' +
+                               '<span class="glyphicon glyphicon-time" aria-hidden="true"></span> ' + borrowDt + ' - ' + dueDt +
+                               '&nbsp;&nbsp;&nbsp;&nbsp;' +
+                               '<span class="glyphicon glyphicon-check" aria-hidden="true"></span> ' + card.badges.checkItemsChecked+'/'+card.badges.checkItems +
+                               '</div>' +
                                '</div>' +
                                '<div class="list-request-body">' +
                                desc +
@@ -134,16 +138,16 @@
                                '<p><strong>清單:</string></p>' +
                                checklist +
                                '</div>' +
-                               '<div class="list-request-footer" data-status="close">' + 
-                               '<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>' + 
+                               '<div class="list-request-footer" data-status="close">' +
+                               '<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>' +
                                '</div>' +
                                '</div>' +
                                '</div>';
 
                     $('#requests').append(html);
-                    
+
                     $('#'+card.id+' .list-request-body').hide();
-                    
+
                     $('#'+card.id+' .list-request-footer').on('click', function() {
                         var status = $(this).data('status');
                         if (status == "close") {
@@ -158,15 +162,15 @@
                             $(this).data('status', 'close');
                         }
                     });
-                    
-                    
+
+
                 }
             });
         }
-        
+
         $(function(){
             loadCards();
-            
+
             $('#add-btn').on('click', function() {
                 window.location.href = "add.html";
             });
@@ -193,7 +197,7 @@
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <span id="alert-msg"></span>
         </div>
-        
+
         <p>
             <button type="button" class="btn btn-info" id="add-btn">
                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 新增借用申請
