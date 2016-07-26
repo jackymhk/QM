@@ -28,152 +28,84 @@
 
         var showCards = function(data) {
             $('#loader').remove();
-            $('#requests').removeClass('hidden');
+            $('#dashboard').removeClass('hidden');
 
             cards = data;
-            cards.sort( function(a, b) {
-                return b.name.localeCompare(a.name);
-            });
-
-            // Autolinker: utility to change url text to link
-            var autolinker = new Autolinker({
-                replaceFn : function(autolinker, match) {
-                    // Custom function to get Trello card's name from card url
-                    return cardUrlToName(autolinker, match, cards);
-                }
-            });
-
-            // Autolinker: utility to change url text to link
-            var urlRemover = new Autolinker({
-                replaceFn : function(autolinker, match) {
-                    // Custom function to remove card url
-                    return cardUrlRemove(autolinker, match, cards);
-                }
-            });
-
-            // Create a DOM for each card
+            
+            var borrowed_count = 0;
+            var overdue_count = 0;
+            var repair_count = 0;
+            var drying_count = 0;
+            var damaged_count = 0;
+            var broken_count = 0;
+            
+            
+            // Find out overdue items
+            var OverdueCardUrls = [];
             $.each(cards, function(index, card) {
-                if (hasLabel(card, Label.borrowRec) || hasLabel(card, Label.repairRec)) {
-                    var dueDt = null;
-                    if (card.due != null)
-                        dueDt = new Date(card.due.substring(0,4), card.due.substring(5,7)-1, card.due.substring(8,10));
+                var dueDt = null;
+                if (card.due != null)
+                    dueDt = new Date(card.due.substring(0,4), card.due.substring(5,7)-1, card.due.substring(8,10));
 
-                    // Check card status
-                    var pending = (card.idList == List.pending);
-                    var completed = (card.idList == List.completed);
-                    var overdue = (dueDt != null && dueDt < new Date() && card.badges.checkItemsChecked < card.badges.checkItems);
-                    var active = (!pending && !completed && !overdue);
-
-                    // Add classes for filtering
-                    var filterClass = '';
-                    if (pending)
-                        filterClass += ' filter-pending';
-                    if (completed)
-                        filterClass += ' filter-completed';
-                    if (overdue)
-                        filterClass += ' filter-overdue';
-                    if (active)
-                        filterClass += ' filter-active';
-
-                    // Label
-                    var label = '';
-                    if (overdue)
-                        label += '<span class="label item-lbl-label item-lbl-overdue">逾時未還</span>';
-                    if (pending)
-                        label += '<span class="label item-lbl-label item-lbl-pending">待處理</span>';
-                    if (active)
-                        label += '<span class="label item-lbl-label item-lbl-active">進行中</span>';
-                    if (completed)
-                        label += '<span class="label item-lbl-label item-lbl-completed">完成</span>';
-                    if (label != '')
-                        label = '<p>' + label + '</p>';
-
-                    // Format Description
-                    var desc = card.desc;
-                    desc = desc.replace(/\n\n\n/g, '<br>'); // \n\n\n -> <br>
-                    desc = desc.replace(/\n/g, '<br>'); // \n -> <br>
-                    if (hasLabel(card, Label.borrowRec)) {
-                        desc = urlRemover.link(desc); // url -> ''
-                    } else {
-                        desc = autolinker.link(desc); // url -> <a href="url">name</a>
-                    }
-                    desc = desc.replace(/(<br>)+/g, '<br>'); // <br><br><br> -> <br>
-                    desc = desc.replace(/-------<br>-------/g, '-------'); // <br><br><br> -> <br>
-
-                    // Checklist
-                    var checklist = '';
+                if ( (hasLabel(card, Label.borrowRec) || hasLabel(card, Label.repairRec)) &&
+                        card.idList != List.pending && card.idList != List.completed &&
+                        dueDt != null && dueDt < new Date() &&
+                        card.badges.checkItemsChecked < card.badges.checkItems
+                        ) {
                     if (card.checklists.length > 0) {
                         for (var i = 0; i < card.checklists[0].checkItems.length; i++) {
-                            checklist += '<div>';
                             if (card.checklists[0].checkItems[i].state == 'incomplete') {
-                                checklist += '<span class="glyphicon glyphicon-remove" aria-hidden="true" style="color: #d9534f"></span> ';
-                            } else {
-                                checklist += '<span class="glyphicon glyphicon-ok" aria-hidden="true" style="color: #5cb85c"></span> ';
+                                OverdueCardUrls.push(card.checklists[0].checkItems[i].name);
                             }
-                            checklist += autolinker.link(card.checklists[0].checkItems[i].name);
-                            checklist += '</div>';
                         }
                     }
-
-                    var borrowDt = card.name.substring(0, 10);
-                    var dueDt = card.due.substring(0, 10);
-                    var activity = card.name.substring(12, card.name.length-1);
-
-                    // Build DOM
-                    var html = '<div class="list-card col-xs-12 col-sm-6 col-md-4 '+filterClass+'">'+
-                               '<div id="'+card.id+'" class="list-request">' +
-                               '<div class="list-request-header">' +
-                               label +
-                               '<strong>' + activity + '</strong>' +
-                               '<div class="list-request-subheader">' +
-                               '<span class="glyphicon glyphicon-time" aria-hidden="true"></span> ' + borrowDt + ' - ' + dueDt +
-                               '&nbsp;&nbsp;&nbsp;&nbsp;' +
-                               '<span class="glyphicon glyphicon-check" aria-hidden="true"></span> ' + card.badges.checkItemsChecked+'/'+card.badges.checkItems +
-                               '</div>' +
-                               '</div>' +
-                               '<div class="list-request-body">' +
-                               desc +
-                               '</div>' +
-                               '<div class="list-request-body">' +
-                               '<p><strong>清單:</string></p>' +
-                               checklist +
-                               '</div>' +
-                               '<div class="list-request-footer" data-status="close">' +
-                               '<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>' +
-                               '</div>' +
-                               '</div>' +
-                               '</div>';
-
-                    $('#requests').append(html);
-
-                    $('#'+card.id+' .list-request-body').hide();
-
-                    $('#'+card.id+' .list-request-footer').on('click', function() {
-                        var status = $(this).data('status');
-                        if (status == "close") {
-                            $('#'+card.id+' .list-request-body').show('slow');
-                            $('#'+card.id+' .list-request-footer .glyphicon').removeClass('glyphicon-menu-down');
-                            $('#'+card.id+' .list-request-footer .glyphicon').addClass('glyphicon-menu-up');
-                            $(this).data('status', 'open');
-                        } else {
-                            $('#'+card.id+' .list-request-body').hide('slow');
-                            $('#'+card.id+' .list-request-footer .glyphicon').addClass('glyphicon-menu-down');
-                            $('#'+card.id+' .list-request-footer .glyphicon').removeClass('glyphicon-menu-up');
-                            $(this).data('status', 'close');
-                        }
-                    });
-
-
                 }
             });
+            
+            // Loop each cards
+            $.each(cards, function(index, card) {
+                if (!hasLabel(card, Label.borrowRec) && !hasLabel(card, Label.repairRec)) {
+                    // Check card status
+                    var borrowed = isBorrowed(card);
+                    var overdue = ($.inArray(card.url, OverdueCardUrls) > -1);
+                    var repair = (card.idList == List.repair);
+                    var drying = (card.idList == List.drying);
+                    var damaged = hasLabel(card, Label.damaged);
+                    var broken = hasLabel(card, Label.broken);
+                    
+                    if (borrowed)
+                        borrowed_count++;
+                    if (overdue)
+                        overdue_count++;
+                    if (repair)
+                        repair_count++;
+                    if (drying)
+                        drying_count++;
+                    if (damaged)
+                        damaged_count++;
+                    if (broken)
+                        broken_count++;
+                }
+            });
+            
+            $('#borrowed').html(borrowed_count);
+            $('#overdue').html(overdue_count);
+            $('#repair').html(repair_count);
+            $('#drying').html(drying_count);
+            $('#damaged').html(damaged_count);
+            $('#broken').html(broken_count);
         }
 
         $(function(){
-            loadCards();
-
-            $('#add-btn').on('click', function() {
-                window.location.href = "add.html";
-            });
+            //loadCards();
+            $('#loader').remove();
+            $('.dashboard').removeClass('hidden');
+            $('#borrowed').html("8");
+            $('#overdue').html("7");
+            $('#repair').html("0");
+            $('#drying').html("2");
+            //$('#damaged').html("7");
+            //$('#broken').html("1");
         });
     </script>
 </head>
@@ -184,8 +116,8 @@
                 <a class="navbar-brand" href="#">HKG81 QM</a>
             </div>
             <ul class="nav navbar-nav">
-                <li><a href="#">首頁</a></li>
-                <li class="active"><a href="index.html">借用申請</a></li>
+                <li class="active"><a href="index.html">首頁</a></li>
+                <li><a href="request.html">借用申請</a></li>
                 <li><a href="list.html">物資清單</a></li>
             </ul>
         </div>
@@ -193,21 +125,139 @@
 
     <div class="container">
 
-        <div class="alert alert-dismissible hidden" role="alert" id="alert-box">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <div class="alert hidden" role="alert" id="alert-box">
             <span id="alert-msg"></span>
         </div>
-
-        <p>
-            <button type="button" class="btn btn-info" id="add-btn">
-                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 新增借用申請
-            </button>
-        </p>
 
         <div id="loader" style="text-align:center;">
             <img src="img/loading.gif"/>
         </div>
-        <div id="requests" class="row hidden"></div>
+        <div class="dashboard row hidden">
+            <div class="col-xs-12 col-sm-8 col-md-6">
+                <div class="dashboard-item" style="background-color: #d9edf7; color: #333;">
+                    <div class="dashboard-item-icon">
+                        <div>
+                            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+                        </div>
+                        <div class="dashboard-item-title">
+                            借用申請情況
+                        </div>
+                    </div>
+                    <!--
+                    <div class="pull-right" style="font-size: 14px; font-weight: 200;">
+                        <div>pending: </div>
+                        <div>processing: </div>
+                        <div>overdue: </div>
+                    </div>
+                    -->
+                    <div class="dashboard-item-icon pull-right" style="padding-left: 30px; padding-right: 30px;">
+                        <div>
+                            1
+                        </div>
+                        <div class="dashboard-item-title">
+                            pending
+                        </div>
+                    </div>
+                    <div class="dashboard-item-icon pull-right" style="padding-left: 30px; padding-right: 30px;">
+                        <div>
+                            2
+                        </div>
+                        <div class="dashboard-item-title">
+                            processing
+                        </div>
+                    </div>
+                    <div class="dashboard-item-icon pull-right" style="padding-left: 30px; padding-right: 30px;">
+                        <div>
+                            3
+                        </div>
+                        <div class="dashboard-item-title">
+                            overdue
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xs-6 col-sm-4 col-md-3">
+                <div class="dashboard-item item-lbl-borrowed">
+                    <div class="dashboard-item-icon">
+                        <div>
+                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                        </div>
+                        <div class="dashboard-item-title">
+                            借出
+                        </div>
+                    </div>
+                    <span id="borrowed" class="dashboard-item-counter pull-right"></span>
+                </div>
+            </div>
+            <div class="col-xs-6 col-sm-4 col-md-3">
+                <div class="dashboard-item item-lbl-late">
+                    <div class="dashboard-item-icon">
+                        <div>
+                            <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+                        </div>
+                        <div class="dashboard-item-title">
+                            逾時未還
+                        </div>
+                    </div>
+                    <span id="overdue" class="dashboard-item-counter pull-right"></span>
+                </div>
+            </div>
+            <div class="col-xs-6 col-sm-4 col-md-3">
+                <div class="dashboard-item item-lbl-repair">
+                    <div class="dashboard-item-icon">
+                        <div>
+                            <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+                        </div>   
+                        <div class="dashboard-item-title">
+                            維修中
+                        </div>
+                    </div>
+                    <span id="repair" class="dashboard-item-counter pull-right"></span>
+                </div>
+            </div>
+            <div class="col-xs-6 col-sm-4 col-md-3">
+                <div class="dashboard-item item-lbl-drying">
+                    <div class="dashboard-item-icon">
+                        <div>
+                            <span class="glyphicon glyphicon-tint" aria-hidden="true"></span>
+                        </div>
+                        <div class="dashboard-item-title">
+                            晾曬中
+                        </div>
+                    </div>
+                    <span id="drying" class="dashboard-item-counter pull-right"></span>
+                </div>
+            </div>
+            <!--
+            <div class="col-xs-6 col-sm-4 col-md-3">
+                <div class="dashboard-item item-lbl-damaged">
+                    <div class="dashboard-item-body">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        <span id="damaged" class="dashboard-item-counter pull-right"></span>
+                    </div>
+                    <div class="dashboard-item-footer">
+                        損壞
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6 col-sm-4 col-md-3">
+                <div class="dashboard-item item-lbl-broken">
+                    <div class="dashboard-item-body">
+                        <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+                        <span id="broken" class="dashboard-item-counter pull-right"></span>
+                    </div>
+                    <div class="dashboard-item-footer">
+                        不能使用
+                    </div>
+                </div>
+            </div>
+            -->
+            
+        </div>
+        <div class="dashboard row hidden">
+            
+        </div>
         <div style="height: 100px">&nbsp;</div>
     </div>
 
