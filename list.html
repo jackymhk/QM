@@ -64,7 +64,14 @@
                     return cardUrlReplace(autolinker, match, cards);
                 }
             });
-
+            
+            var borrowed_count = 0;
+            var late_count = 0;
+            var repair_count = 0;
+            var drying_count = 0;
+            var damaged_count = 0;
+            var broken_count = 0;
+            
             // Create a DOM for each card
             $.each(cards, function(index, card) {
                 if (!hasLabel(card, Label.borrowRec) && !hasLabel(card, Label.repairRec)) {
@@ -75,7 +82,21 @@
                     var drying = (card.idList == List.drying);
                     var damaged = hasLabel(card, Label.damaged);
                     var broken = hasLabel(card, Label.broken);
-
+                    
+                    // Counter
+                    if (borrowed)
+                        borrowed_count++;
+                    if (late)
+                        late_count++;
+                    if (repair)
+                        repair_count++;
+                    if (drying)
+                        drying_count++;
+                    if (damaged)
+                        damaged_count++;
+                    if (broken)
+                        broken_count++;
+                    
                     // Add classes for filtering
                     var filterClass = '';
                     if (borrowed)
@@ -179,6 +200,25 @@
                     });
                 }
             });
+            
+            $('#badge-borrowed').html(' ('+borrowed_count+')');
+            $('#badge-late').html(' ('+late_count+')');
+            $('#badge-repair').html(' ('+repair_count+')');
+            $('#badge-drying').html(' ('+drying_count+')');
+            $('#badge-damaged').html(' ('+damaged_count+')');
+            $('#badge-broken').html(' ('+broken_count+')');
+
+            toggleFilter();
+        }
+        
+        var toggleFilter = function() {
+            var status = urlParam('s');
+
+            if (status !== null) {
+                $(".status-toggle").prop('checked', false);
+                $("#toggle-"+status).prop('checked', true);
+                toggleFilterStatus();
+            }
         }
 
         var toggleFilterStatus = function() {
@@ -232,6 +272,8 @@
             $('#filter-modal .type-toggle:checkbox').on('change', toggleFilterType);
             $('#filter-modal .select-all').on('click', selectAll);
             $('#filter-modal .unselect-all').on('click', unselectAll);
+            
+            
         });
     </script>
 </head>
@@ -257,12 +299,12 @@
 
         <div class="row" style="margin-bottom: 20px;">
             <div class="item-lbl-key-container col-xs-9">
-                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-borrowed">&nbsp;</span>借出</span>
-                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-late">&nbsp;</span>逾時未還</span>
-                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-repair">&nbsp;</span>維修中</span>
-                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-drying">&nbsp;</span>晾曬中</span>
-                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-damaged">&nbsp;</span>損壞</span>
-                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-broken">&nbsp;</span>不能使用</span>
+                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-borrowed">&nbsp;</span>借出<span id="badge-borrowed"></span></span>
+                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-late">&nbsp;</span>逾時未還<span id="badge-late"></span></span>
+                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-repair">&nbsp;</span>維修中<span id="badge-repair"></span></span>
+                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-drying">&nbsp;</span>晾曬中<span id="badge-drying"></span></span>
+                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-damaged">&nbsp;</span>損壞<span id="badge-damaged"></span></span>
+                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-broken">&nbsp;</span>不能使用<span id="badge-broken"></span></span>
             </div>
             <div class="col-xs-3" style="text-align: right;">
                 <button type="button" id="filter-btn" class="btn btn-sm btn-link" data-toggle="modal" data-target="#filter-modal">
