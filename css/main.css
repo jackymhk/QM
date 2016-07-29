@@ -257,6 +257,49 @@
     color: #444;
 }
 
+.logs-icon {
+    font-size: 28px;
+    color: #fff;
+    padding: 10px;
+    border-radius: 15px;
+}
+
+.logs-icon-in {
+	background-color: #5cb85c;
+}
+
+.logs-icon-out {
+	background-color: #d9534f;
+}
+
+.logs-icon-drying {
+	background-color: #5bc0de;
+}
+
+.logs-icon-repair {
+	background-color: #aa6708;
+}
+
+.logs-icon-comment {
+	background-color: #337ab7;
+}
+
+.table>tbody>tr>td.logs-icon-cell {
+    font-size: 28px;
+    padding: 20px;
+    text-align: right;
+}
+
+.logs-date {
+    font-size: 10px;
+    color: #666;
+    font-style: italic;
+}
+
+.logs-body {
+    padding-bottom: 10px;
+}
+
 /*
  * Override bootstrap.min.css
  */
