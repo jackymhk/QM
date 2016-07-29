@@ -157,8 +157,8 @@
 
             // Check Date
             if ($('#borrow_dt').val() != "" && $('#return_dt').val()) {
-                var borrowDtArray = $('#borrow_dt').val().split("/");
-                var returnDtArray = $('#return_dt').val().split("/");
+                var borrowDtArray = $('#borrow_dt').val().split("-");
+                var returnDtArray = $('#return_dt').val().split("-");
                 var borrowDt = new Date(borrowDtArray[0], borrowDtArray[1]-1, borrowDtArray[2]);
                 var returnDt = new Date(returnDtArray[0], returnDtArray[1]-1, returnDtArray[2]);
                 if (returnDt.getTime() >= borrowDt.getTime()) {
@@ -330,13 +330,13 @@
                     <div class="form-group">
                         <label for="borrow_dt" class="control-label col-xs-4 col-sm-2">借用日期</label>
                         <div class="col-xs-8 col-sm-10">
-                            <input type="text" name="borrow_dt" id="borrow_dt" class="form-control datepicker" placeholder="yyyy/mm/dd" value="" required/>
+                            <input type="text" name="borrow_dt" id="borrow_dt" class="form-control datepicker" placeholder="yyyy-mm-dd" value="" required/>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="return_dt" class="control-label col-xs-4 col-sm-2">歸還日期</label>
                         <div class="col-xs-8 col-sm-10">
-                            <input type="text" name="return_dt" id="return_dt" class="form-control datepicker" placeholder="yyyy/mm/dd" value="" required/>
+                            <input type="text" name="return_dt" id="return_dt" class="form-control datepicker" placeholder="yyyy-mm-dd" value="" required/>
                         </div>
                     </div>
                     <div class="form-group">
