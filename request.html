@@ -20,7 +20,7 @@
     <script type="text/javascript">
         var cards = [];
         var loadCards = function() {
-            trelloGet('/boards/'+Board+'/cards?checklists=all',
+            trelloGet('/boards/'+Board+'/cards?checklists=all&actions=updateCheckItemStateOnCard',
                 showCards,
                 function() { failAlert("load cards fail"); }
             );
@@ -111,6 +111,18 @@
                                 checklist += '<span class="glyphicon glyphicon-ok" aria-hidden="true" style="color: #5cb85c"></span> ';
                             }
                             checklist += autolinker.link(card.checklists[0].checkItems[i].name);
+                            if (card.checklists[0].checkItems[i].state == 'complete') {
+                                if (card.actions.length > 0) {
+                                    for (var j = 0; j < card.actions.length; j++) {
+                                        if (card.actions[j].type == 'updateCheckItemStateOnCard' &&
+                                            card.actions[j].data.checkItem.id == card.checklists[0].checkItems[i].id &&
+                                            card.actions[j].data.checkItem.state == 'complete') {
+                                            checklist += ' - <small style="color:#666;"><em>' + card.actions[j].date.substring(0,10) + '</em></small>';
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
                             checklist += '</div>';
                         }
                     }
@@ -121,12 +133,12 @@
 
                     // Build DOM
                     var html = '<div class="list-card col-xs-12 col-sm-6 col-md-4 '+filterClass+'">'+
-                               '<div id="'+card.id+'" class="list-request">' +
+                               '<div id="'+card.shortLink+'" class="list-request">' +
                                '<div class="list-request-header">' +
                                label +
                                '<strong>' + activity + '</strong>' +
                                '<div class="list-request-subheader">' +
-                               '<span class="glyphicon glyphicon-time" aria-hidden="true"></span> ' + borrowDt + ' - ' + dueDt +
+                               '<span class="glyphicon glyphicon-time" aria-hidden="true"></span> ' + borrowDt + ' / ' + dueDt +
                                '&nbsp;&nbsp;&nbsp;&nbsp;' +
                                '<span class="glyphicon glyphicon-check" aria-hidden="true"></span> ' + card.badges.checkItemsChecked+'/'+card.badges.checkItems +
                                '</div>' +
@@ -135,7 +147,7 @@
                                desc +
                                '</div>' +
                                '<div class="list-request-body">' +
-                               '<p><strong>清單:</string></p>' +
+                               '<h5><strong>清單:</strong></h5>' +
                                checklist +
                                '</div>' +
                                '<div class="list-request-footer" data-status="close">' +
@@ -146,19 +158,19 @@
 
                     $('#requests').append(html);
 
-                    $('#'+card.id+' .list-request-body').hide();
+                    $('#'+card.shortLink+' .list-request-body').hide();
 
-                    $('#'+card.id+' .list-request-footer').on('click', function() {
+                    $('#'+card.shortLink+' .list-request-footer').on('click', function() {
                         var status = $(this).data('status');
                         if (status == "close") {
-                            $('#'+card.id+' .list-request-body').show('slow');
-                            $('#'+card.id+' .list-request-footer .glyphicon').removeClass('glyphicon-menu-down');
-                            $('#'+card.id+' .list-request-footer .glyphicon').addClass('glyphicon-menu-up');
+                            $('#'+card.shortLink+' .list-request-body').show('slow');
+                            $('#'+card.shortLink+' .list-request-footer .glyphicon').removeClass('glyphicon-menu-down');
+                            $('#'+card.shortLink+' .list-request-footer .glyphicon').addClass('glyphicon-menu-up');
                             $(this).data('status', 'open');
                         } else {
-                            $('#'+card.id+' .list-request-body').hide('slow');
-                            $('#'+card.id+' .list-request-footer .glyphicon').addClass('glyphicon-menu-down');
-                            $('#'+card.id+' .list-request-footer .glyphicon').removeClass('glyphicon-menu-up');
+                            $('#'+card.shortLink+' .list-request-body').hide('slow');
+                            $('#'+card.shortLink+' .list-request-footer .glyphicon').addClass('glyphicon-menu-down');
+                            $('#'+card.shortLink+' .list-request-footer .glyphicon').removeClass('glyphicon-menu-up');
                             $(this).data('status', 'close');
                         }
                     });

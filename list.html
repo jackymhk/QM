@@ -134,7 +134,7 @@
 
                     // Build DOM
                     var html = '<div class="list-card col-xs-12 col-sm-4 col-md-3 '+filterClass+'">'+
-                               '<div id="'+card.id+'" class="list-item">' +
+                               '<div id="'+card.shortLink+'" class="list-item">' +
                                card.name +
                                status +
                                '</div>' +
@@ -157,7 +157,7 @@
                         $('#other-items').append(html);
                     }
 
-                    $('#'+card.id).on('click', function() {
+                    $('#'+card.shortLink).on('click', function() {
                         // cover
                         var cover = '';
                         if (card.attachments.length > 0) {
@@ -201,17 +201,17 @@
                 }
             });
             
-            $('#badge-borrowed').html(' ('+borrowed_count+')');
-            $('#badge-late').html(' ('+late_count+')');
-            $('#badge-repair').html(' ('+repair_count+')');
-            $('#badge-drying').html(' ('+drying_count+')');
-            $('#badge-damaged').html(' ('+damaged_count+')');
-            $('#badge-broken').html(' ('+broken_count+')');
-
-            toggleFilter();
+            $('#badge-borrowed').html('('+borrowed_count+')');
+            $('#badge-late').html('('+late_count+')');
+            $('#badge-repair').html('('+repair_count+')');
+            $('#badge-drying').html('('+drying_count+')');
+            $('#badge-damaged').html('('+damaged_count+')');
+            $('#badge-broken').html('('+broken_count+')');
+            
+            cardsReady();
         }
         
-        var toggleFilter = function() {
+        var cardsReady = function() {
             var status = urlParam('s');
 
             if (status !== null) {
@@ -299,12 +299,12 @@
 
         <div class="row" style="margin-bottom: 20px;">
             <div class="item-lbl-key-container col-xs-9">
-                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-borrowed">&nbsp;</span>借出<span id="badge-borrowed"></span></span>
-                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-late">&nbsp;</span>逾時未還<span id="badge-late"></span></span>
-                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-repair">&nbsp;</span>維修中<span id="badge-repair"></span></span>
-                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-drying">&nbsp;</span>晾曬中<span id="badge-drying"></span></span>
-                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-damaged">&nbsp;</span>損壞<span id="badge-damaged"></span></span>
-                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-broken">&nbsp;</span>不能使用<span id="badge-broken"></span></span>
+                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-borrowed">&nbsp;</span>借出 <span id="badge-borrowed">(-)</span></span>
+                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-late">&nbsp;</span>逾時未還 <span id="badge-late">(-)</span></span>
+                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-repair">&nbsp;</span>維修中 <span id="badge-repair">(-)</span></span>
+                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-drying">&nbsp;</span>晾曬中 <span id="badge-drying">(-)</span></span>
+                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-damaged">&nbsp;</span>損壞 <span id="badge-damaged">(-)</span></span>
+                <span class="item-lbl-key text-nowrap"><span class="item-lbl item-lbl-broken">&nbsp;</span>不能使用 <span id="badge-broken">(-)</span></span>
             </div>
             <div class="col-xs-3" style="text-align: right;">
                 <button type="button" id="filter-btn" class="btn btn-sm btn-link" data-toggle="modal" data-target="#filter-modal">
