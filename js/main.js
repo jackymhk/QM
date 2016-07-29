@@ -130,6 +130,16 @@ $(function(){
     });
 });
 
+function dateFormat(date) {
+    return date.getFullYear()+'-'+leadingZero(date.getMonth()+1)+'-'+leadingZero(date.getDate())+' '
+        +leadingZero(date.getHours())+':'+leadingZero(date.getMinutes())+':'+leadingZero(date.getSeconds());
+}
+
+function leadingZero(n) {
+    var paddingValue = '00';
+    return String(paddingValue + n).slice(-paddingValue.length);
+};
+
 // button_checkbox
 function button_checkbox_init() {
     $('.button-checkbox').each(function () {
