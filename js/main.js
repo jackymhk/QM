@@ -194,7 +194,8 @@ function cardUrlReplace(autolinker, match, cards) {
         case 'url' :
             var anchorText = match.getAnchorText().split('/');
             if (anchorText[0] == 'trello.com' && anchorText[1] == 'c') {
-                return '<a href="'+match.getUrl()+'">'+getCardNameByUrl(cards, match.getUrl())+'</a>';
+                //return '<a href="'+match.getUrl()+'">'+getCardNameByUrl(cards, match.getUrl())+'</a>';
+                return '<a href="javascript: $(\'#'+anchorText[2]+'\').triggerHandler(\'click\');">'+getCardNameByUrl(cards, match.getUrl())+'</a>';
             } else {
                 return true;
             }
