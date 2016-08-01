@@ -20,7 +20,7 @@
     <script type="text/javascript">
         var card;
         var loadcard = function(cardShortLink) {
-            trelloGet('/cards/'+cardShortLink+'?actions=updateCard:idList,commentCard',
+            trelloGet('/cards/'+cardShortLink+'?fields=all&actions=updateCard:idList,commentCard',
                 showCard,
                 function() { failAlert("load card fail"); }
             );
@@ -32,7 +32,9 @@
 
             card = data;
             
-            $('#logs-heading').append(card.name);
+            $('#logs-heading-btn').append(card.name);
+            console.log('card.shortLink='+card.shortLink);
+            $('#logs-heading-btn').data('shortLink', card.shortLink);
             
             var actions = card.actions;
             
@@ -77,16 +79,21 @@
                     } else if (type == "repair") {
                         html += '取出維修中';
                     }
-                    html += '</div>';
                     html += '<div class="logs-date">' + dateFormat(new Date(action.date)) + '</div>';
+                    html += '</div>';
                     html += '</td>';
                 } else if (action.type == 'commentCard') {
+                    var comment = action.data.text;
+                    comment = comment.replace(/\n/g, '<br>'); // \n -> <br>
+                
                     html += '<td class="logs-icon-cell center-block">';
                     html += '<span class="glyphicon glyphicon-comment logs-icon logs-icon-comment" aria-hidden="true"></span>';
                     html += '</td>';
                     html += '<td>';
-                    html += '<div class="logs-body">' + action.data.text + '</div>';
+                    html += '<div class="logs-body">';
+                    html += comment;
                     html += '<div class="logs-date">' + dateFormat(new Date(action.date)) + '</div>';
+                    html += '</div>';
                     html += '</td>';
                 }
                 html += "</tr>";
@@ -104,10 +111,13 @@
             if (cardShortLink !== null) {
                 loadcard(cardShortLink);
             } else {
-                showError("<strong>錯誤: </strong>Card ID is not existed.)");
+                $('#loader').remove();
+                failAlert("<strong>錯誤: </strong>Card ID is not existed.");
             }
             
-            
+            $('#logs-heading-btn').on('click', function (){
+                window.location.href = 'list.html?i=' + $(this).data('shortLink');
+            });
         });
     </script>
 </head>
@@ -135,7 +145,11 @@
             <img src="img/loading.gif"/>
         </div>
         <div class="panel panel-default hidden" id="logs">
-            <div class="panel-heading" id="logs-heading"></div>
+            <div class="panel-heading logs-heading">
+                <button type="button" class="btn btn-link" id="logs-heading-btn" data-shortLink="">
+                    <span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span>&nbsp;
+                </button>
+            </div>
             <!--<div class="panel-body" ></div>-->
 
             <!--<ul class="list-group" id="logs-list"></ul>-->

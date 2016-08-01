@@ -197,6 +197,7 @@
                         $('#card-modal').modal('show');
                         $('#card-modal-title').html(card.name);
                         $('#card-modal-body').html(label+desc);
+                        $('#log-btn').data('shortLink', card.shortLink);
                     });
                 }
             });
@@ -212,12 +213,17 @@
         }
         
         var cardsReady = function() {
+            //
             var status = urlParam('s');
-
             if (status !== null) {
                 $(".status-toggle").prop('checked', false);
                 $("#toggle-"+status).prop('checked', true);
                 toggleFilterStatus();
+            }
+                        
+            var cardShortLink = urlParam('i');
+            if (cardShortLink !== null) {
+                $('#'+cardShortLink).triggerHandler('click');
             }
         }
 
@@ -273,7 +279,9 @@
             $('#filter-modal .select-all').on('click', selectAll);
             $('#filter-modal .unselect-all').on('click', unselectAll);
             
-            
+            $('#log-btn').on('click', function(){
+                window.location.href = 'log.html?i=' + $(this).data('shortLink');
+            });
         });
     </script>
 </head>
@@ -359,6 +367,7 @@
                 <div id="card-modal-body" class="modal-body">
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" id="log-btn" data-shortLink="">使用記錄</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">關閉</button>
                 </div>
             </div>
