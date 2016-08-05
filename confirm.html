@@ -12,7 +12,7 @@
 
     <script src="http://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript"></script>
-    <!--<script src="https://api.trello.com/1/client.js?key=8a42b4468e08ca9f165c88d1327add61"></script>-->
+    <script src="https://api.trello.com/1/client.js?key=8a42b4468e08ca9f165c88d1327add61"></script>
     <script src="js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="js/main.js" type="text/javascript"></script>
 
@@ -152,7 +152,7 @@
             if (param !== null) {
                 loadParam(param);
             } else {
-                $('#form_info').hide();
+                $('#confirm-container').hide();
                 showError("<strong>錯誤: </strong>請重新提交申請。<br>(Param is not existed.)");
             }
 
@@ -187,7 +187,7 @@
             <span id="alert-msg"></span>
         </div>
 
-        <div id="form_info" class="panel panel-default">
+        <div id="confirm-container" class="panel panel-default">
             <div class="panel-body">
                 <div class="row confirm-row">
                     <div class="col-xs-4 col-sm-2 confirm-label">支部</div>

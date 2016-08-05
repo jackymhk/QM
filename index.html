@@ -12,7 +12,7 @@
 
     <script src="http://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript"></script>
-    <!--<script src="https://api.trello.com/1/client.js?key=8a42b4468e08ca9f165c88d1327add61"></script>-->
+    <script src="https://api.trello.com/1/client.js?key=8a42b4468e08ca9f165c88d1327add61"></script>
     <script src="js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="js/Autolinker.min.js" type="text/javascript"></script>
     <script src="js/main.js" type="text/javascript"></script>
@@ -120,9 +120,11 @@
         }
 
         $(function(){
-            loadCards();
+            trelloAuthorize(
+                loadCards
+            );
             
-            $('.dashboard-item').on('click', function() {
+            $('.dashboard-widget').on('click', function() {
                 window.location.href = $(this).data('url');
             });
         });
@@ -153,34 +155,34 @@
         </div>
         <div class="dashboard row hidden">
             <div class="col-xs-12 col-sm-8 col-md-6">
-                <div class="dashboard-item item-lbl-request" data-url="request.html">
+                <div class="dashboard-widget bg-request" data-url="request.html">
                     <div class="row">
                         <div class="col-xs-3">
-                            <div class="dashboard-item-icon">
+                            <div class="dashboard-widget-icon">
                                 <div>
                                     <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
                                 </div>
-                                <div class="dashboard-item-title">
+                                <div class="dashboard-widget-title">
                                     借用申請情況
                                 </div>
                             </div>
                         </div>
                         <div class="col-xs-3">
-                            <div class="dashboard-item-icon dashboard-item-request pull-right" >
+                            <div class="dashboard-widget-icon dashboard-widget-request pull-right" >
                                 <div id="overdueRequest"></div>
-                                <div class="dashboard-item-title">逾時未還</div>
+                                <div class="dashboard-widget-title">逾時未還</div>
                             </div>
                         </div>
                         <div class="col-xs-3">
-                            <div class="dashboard-item-icon dashboard-item-request pull-right" >
+                            <div class="dashboard-widget-icon dashboard-widget-request pull-right" >
                                 <div id="activeRequest"></div>
-                                <div class="dashboard-item-title">進行中</div>
+                                <div class="dashboard-widget-title">進行中</div>
                             </div>
                         </div>
                         <div class="col-xs-3">
-                            <div class="dashboard-item-icon dashboard-item-request pull-right" >
+                            <div class="dashboard-widget-icon dashboard-widget-request pull-right" >
                                 <div id="pending"></div>
-                                <div class="dashboard-item-title">待處理</div>
+                                <div class="dashboard-widget-title">待處理</div>
                             </div>
                         </div>
                     </div>
@@ -188,52 +190,49 @@
             </div>
             
             <div class="col-xs-6 col-sm-4 col-md-3">
-                <div class="dashboard-item item-lbl-borrowed" data-url="list.html?s=borrowed">
-                    <div class="dashboard-item-icon">
+                <div class="dashboard-widget bg-borrowed" data-url="list.html?s=borrowed">
+                    <div class="dashboard-widget-icon">
                         <div>
                             <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                         </div>
-                        <div class="dashboard-item-title">借出</div>
+                        <div class="dashboard-widget-title">借出</div>
                     </div>
-                    <span id="borrowed" class="dashboard-item-counter pull-right"></span>
+                    <span id="borrowed" class="dashboard-widget-counter pull-right"></span>
                 </div>
             </div>
             <div class="col-xs-6 col-sm-4 col-md-3">
-                <div class="dashboard-item item-lbl-late" data-url="list.html?s=late">
-                    <div class="dashboard-item-icon">
+                <div class="dashboard-widget bg-late" data-url="list.html?s=late">
+                    <div class="dashboard-widget-icon">
                         <div>
                             <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
                         </div>
-                        <div class="dashboard-item-title">逾時未還</div>
+                        <div class="dashboard-widget-title">逾時未還</div>
                     </div>
-                    <span id="overdue" class="dashboard-item-counter pull-right"></span>
+                    <span id="overdue" class="dashboard-widget-counter pull-right"></span>
                 </div>
             </div>
             <div class="col-xs-6 col-sm-4 col-md-3 col-md-offset-6">
-                <div class="dashboard-item item-lbl-repair" data-url="list.html?s=repair">
-                    <div class="dashboard-item-icon">
+                <div class="dashboard-widget bg-repair" data-url="list.html?s=repair">
+                    <div class="dashboard-widget-icon">
                         <div>
                             <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
                         </div>   
-                        <div class="dashboard-item-title">維修中</div>
+                        <div class="dashboard-widget-title">維修中</div>
                     </div>
-                    <span id="repair" class="dashboard-item-counter pull-right"></span>
+                    <span id="repair" class="dashboard-widget-counter pull-right"></span>
                 </div>
             </div>
             <div class="col-xs-6 col-sm-4 col-md-3">
-                <div class="dashboard-item item-lbl-drying" data-url="list.html?s=drying">
-                    <div class="dashboard-item-icon">
+                <div class="dashboard-widget bg-drying" data-url="list.html?s=drying">
+                    <div class="dashboard-widget-icon">
                         <div>
                             <span class="glyphicon glyphicon-tint" aria-hidden="true"></span>
                         </div>
-                        <div class="dashboard-item-title">晾曬中</div>
+                        <div class="dashboard-widget-title">晾曬中</div>
                     </div>
-                    <span id="drying" class="dashboard-item-counter pull-right"></span>
+                    <span id="drying" class="dashboard-widget-counter pull-right"></span>
                 </div>
             </div>
-        </div>
-        <div class="dashboard row hidden">
-            
         </div>
         <div style="height: 100px">&nbsp;</div>
     </div>
