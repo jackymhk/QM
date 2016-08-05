@@ -1,3 +1,115 @@
+/*****************************
+ * Status Label
+ *****************************/
+.st-label {
+	width: 5px;
+	margin: 0 4px;
+	display: inline-block;
+}
+
+.st-label-small {
+	width: 5px;
+	margin: 0 0 0 10px;
+	display: inline-block;
+}
+
+.st-label-large {
+	margin-right: 10px;
+}
+
+.st-label-key {
+	padding-right: 15px;
+}
+
+.st-label-key-container {
+    font-size: 10px;
+	color: #666;
+	padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+/*****************************
+ * Background Color
+ *****************************/
+.bg-borrowed {
+	background-color: #5cb85c;
+}
+
+.bg-damaged {
+	background-color: #d9534f;
+}
+
+.bg-broken {
+	background-color: #666666;
+}
+
+.bg-late {
+	background-color: #f0ad4e;
+}
+
+.bg-drying {
+	background-color: #5bc0de;
+}
+
+.bg-repair {
+	background-color: #aa6708;
+}
+
+.bg-available {
+	background-color: #337ab7;
+}
+
+.bg-pending {
+	background-color: #5bc0de;
+}
+
+.bg-completed {
+	background-color: #337ab7;
+}
+
+.bg-overdue {
+	background-color: #d9534f;
+}
+
+.bg-active {
+	background-color: #5cb85c;
+}
+
+.bg-request {
+    background-color: #337ab7;
+    color: #ddd;
+}
+
+/*****************************
+ * Text Color
+ *****************************/
+.txt-in {
+	color: #5cb85c;
+}
+
+.txt-out {
+	color: #d9534f;
+}
+
+.txt-drying {
+	color: #5bc0de;
+}
+
+.txt-repair {
+	color: #aa6708;
+}
+
+.txt-comment {
+	color: #337ab7;
+}
+
+.txt-overdue {
+	color: #d9534f;
+}
+
+/*****************************
+ * Confirm form @confirm.html
+ *****************************/
 .confirm-label {
 	font-weight: 700;
 }
@@ -6,13 +118,32 @@
 	padding-bottom: 5px;
 }
 
-.list-title {
+/*****************************
+ * Loading Overlay @confirm.html
+ *****************************/
+.loading-overlay {
+    width: 100%; 
+    height: 100%; 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    z-index: 10; 
+    background-color: rgba(255, 255, 255, 0.8); 
+    background-image: url('../img/loading.gif'); 
+    background-position: center center; 
+    background-repeat: no-repeat;
+}
+
+/*****************************
+ * Items cards @list.html
+ *****************************/
+.items-title {
     font-weight: 700;
     padding-bottom: 5px;
     margin-bottom: 10px;
 }
 
-.list-item {
+.items-card {
 	color: #333;
 	font-weight: 400;
 	margin-bottom: 20px;
@@ -23,108 +154,30 @@
     cursor: pointer;
 }
 
-.list-item, .list-item:focus {
+.items-card, .items-card:focus {
 	color: #333;
 	background-color: #fff;
 }
 
-.list-item:hover {
+.items-card:hover {
 	color: #333;
 	background-color: #eee;
 	border: 1px solid #ccc;
 }
 
-.card-modal-cover {
+/*****************************
+ * Item Modal @list.html
+ *****************************/
+.item-modal-cover {
     padding-top: 5px;
     padding-bottom: 5px;
     border-bottom: 1px solid #e5e5e5;
-    background-color: #eeeeee;
+    background-color: #eee;
 }
 
-.item-lbl {
-	width: 5px;
-	margin: 0 4px;
-	display: inline-block;
-}
-
-.item-lbl-small {
-	width: 5px;
-	margin: 0 0 0 10px;
-	display: inline-block;
-}
-
-.item-lbl-borrowed {
-	background-color: #5cb85c;
-}
-
-.item-lbl-damaged {
-	background-color: #d9534f;
-}
-
-.item-lbl-broken {
-	background-color: #666666;
-}
-
-.item-lbl-late {
-	background-color: #f0ad4e;
-}
-
-.item-lbl-drying {
-	background-color: #5bc0de;
-}
-
-.item-lbl-repair {
-	background-color: #aa6708;
-}
-
-.item-lbl-available {
-	background-color: #337ab7;
-}
-
-.item-lbl-pending {
-	background-color: #5bc0de;
-}
-
-.item-lbl-completed {
-	background-color: #337ab7;
-}
-
-.item-lbl-overdue {
-	background-color: #d9534f;
-}
-
-.item-lbl-active {
-	background-color: #5cb85c;
-}
-
-.item-lbl-key {
-	padding-right: 15px;
-}
-
-.item-lbl-label {
-	margin-right: 10px;
-}
-
-.item-lbl-key-container {
-    font-size: 10px;
-	color: #666;
-	padding-top: 6px;
-    padding-bottom: 6px;
-}
-
-.btn-filter {
-	background-color: #39afea;
-	border-color: #2e6da4;
-	color: #fff;
-	border-radius: 15px;
-}
-
-.btn-filter:hover, .btn-filter:focus {
-	background-color: #2e6da4;
-	border-color: #2e6da4;
-	color: #fff;
-}
-
+/*****************************
+ * Filter Modal @list.html
+ *****************************/
 #filter-modal h5 {
     font-weight: 700;
 }
@@ -139,7 +192,10 @@
     color: #d9534f;
 }
 
-.list-request {
+/*****************************
+ * Request @request.html
+ *****************************/
+.request {
 	color: #333;
 	font-weight: 400;
 	margin-bottom: 20px;
@@ -147,7 +203,7 @@
     box-shadow: 0 3px 2px rgba(0,0,0,.05);
 }
 
-.list-request-header {
+.request-header {
     padding: 15px;
     border-bottom: 1px solid transparent;
     border-top: 1px solid #ddd;
@@ -155,13 +211,13 @@
     border-right: 1px solid #ddd;
 }
 
-.list-request-subheader {
+.request-subheader {
     padding-top: 8px; 
 	font-size: 12px;
 	color: #666;
 }
 
-.list-request-body {
+.request-body {
     padding: 15px;
     border-bottom: 1px solid transparent;
     border-top: 1px solid #ddd;
@@ -169,7 +225,7 @@
     border-right: 1px solid #ddd;
 }
 
-.list-request-footer {
+.request-btn {
     padding-top: 2px; 
     padding-bottom: 2px; 
     text-align: center; 
@@ -181,31 +237,41 @@
     border-top: 1px solid #eee;
 }
 
-.list-request-footer, .list-request-footer:focus {
+.request-btn, .request-btn:focus {
 	color: #999;
 	background-color: #fff;
 }
 
-.list-request-footer:hover {
+.request-btn:hover {
 	color: #333;
 	background-color: #eee;
 	border-color: #ccc;
 }
 
-.loading-overlay {
-    width: 100%; 
-    height: 100%; 
-    position: absolute; 
-    top: 0; 
-    left: 0; 
-    z-index: 10; 
-    background-color: rgba(255, 255, 255, 0.8); 
-    background-image: url('../img/loading.gif'); 
-    background-position: center center; 
-    background-repeat: no-repeat;
+.request-footer {
+    padding: 15px;
+    border: 1px solid #ddd;
 }
 
-.dashboard-item {
+.request-items .request-header {
+    border-bottom: 1px solid #ddd;
+    border-radius: 5px 5px 0 0;
+    background-color: #f0f0f0;
+}
+
+.request-items .request-body {
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid #ddd;
+}
+
+/*****************************
+ * Dashboard @index.html
+ *****************************/
+.dashboard {
+    max-width: 900px;
+}
+
+.dashboard-widget {
     margin-bottom: 15px;
     padding: 10px 20px;
     min-height: 100px;
@@ -216,82 +282,63 @@
     cursor: pointer;
 }
 
-.dashboard-item-footer {
+.dashboard-widget-footer {
     font-size: 12px;
     font-weight: 400;
 }
 
-.dashboard-item-body {
+.dashboard-widget-body {
     font-size: 36px;
     font-weight: 800;
 }
 
-.dashboard-item-icon {
+.dashboard-widget-icon {
     display: inline-block;
     text-align: center;
     min-width: 48px;
 }
 
-.dashboard-item-title {
+.dashboard-widget-title {
     font-size: 12px;
     font-weight: 400;
 }
 
-.item-lbl-request {
-    background-color: #337ab7;
-    color: #ddd;
-}
-
-.dashboard-item-request  {
+.dashboard-widget-request  {
     padding-left: 10px;
     padding-right: 10px; 
     border-radius: 15px;
     min-width: 75px;
     min-height: 75px;
     margin-left: 5px;
-    /*border: 1px solid #666;*/
-    /*border-left: 1px solid #ddd;
-    border-top: 1px solid #ddd;
-    */
     background-color: #a4cdf0;
     color: #444;
 }
 
+/*****************************
+ * Logs @log.html
+ *****************************/
+.logs-panel {
+    max-width: 700px;
+}
+ 
 .logs-heading {
     padding: 5px 0;
 }
 
 .logs-icon {
-    font-size: 28px;
+    font-size: 32px;
+    /*
     color: #fff;
     padding: 10px;
     border-radius: 15px;
-}
-
-.logs-icon-in {
-	background-color: #5cb85c;
-}
-
-.logs-icon-out {
-	background-color: #d9534f;
-}
-
-.logs-icon-drying {
-	background-color: #5bc0de;
-}
-
-.logs-icon-repair {
-	background-color: #aa6708;
-}
-
-.logs-icon-comment {
-	background-color: #337ab7;
+    */
+    padding: 5px;
 }
 
 .table>tbody>tr>td.logs-icon-cell {
     font-size: 28px;
     padding: 20px;
-    text-align: right;
+    text-align: center;
 }
 
 .logs-date {
@@ -308,9 +355,125 @@
     min-height: 72px;
 }
 
+/*****************************
+ * Progress Bar @request_adm.html
+ *****************************/
+.bs-wizard {
+    padding: 0 0 10px 0;
+    position: relative;
+}
+
+.bs-wizard > .bs-wizard-step {
+    padding: 0;
+    z-index: 100;
+}
+
+.bs-wizard > .bs-wizard-step + .bs-wizard-step {
+}
+
+.bs-wizard > .bs-wizard-step .bs-wizard-stepnum {
+    margin-bottom: 5px;
+}
+
+.bs-wizard > .bs-wizard-step .bs-wizard-info {
+    color: #999;
+    font-size: 14px;
+}
+
+.bs-wizard > .bs-wizard-step > .bs-wizard-dot {
+    position: absolute; 
+    width: 30px; 
+    height: 30px; 
+    display: block; 
+    background-color: #5cb85c;
+    top: 45px; 
+    left: 50%; 
+    margin-top: -15px; 
+    margin-left: -15px; 
+    border-radius: 50%;
+    color: #fff;
+    padding-top: 3px;
+    border: 2px #fff solid;
+    text-align: center;
+}
+
+.bs-wizard > .bs-wizard-step.active > .bs-wizard-dot {
+    background-color: #337ab7;
+}
+
+.bs-wizard > .bs-wizard-step.disabled > .bs-wizard-dot {
+    background-color: #dfdfdf;
+}
+
+.bs-wizard > .bs-wizard-step.overdue > .bs-wizard-dot {
+    background-color: #d9534f;
+}
 /*
+.bs-wizard > .bs-wizard-step.disabled a.bs-wizard-dot{
+    pointer-events: none;
+}
+*/
+.bs-wizard > .progress { 
+    position: relative; 
+    border-radius: 0px; 
+    height: 8px; 
+    box-shadow: none;
+    background-color: #dfdfdf;
+    margin: 20px 0;
+    left: 16.67%; 
+    width: 66.67%;
+    top: 15px;
+}
+
+.bs-wizard > .progress > .progress-bar {
+    width:0px; 
+    box-shadow: none; 
+}
+/*
+.bs-wizard > .bs-wizard-step > .progress { 
+    position: relative; 
+    border-radius: 0px; 
+    height: 8px; 
+    box-shadow: none;
+    background-color: #dfdfdf;
+    margin: 20px 0;
+}
+
+.bs-wizard > .bs-wizard-step:first-child  > .progress {
+    left: 50%; width: 50%;
+}
+
+.bs-wizard > .bs-wizard-step:last-child  > .progress {
+    width: 50%;
+}
+
+.bs-wizard > .bs-wizard-step > .progress > .progress-bar {
+    width:0px; 
+    box-shadow: none; 
+}
+
+.bs-wizard > .bs-wizard-step.complete > .progress > .progress-bar {
+    width:100%;
+}
+
+.bs-wizard > .bs-wizard-step.active > .progress > .progress-bar {
+    width:50%;
+}
+
+.bs-wizard > .bs-wizard-step:first-child.active > .progress > .progress-bar {
+    width:0%;
+}
+
+.bs-wizard > .bs-wizard-step:last-child.active > .progress > .progress-bar {
+    width: 100%;
+}
+*/
+/*END Form Wizard*/
+
+/**************************************
+ **************************************
  * Override bootstrap.min.css
- */
+ **************************************/
 body {
     padding-top: 110px;
 }
