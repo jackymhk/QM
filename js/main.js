@@ -1,5 +1,7 @@
 var APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyhle-PX-nb9GK_a3z0Zv4hOFSP8mHeoaKe3Gws_KsFvX2pYf0/exec';
 
+var USE_PROXY = true;
+
 var Board = 'OPFLEvqH';
 
 var List = {
@@ -35,25 +37,57 @@ var Label = {
     other: '578133eb84e677fd367405aa'      // Label - 其他
 };
 
+function useAppScript() {
+    USE_PROXY = true;
+}
+
+function notUseAppScript() {
+    USE_PROXY = false;
+}
+
+function trelloAuthorize(done) {
+    if (USE_PROXY) {
+        done();
+    } else {
+        Trello.authorize({
+            type: "popup",
+            name: "HKG81 QM",
+            scope: {
+                read: true,
+                write: true },
+            //expiration: "never",
+            expiration: "30days",
+            success: done,
+            error: function() { failAlert("<strong>錯誤: </strong>Authorize Failed"); }
+        });
+    }
+}
+
 function trelloGet(url, done, fail) {
-    //Trello.get(url, done, fail);
-    $.get(APPSCRIPT_URL, {
-        "trello_url": url,
-        "method": "get"
-    })
-    .done(done)
-    .fail(fail);
+    if (USE_PROXY) {
+        $.get(APPSCRIPT_URL, {
+            "trello_url": url,
+            "method": "get"
+        })
+        .done(done)
+        .fail(fail);
+    } else {
+        Trello.get(url, done, fail);
+    }
 }
 
 function trelloPost(url, data, done, fail) {
-    //Trello.post(url, data, done, fail);
-    $.get(APPSCRIPT_URL, {
-        "trello_url": url,
-        "method": "post",
-        "data": JSON.stringify(data)
-    })
-    .done(done)
-    .fail(fail);
+    if (USE_PROXY) {
+        $.get(APPSCRIPT_URL, {
+            "trello_url": url,
+            "method": "post",
+            "data": JSON.stringify(data)
+        })
+        .done(done)
+        .fail(fail);
+    } else {
+       Trello.post(url, data, done, fail);
+    }
 }
 
 function successAlert(msg) {
@@ -139,54 +173,6 @@ function leadingZero(n) {
     var paddingValue = '00';
     return String(paddingValue + n).slice(-paddingValue.length);
 };
-
-// button_checkbox
-function button_checkbox_init() {
-    $('.button-checkbox').each(function () {
-
-        // Settings
-        var $widget = $(this),
-            $button = $widget.find('button'),
-            $checkbox = $widget.find('input:checkbox'),
-            color = $button.data('color');
-
-        // Event Handlers
-        $button.on('click', function () {
-            $checkbox.prop('checked', !$checkbox.is(':checked'));
-            $checkbox.triggerHandler('change');
-            updateDisplay();
-        });
-        $checkbox.on('change', function () {
-            updateDisplay();
-        });
-
-        // Actions
-        function updateDisplay() {
-            var isChecked = $checkbox.is(':checked');
-
-            // Update the button's color
-            if (isChecked) {
-                $button
-                    .removeClass('btn-default')
-                    .addClass('btn-' + color + ' active');
-            } else {
-                $button
-                    .removeClass('btn-' + color + ' active')
-                    .addClass('btn-default');
-            }
-        }
-
-        // Initialization
-        updateDisplay();
-    });
-}
-
-function button_checkbox_reset() {
-    $('.button-checkbox').each(function () {
-        var $checkbox = $(this).find('input:checkbox');
-        $checkbox.triggerHandler('change');
-    });
-}
 
 // Custom url replacement function
 function cardUrlReplace(autolinker, match, cards) {
