@@ -51,6 +51,8 @@ function trelloAuthorize(done, fail) {
     if (USE_PROXY) {
         done();
     } else {
+		warningAlert("<strong>Warning: </strong>Authorize Failed.<br>" +
+			"Please get the authorization in the popup.");
     	Trello.authorize({
             type: "popup",
             name: "HKG81 QM",
@@ -59,11 +61,14 @@ function trelloAuthorize(done, fail) {
                 write: true },
             //expiration: "never",
             expiration: "30days",
-            success: done,
+            success: function() {
+				$("#alert-box").addClass("hidden");
+				$("#alert-box").removeClass("alert-warning");
+				done();
+			},
             error: function() { 
 				$('#loader').remove();
-				failAlert("<strong>錯誤: </strong>Authorize Failed.<br>" +
-					"Please get the authorization and then re-run this page.");
+				failAlert("<strong>錯誤: </strong>Authorize Failed.");
 				fail();
 			}
         });
@@ -127,6 +132,12 @@ function failAlert(msg) {
     console.log("FAIL - " + msg);
     $("#alert-box").removeClass("hidden");
     $("#alert-box").addClass("alert-danger");
+    $("#alert-msg").html(msg);
+}
+
+function warningAlert(msg) {
+    $("#alert-box").removeClass("hidden");
+    $("#alert-box").addClass("alert-warning");
     $("#alert-msg").html(msg);
 }
 
