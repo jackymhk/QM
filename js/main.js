@@ -1,6 +1,6 @@
 var APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyhle-PX-nb9GK_a3z0Zv4hOFSP8mHeoaKe3Gws_KsFvX2pYf0/exec';
 
-var USE_PROXY = true;
+var USE_PROXY = false;
 
 var Board = 'OPFLEvqH';
 
@@ -37,6 +37,8 @@ var Label = {
     other: '578133eb84e677fd367405aa'      // Label - 其他
 };
 
+var ADMIN_EMAIL = 'm.jacky@gmail.com';
+
 function useAppScript() {
     USE_PROXY = true;
 }
@@ -45,7 +47,7 @@ function notUseAppScript() {
     USE_PROXY = false;
 }
 
-function trelloAuthorize(done) {
+function trelloAuthorize(done, fail) {
     if (USE_PROXY) {
         $.get(APPSCRIPT_URL, {
             "method": "authorize"
@@ -55,11 +57,14 @@ function trelloAuthorize(done) {
                 done();
             } else {
                 var url = data.authorizationUrl;
-                failAlert("<strong>錯誤: </strong>Authorize Failed.<br>Please visit the following URL and then re-run the script: "+url);
+                failAlert("<strong>錯誤: </strong>Authorize Failed.<br>" +
+					"Please get the authorization <a href='"+url+"' target='_blank'>here</a> and then re-run this page.");
+				fail();
             }
         })
         .fail(function() { 
             failAlert("<strong>錯誤: </strong>Authorize Failed"); 
+			fail();
         });
     } else {
         Trello.authorize({
@@ -71,7 +76,10 @@ function trelloAuthorize(done) {
             //expiration: "never",
             expiration: "30days",
             success: done,
-            error: function() { failAlert("<strong>錯誤: </strong>Authorize Failed"); }
+            error: function() { 
+				failAlert("<strong>錯誤: </strong>Authorize Failed");
+				fail();
+			}
         });
     }
 }
@@ -82,10 +90,23 @@ function trelloGet(url, done, fail) {
             "trello_url": url,
             "method": "get"
         })
-        .done(done)
+        .done( function(data) {
+			if (data.hasAccess === false) {
+				$('#loader').remove();
+				failAlert("<strong>錯誤: </strong>Authorize Failed.<br>" +
+					"Please get the authorization <a href='"+data.authorizationUrl+"' target='_blank'>here</a> and then re-run this page.");
+			} else {
+				done(data);
+			}
+		})
         .fail(fail);
     } else {
-        Trello.get(url, done, fail);
+        Trello.get(url, done, 
+			function(jqXHR, textStatus, errorThrown) {
+				console.log('textStatus='+textStatus);
+				console.log('errorThrown='+errorThrown);
+				fail();
+			});
     }
 }
 
@@ -101,6 +122,18 @@ function trelloPost(url, data, done, fail) {
     } else {
        Trello.post(url, data, done, fail);
     }
+}
+
+function sendEmail(to, cc, subject, message, done, fail) {
+	$.get(APPSCRIPT_URL, {
+		"method": "email",
+		"to": to,
+		"cc": cc,
+		"subject": subject,
+		"message": message
+	})
+	.done(done)
+    .fail(fail);
 }
 
 function successAlert(msg) {
