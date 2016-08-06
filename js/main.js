@@ -88,21 +88,6 @@ function trelloGet(url, done, fail) {
         .fail(fail);
     } else {
         Trello.get(url, done, fail);
-			function(jqXHR, textStatus, errorThrown) {
-				if (jqXHR.status == '401') { // unauthorized permission requested
-					$('#loader').remove();
-					failAlert("<strong>錯誤: </strong>Authorize Failed.<br>" +
-						"Please get the authorization and then re-run this page.");
-					trelloAuthorize(function() {
-						console.log('done!');
-					},
-					function() {
-						console.log('fail!');
-					});
-				} else {
-					fail();
-				}
-			});
     }
 }
 
