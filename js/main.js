@@ -67,6 +67,7 @@ function trelloAuthorize(done, fail) {
 			fail();
         });
     } else {
+    	console.log('before Trello.authorize');
         Trello.authorize({
             type: "popup",
             name: "HKG81 QM",
@@ -103,6 +104,10 @@ function trelloGet(url, done, fail) {
     } else {
         Trello.get(url, done, 
 			function(jqXHR, textStatus, errorThrown) {
+				if (jqXHR.status == '401') { // unauthorized permission requested
+					console.log('jqXHR.status == 401');
+					trelloAuthorize();
+				}
 				console.log('textStatus='+textStatus);
 				console.log('errorThrown='+errorThrown);
 				console.log('jqXHR.status='+jqXHR.status);
