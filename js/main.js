@@ -105,14 +105,13 @@ function trelloGet(url, done, fail) {
         Trello.get(url, done, 
 			function(jqXHR, textStatus, errorThrown) {
 				if (jqXHR.status == '401') { // unauthorized permission requested
-					console.log('jqXHR.status == 401');
+					$('#loader').remove();
+					failAlert("<strong>錯誤: </strong>Authorize Failed.<br>" +
+						"Please get the authorization and then re-run this page.");
 					trelloAuthorize();
+				} else {
+					fail();
 				}
-				console.log('textStatus='+textStatus);
-				console.log('errorThrown='+errorThrown);
-				console.log('jqXHR.status='+jqXHR.status);
-				console.log('jqXHR.responseText='+jqXHR.responseText);
-				fail();
 			});
     }
 }
