@@ -189,7 +189,7 @@
             requestShortLink = urlParam('i');
 
             if (requestShortLink !== null) {
-                loadCards();
+                trelloAuthorize(loadCards);
             } else {
                 $('#loader').remove();
                 failAlert("<strong>錯誤: </strong>Param is not existed.");

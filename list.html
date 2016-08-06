@@ -272,7 +272,7 @@
         }
 
         $(function(){
-            loadCards();
+            trelloAuthorize(loadCards);
 
             $('#filter-modal .status-toggle:checkbox').on('change', toggleFilterStatus);
             $('#filter-modal .type-toggle:checkbox').on('change', toggleFilterType);

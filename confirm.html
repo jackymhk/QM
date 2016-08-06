@@ -183,7 +183,9 @@
             param = JSON.parse(urlParam('param'));
 
             if (param !== null) {
-                loadParam(param);
+                trelloAuthorize(function() {
+					loadParam(param);
+				});
             } else {
                 $('#confirm-container').hide();
                 showError("<strong>錯誤: </strong>請重新提交申請。<br>(Param is not existed.)");
