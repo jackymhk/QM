@@ -49,26 +49,9 @@ function notUseAppScript() {
 
 function trelloAuthorize(done, fail) {
     if (USE_PROXY) {
-        $.get(APPSCRIPT_URL, {
-            "method": "authorize"
-        })
-        .done(function(data) {
-            if (data.hasAccess == true) {
-                done();
-            } else {
-                var url = data.authorizationUrl;
-                failAlert("<strong>錯誤: </strong>Authorize Failed.<br>" +
-					"Please get the authorization <a href='"+url+"' target='_blank'>here</a> and then re-run this page.");
-				fail();
-            }
-        })
-        .fail(function() { 
-            failAlert("<strong>錯誤: </strong>Authorize Failed"); 
-			fail();
-        });
+        done();
     } else {
-    	console.log('before Trello.authorize');
-        Trello.authorize({
+    	Trello.authorize({
             type: "popup",
             name: "HKG81 QM",
             scope: {
@@ -78,7 +61,9 @@ function trelloAuthorize(done, fail) {
             expiration: "30days",
             success: done,
             error: function() { 
-				failAlert("<strong>錯誤: </strong>Authorize Failed");
+				$('#loader').remove();
+				failAlert("<strong>錯誤: </strong>Authorize Failed.<br>" +
+					"Please get the authorization and then re-run this page.");
 				fail();
 			}
         });
@@ -102,7 +87,7 @@ function trelloGet(url, done, fail) {
 		})
         .fail(fail);
     } else {
-        Trello.get(url, done, 
+        Trello.get(url, done, fail);
 			function(jqXHR, textStatus, errorThrown) {
 				if (jqXHR.status == '401') { // unauthorized permission requested
 					$('#loader').remove();
