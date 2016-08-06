@@ -108,7 +108,12 @@ function trelloGet(url, done, fail) {
 					$('#loader').remove();
 					failAlert("<strong>錯誤: </strong>Authorize Failed.<br>" +
 						"Please get the authorization and then re-run this page.");
-					trelloAuthorize();
+					trelloAuthorize(function() {
+						console.log('done!');
+					},
+					function() {
+						console.log('fail!');
+					});
 				} else {
 					fail();
 				}
