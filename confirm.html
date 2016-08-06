@@ -115,7 +115,40 @@
                 } else if (addChklstItemErrCount > 0) {
                     showError("<strong>錯誤: </strong>請重新提交申請。<br/>(Add Checklist Item Failed)");
                 } else {
-                    showSuccess("<strong>成功! </strong>申請已完成。");
+					var mailTo = ADMIN_EMAIL;
+					var mailCc = param.email;
+					var mailSubject = "[81st HKG] 物資借用申請 - " + param.activity;
+					var mailMessage = 
+						"<table>" +
+						"<tr><td><b>支部:</b></td><td>" + param.branch == 'scout' ? '童軍' : param.branch == 'venture' ? '深資童軍' : '' + "</td></tr>" +
+						"<tr><td><b>申請人:</b></td><td>" + param.applicant + "</td></tr>" +
+						"<tr><td><b>職位:</b></td><td>" + param.post + "</td></tr>" +
+						"<tr><td><b>E-mail:</b></td><td>" + param.email + "</td></tr>" +
+						"<tr><td><b>活動:</b></td><td>" + param.activity + "</td></tr>" +
+						"<tr><td><b>借用日期:</b></td><td>" + param.borrow_dt + "</td></tr>" +
+						"<tr><td><b>歸還日期:</b></td><td>" + param.return_dt + "</td></tr>" +
+						"<tr><td style='vertical-align: top;'><b>物資清單:</b></td><td>";
+					
+					$.each(param.items, function(index, item) {
+						mailMessage += item.name+'<br/>';
+					});
+						
+					mailMessage +=
+						"</td></tr>" +
+						"<tr><td style='vertical-align: top;'><b>備註:</b></td><td>" + 
+						param.remarks.replace(/\n/g, '<br/>') +
+						"</td></tr>" +
+						"</table>";
+					
+					sendEmail(mailTo, mailCc, mailSubject, mailMessage, 
+						function () {
+							showSuccess("<strong>成功! </strong>申請已完成。");
+						}, 
+						function () {
+							showError("<strong>錯誤: </strong>請重新提交申請。<br/>(Send Email Failed)");
+						}
+					);
+                    
                 }
             }
         }
@@ -155,8 +188,8 @@
                 $('#confirm-container').hide();
                 showError("<strong>錯誤: </strong>請重新提交申請。<br>(Param is not existed.)");
             }
-
-            $('#back').on('click', function() {
+			
+			$('#back').on('click', function() {
                 var param2 = encodeURIComponent(JSON.stringify(param));
                 window.location.href = "add.html?param="+param2;
             });

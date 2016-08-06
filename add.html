@@ -38,7 +38,7 @@
             if (loadedListCount == List.inSchool.length) {
                 createItemCheckboxes();
 
-                $('#loader').hide();
+                $('#loader').remove();
                 $('.items').removeClass('hidden');
             }
         };
@@ -290,18 +290,6 @@
 
             loadUrlParam();
             loadLists();
-            /*
-            Trello.authorize({
-                type: "popup",
-                name: "HKG81 QM",
-                scope: {
-                    read: true,
-                    write: true },
-                expiration: "never",
-                success: loadLists,
-                error: function() { failAlert("Failed authentication"); }
-            });
-            */
         });
     </script>
 </head>
