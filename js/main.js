@@ -47,7 +47,20 @@ function notUseAppScript() {
 
 function trelloAuthorize(done) {
     if (USE_PROXY) {
-        done();
+        $.get(APPSCRIPT_URL, {
+            "method": "authorize"
+        })
+        .done(function(data) {
+            if (data.hasAccess == true) {
+                done();
+            } else {
+                var url = data.authorizationUrl;
+                failAlert("<strong>錯誤: </strong>Authorize Failed.<br>Please visit the following URL and then re-run the script: "+url);
+            }
+        })
+        .fail(function() { 
+            failAlert("<strong>錯誤: </strong>Authorize Failed"); 
+        });
     } else {
         Trello.authorize({
             type: "popup",
