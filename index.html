@@ -22,7 +22,10 @@
         var loadCards = function() {
             trelloGet('/boards/'+Board+'/cards?checklists=all',
                 showCards,
-                function() { failAlert("load cards fail"); }
+                function() { 
+					$('#loader').remove();
+					failAlert("load cards fail"); 
+				}
             );
         };
 
@@ -120,15 +123,7 @@
         }
 
         $(function(){
-            //loadCards();
-            
-            trelloAuthorize(function() {
-						console.log('done!');
-						loadCards();
-					},
-					function() {
-						console.log('fail!');
-					});
+            trelloAuthorize(loadCards);
 			
             $('.dashboard-widget').on('click', function() {
                 window.location.href = $(this).data('url');
