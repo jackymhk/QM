@@ -120,7 +120,15 @@
         }
 
         $(function(){
-            loadCards();
+            //loadCards();
+            
+            trelloAuthorize(function() {
+						console.log('done!');
+						loadCards();
+					},
+					function() {
+						console.log('fail!');
+					});
 			
             $('.dashboard-widget').on('click', function() {
                 window.location.href = $(this).data('url');
