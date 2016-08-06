@@ -105,6 +105,7 @@ function trelloGet(url, done, fail) {
 			function(jqXHR, textStatus, errorThrown) {
 				console.log('textStatus='+textStatus);
 				console.log('errorThrown='+errorThrown);
+				console.log('jqXHR.status='+jqXHR.status);
 				fail();
 			});
     }
