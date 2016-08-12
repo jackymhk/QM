@@ -1,6 +1,6 @@
 var APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyhle-PX-nb9GK_a3z0Zv4hOFSP8mHeoaKe3Gws_KsFvX2pYf0/exec';
 
-var USE_PROXY = false;
+var USE_PROXY = true;
 
 var Board = 'OPFLEvqH';
 
