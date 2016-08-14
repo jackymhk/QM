@@ -13,10 +13,10 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript"></script>
 
     <script type="text/javascript">
-        var source = 'https://skiplagged.com/api/pokemon.php?bounds=22.118181,113.662987,22.649597,114.541893';
+        var url = 'https://script.google.com/macros/s/AKfycbxhGv-MlQqOea31lWH-8g-x62r2Mkw1EpmVu8HG8eqRacq2rpoq/exec';
 
         function getPokemons() {
-            $.get(source)
+            $.get(url)
             .done(function(data) {
                 if(data.pokemons.length > 0) {
                     $each(data.pokemons, function(index, pokemon){
