@@ -10,8 +10,9 @@
     <script src="http://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"></script>
     <script type="text/javascript">
         $(function(){
+            /*
             $.ajax({
-                url: "https://api.pushbullet.com/v2/users/me",
+                url: "https://api.pushbullet.com/v2/devices",
                 headers: {
                     "Access-Token" : "o.Xz6cGL5XBKSloHnnHZ7eMV9zPRvqCPCm"
                 },
@@ -20,6 +21,35 @@
                 contentType: 'application/json',
                 processData: false,
                 //data: '{"foo":"bar"}',
+                success: function (data) {
+                    $('#result').append(JSON.stringify(data));
+                },
+                error: function(){
+                    $('#result').append('Cannot get data');
+                }
+            });
+            */
+            /*
+            $.ajax({
+                url: "https://api.pushbullet.com/v2/pushes",
+                headers: {
+                    "Access-Token" : "o.Xz6cGL5XBKSloHnnHZ7eMV9zPRvqCPCm"
+                },
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                processData: false,
+                data: '{ "type" : "note", "title" : "First Push", "body" : "Testing 12345" }' ,
+                success: function (data) {
+                    $('#result').append(JSON.stringify(data));
+                },
+                error: function(){
+                    $('#result').append('Cannot get data');
+                }
+            });
+            */
+            $.get({
+                url: 'https://pogo.appx.hk/top',
                 success: function (data) {
                     $('#result').append(JSON.stringify(data));
                 },
@@ -38,3 +68,4 @@
 
 </body>
 </html>
+
