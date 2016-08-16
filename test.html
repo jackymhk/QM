@@ -48,7 +48,7 @@
                 }
             });
             */
-            $.get({
+            $.ajax({
                 url: 'https://pogo.appx.hk/top',
                 success: function (data) {
                     $('#result').append(JSON.stringify(data));
