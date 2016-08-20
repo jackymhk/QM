@@ -156,7 +156,7 @@ function isEmail(email) {
 }
 
 $(function(){
-    $(".datepicker").datepicker({
+    $(".input-group.date").datepicker({
         format: 'yyyy-mm-dd',
         autoclose: true
     });
