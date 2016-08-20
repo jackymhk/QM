@@ -155,13 +155,6 @@ function isEmail(email) {
     return regex.test(email);
 }
 
-$(function(){
-    $(".input-group.date").datepicker({
-        format: 'yyyy-mm-dd',
-        autoclose: true
-    });
-});
-
 function dateFormat(date) {
     return date.getFullYear()+'-'+leadingZero(date.getMonth()+1)+'-'+leadingZero(date.getDate())+' '
         +leadingZero(date.getHours())+':'+leadingZero(date.getMinutes())+':'+leadingZero(date.getSeconds());
