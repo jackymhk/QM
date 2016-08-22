@@ -107,6 +107,18 @@
 	color: #d9534f;
 }
 
+.txt-pending, .txt-pending:hover, .txt-pending:focus {
+    color: #ddd;
+}
+
+.txt-borrowed, .txt-borrowed:hover, .txt-borrowed:focus {
+	color: #337ab7;
+}
+
+.txt-returned, .txt-returned:hover, .txt-returned:focus {
+    color: #5cb85c;
+}
+
 /*****************************
  * Confirm form @confirm.html
  *****************************/
@@ -263,6 +275,29 @@
     border-top: 1px solid transparent;
     border-bottom: 1px solid #ddd;
 }
+
+.request-ctrl-btn {
+	/*border-radius: 50%;*/
+	width: 40px;
+	height: 40px;
+	font-size: 18px;
+	/*padding-left: 10px;*/
+	background-color: transparent;
+	border-color: transparent;
+}
+
+.request-ctrl-btn:hover, .request-ctrl-btn:focus {
+   background-color: transparent;
+    border-color: transparent;
+}
+/*
+.request-ctrl-btn.btn-default {
+	color: #ccc;
+}
+
+.request-ctrl-btn.btn-default:hover, .request-ctrl-btn.btn-default:focus {
+    color: #adadad;
+}*/
 
 /*****************************
  * Dashboard @index.html

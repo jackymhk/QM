@@ -222,6 +222,42 @@
                 updateProgressIcon();
                 updateProgressBar('100%');
             });
+            
+            $('#test-toggle').change(function() {
+                if ($('#test-toggle').is(':checked')) {
+                	//$('#test-toggle').data('offstyle','primary');
+                    //alert($('#test-toggle').data('offstyle'));
+                } else {
+                	/*
+                	$('#test-toggle').siblings('.toggle-group').find('.toggle-off')
+                	   .html("<span class='glyphicon glyphicon-ok'></span>")
+                	   .removeClass('btn-default')
+                	   .addClass('btn-success');
+                	$('#test-toggle').closest('.toggle')
+                	   .removeClass('btn-default')
+                       .addClass('btn-success');
+                	*/
+                	//$('#test-toggle').data('offstyle','primary');
+                	//alert($('#test-toggle').data('offstyle'));
+                }
+              });
+            
+            $('.request-ctrl-btn').on('click', function() {
+            	var status = $(this).data('status');
+            	if (status == 'pending') {
+            	    //$(this).removeClass('btn-default').addClass('btn-primary').data('status', 'borrowed');
+            		$(this).removeClass('txt-pending').addClass('txt-borrowed').data('status', 'borrowed');
+            	} else if (status == 'borrowed') {
+            		//$(this).removeClass('btn-primary').addClass('btn-success').data('status', 'returned');
+            		$(this).removeClass('txt-borrowed').addClass('txt-returned').data('status', 'returned');
+            		$(this).find('.glyphicon').removeClass('glyphicon-arrow-right').addClass('glyphicon-ok');
+            	} else if (status == 'returned') {
+                    //$(this).removeClass('btn-success').addClass('btn-default').data('status', 'pending');
+                    $(this).removeClass('txt-returned').addClass('txt-pending').data('status', 'pending');
+                    $(this).find('.glyphicon').removeClass('glyphicon-ok').addClass('glyphicon-arrow-right');
+                }
+            		   
+            });
         });
     </script>
 </head>
@@ -280,19 +316,28 @@
                         <strong>清單</strong>
                     </div>
                     <div class="request-body">
-                        <!--<input type="checkbox" id="test-toggle" data-toggle="toggle" data-style="pull-right" data-width="80" data-on="<span class='glyphicon glyphicon-arrow-left' aria-hidden='true'></span> 借出" data-onstyle="success" data-off="<span class='glyphicon glyphicon-arrow-right' aria-hidden='true'></span> 歸還" data-offstyle="info" >-->
+                        <!-- 
                         <div class="material-switch pull-right">
                             <input id="someSwitchOptionPrimary" name="someSwitchOption001" type="checkbox"/>
                             <label for="someSwitchOptionPrimary" class="label-success"></label>
                         </div>
+                        -->
+                        <!-- <input type="checkbox" id="test-toggle" data-toggle="toggle" data-style="pull-right" data-on="<span class='glyphicon glyphicon-arrow-right'></span>" data-onstyle="primary" data-off="<span class='glyphicon glyphicon-ok'></span>" data-offstyle="success" >-->
+                        <button type="button" id="test-toggle" class="btn request-ctrl-btn txt-pending pull-right" data-status='pending'><span class='glyphicon glyphicon-arrow-right'></span></button>
+                        <button type="button" id="test-toggle2" class="btn request-ctrl-btn txt-pending pull-right" data-status='pending'><span class='glyphicon glyphicon-arrow-right'></span></button>
                         HKG81/TE/01
                         <div class="request-subheader">
                             <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> 借用中
                         </div>
-                        <a href="javascript: ;" id="progress-bar-btn-pending" class="bs-wizard-dot"><span class="glyphicon" aria-hidden="true"></span></a>
                     </div>
                     <div class="request-body">
+                        <!--<input type="checkbox" id="test-toggle" data-toggle="toggle" data-style="pull-right" data-width="80" data-on="<span class='glyphicon glyphicon-arrow-left' aria-hidden='true'></span> 借出" data-onstyle="success" data-off="<span class='glyphicon glyphicon-arrow-right' aria-hidden='true'></span> 歸還" data-offstyle="info" >  -->
+                        <!--<input type="checkbox" id="test-toggle2" data-toggle="toggle" data-style="pull-right" data-on="<span class='glyphicon glyphicon-arrow-right'></span>" data-onstyle="primary" data-off="&nbsp;" data-offstyle="default" >-->
+                        <button type="button" id="test-toggle2" class="btn request-ctrl-btn txt-pending pull-right" data-status='pending'><span class='glyphicon glyphicon-arrow-right'></span></button>
                         HKG81/TE/02
+                        <div class="request-subheader">
+                            <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> 借用中
+                        </div>
                     </div>
                 </div>
             </div>
