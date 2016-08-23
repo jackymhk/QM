@@ -249,3 +249,46 @@ function getCardNameByUrl(cards, url) {
     }
     return url;
 }
+
+function getCardByUrl(cards, url) {
+    for (var i = 0; i < cards.length; i++) {
+        if (cards[i].url == url) {
+            return cards[i];
+        }
+    }
+    return null;
+}
+
+function getListNameById(lists, id) {
+	for (var i = 0; i < lists.length; i++) {
+        if (lists[i].id == id) {
+            return lists[i].name;
+        }
+    }
+    return id;
+};
+
+function getLateItems(cards) {
+	// Find out late items
+    var lateCardUrls = [];
+    $.each(cards, function(index, card) {
+        var dueDt = null;
+        if (card.due != null)
+            dueDt = new Date(card.due.substring(0,4), card.due.substring(5,7)-1, card.due.substring(8,10));
+
+        if ( (hasLabel(card, Label.borrowRec) || hasLabel(card, Label.repairRec)) &&
+                card.idList != List.pending && card.idList != List.completed &&
+                dueDt != null && dueDt < new Date() &&
+                card.badges.checkItemsChecked < card.badges.checkItems
+                ) {
+            if (card.checklists.length > 0) {
+                for (var i = 0; i < card.checklists[0].checkItems.length; i++) {
+                    if (card.checklists[0].checkItems[i].state == 'incomplete') {
+                        lateCardUrls.push(card.checklists[0].checkItems[i].name);
+                    }
+                }
+            }
+        }
+    });
+    return lateCardUrls;
+}

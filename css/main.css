@@ -107,16 +107,34 @@
 	color: #d9534f;
 }
 
-.txt-pending, .txt-pending:hover, .txt-pending:focus {
-    color: #ddd;
-}
-
-.txt-borrowed, .txt-borrowed:hover, .txt-borrowed:focus {
+.txt-borrowed.active, .txt-borrowed.active:hover, .txt-borrowed.active:focus, .txt-borrowed:hover {
 	color: #337ab7;
 }
 
-.txt-returned, .txt-returned:hover, .txt-returned:focus {
+.txt-returned.active, .txt-returned.active:hover, .txt-returned.active:focus, .txt-returned:hover {
     color: #5cb85c;
+}
+
+.txt-remove.active, .txt-remove.active:hover, .txt-remove.active:focus, .txt-remove:hover {
+    color: #d9534f;
+}
+
+.txt-normal.active, .txt-normal.active:hover, .txt-normal.active:focus, .txt-normal:hover {
+    color: #333;
+}
+
+.txt-borrowed, .txt-borrowed:focus,  
+.txt-returned, .txt-returned:focus, 
+.txt-remove, .txt-remove:focus, 
+.txt-normal, .txt-normal:focus {
+    color: #999;
+}
+
+.txt-borrowed[disabled], .txt-borrowed[disabled]:focus, .txt-borrowed[disabled]:hover,  
+.txt-returned[disabled], .txt-returned[disabled]:focus, .txt-returned[disabled]:hover, 
+.txt-remove[disabled], .txt-remove[disabled]:focus, .txt-remove[disabled]:hover, 
+.txt-normal[disabled], .txt-normal[disabled]:focus, .txt-normal[disabled]:hover {
+    color: #bbb;
 }
 
 /*****************************
@@ -277,27 +295,20 @@
 }
 
 .request-ctrl-btn {
-	/*border-radius: 50%;*/
-	width: 40px;
-	height: 40px;
-	font-size: 18px;
-	/*padding-left: 10px;*/
+	font-size: 20px;
 	background-color: transparent;
 	border-color: transparent;
 }
 
 .request-ctrl-btn:hover, .request-ctrl-btn:focus {
-   background-color: transparent;
+    background-color: transparent;
     border-color: transparent;
 }
-/*
-.request-ctrl-btn.btn-default {
-	color: #ccc;
-}
 
-.request-ctrl-btn.btn-default:hover, .request-ctrl-btn.btn-default:focus {
-    color: #adadad;
-}*/
+.request-ctrl-btn.active {
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
 
 /*****************************
  * Dashboard @index.html

@@ -21,8 +21,19 @@
     <script type="text/javascript">
         var requestShortLink;
         var cards = [];
+        var lists = [];
         var request;
 
+        var loadLists = function() {
+            trelloGet('/boards/'+Board+'/lists',
+            	function(data) { 
+            	   lists = data;
+            	   loadCards(); 
+            	},
+                function() { failAlert("load request fail"); }
+            );
+        };
+        
         var loadCards = function() {
             trelloGet('/boards/'+Board+'/cards?checklists=all&actions=updateCheckItemStateOnCard',
                 showRequest,
@@ -34,7 +45,9 @@
             $('#loader').remove();
             $('#requests').removeClass('hidden');
 
-            var cards = data;
+            cards = data;
+            
+            var lateCardUrls = getLateItems(cards);
 
             // Find request
             $.each(cards, function(index, card) {
@@ -90,31 +103,59 @@
             desc = desc.replace(/(<br>)+/g, '<br>'); // <br><br><br> -> <br>
             desc = desc.replace(/-------<br>-------/g, '-------'); // <br><br><br> -> <br>
 
-            // Checklist
-            var checklist = '';
+            // Items
             if (request.checklists.length > 0) {
                 for (var i = 0; i < request.checklists[0].checkItems.length; i++) {
-                    checklist += '<div>';
-                    if (request.checklists[0].checkItems[i].state == 'incomplete') {
-                        checklist += '<span class="glyphicon glyphicon-remove" aria-hidden="true" style="color: #d9534f"></span> ';
-                    } else {
-                        checklist += '<span class="glyphicon glyphicon-ok" aria-hidden="true" style="color: #5cb85c"></span> ';
-                    }
-                    checklist += autolinker.link(request.checklists[0].checkItems[i].name);
-                    checklist += request.checklists[0].checkItems[i].name;
-                    if (request.checklists[0].checkItems[i].state == 'complete') {
-                        if (request.actions.length > 0) {
-                            for (var j = 0; j < request.actions.length; j++) {
-                                if (request.actions[j].type == 'updateCheckItemStateOnCard' &&
-                                    request.actions[j].data.checkItem.id == request.checklists[0].checkItems[i].id &&
-                                    request.actions[j].data.checkItem.state == 'complete') {
-                                    checklist += ' - <small style="color:#666;"><em>' + request.actions[j].date.substring(0,10) + '</em></small>';
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    checklist += '</div>';
+                	var item = getCardByUrl(cards, request.checklists[0].checkItems[i].name);
+                	var location = getListNameById(lists, item.idList);
+                	
+                	// Check card status
+                    var borrowed = isBorrowed(item);
+                    var late = ($.inArray(item.url, lateCardUrls) > -1);
+                    var repair = (item.idList == List.repair);
+                    var drying = (item.idList == List.drying);
+                    var damaged = hasLabel(item, Label.damaged);
+                    var broken = hasLabel(item, Label.broken);
+                    
+                    // status label
+                    var itemLabel = '';
+                    if (borrowed)
+                    	itemLabel += '<span class="label st-label-large bg-borrowed">借出</span>';
+                    if (late)
+                    	itemLabel += '<span class="label st-label-large bg-late">逾時未還</span>';
+                    if (repair)
+                    	itemLabel += '<span class="label st-label-large bg-repair">維修中</span>';
+                    if (drying)
+                    	itemLabel += '<span class="label st-label-large bg-drying">晾曬中</span>';
+                    if (damaged)
+                    	itemLabel += '<span class="label st-label-large bg-damaged">損壞</span>';
+                    if (broken)
+                    	itemLabel += '<span class="label st-label-large bg-broken">不能使用</span>';
+                    if (itemLabel != '')
+                    	itemLabel = '<p style="margin: 0 0 2px;">' + itemLabel + '</p>';
+                    
+                	var itemsDOM = '';
+                	itemsDOM += '<div class="request-body" id="' + item.shortLink + '">';
+                	itemsDOM += '<div class="pull-right">';
+                	itemsDOM += '<button type="button" class="btn request-ctrl-btn txt-normal"><span class="glyphicon glyphicon-retweet"></span></button>';
+                    itemsDOM += '<button type="button" class="btn request-ctrl-btn txt-normal"><span class="glyphicon glyphicon-remove"></span></button>';
+                	itemsDOM += '<button type="button" class="btn request-ctrl-btn txt-borrowed" data-toggle="button" aria-pressed="false" autocomplete="off"><span class="glyphicon glyphicon-export"></span></button>';
+                    itemsDOM += '</div>';
+                    //if (request.checklists[0].checkItems[i].state == 'incomplete') {
+                    //    checklist += '<span class="glyphicon glyphicon-remove" aria-hidden="true" style="color: #d9534f"></span> ';
+                    //} else {
+                    //    checklist += '<span class="glyphicon glyphicon-ok" aria-hidden="true" style="color: #5cb85c"></span> ';
+                    //}
+                    itemsDOM += item.name;
+                    itemsDOM += itemLabel;
+                    itemsDOM += '<div class="request-subheader">';
+                    itemsDOM += '<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> ' + location;
+                    itemsDOM += '</div>';
+                    itemsDOM += '</div>';
+                    
+                    $('#request-items').append(itemsDOM);
+                    
+                    
                 }
             }
 
@@ -133,6 +174,7 @@
             $('#request-header').append(html);
 
             $('#request-detail').append(desc);
+            
 
             // Status
             if (overdue)
@@ -190,7 +232,7 @@
             requestShortLink = urlParam('i');
 
             if (requestShortLink !== null) {
-                trelloAuthorize(loadCards);
+                trelloAuthorize(loadLists);
             } else {
                 $('#loader').remove();
                 failAlert("<strong>錯誤: </strong>Param is not existed.");
@@ -223,41 +265,6 @@
                 updateProgressBar('100%');
             });
             
-            $('#test-toggle').change(function() {
-                if ($('#test-toggle').is(':checked')) {
-                	//$('#test-toggle').data('offstyle','primary');
-                    //alert($('#test-toggle').data('offstyle'));
-                } else {
-                	/*
-                	$('#test-toggle').siblings('.toggle-group').find('.toggle-off')
-                	   .html("<span class='glyphicon glyphicon-ok'></span>")
-                	   .removeClass('btn-default')
-                	   .addClass('btn-success');
-                	$('#test-toggle').closest('.toggle')
-                	   .removeClass('btn-default')
-                       .addClass('btn-success');
-                	*/
-                	//$('#test-toggle').data('offstyle','primary');
-                	//alert($('#test-toggle').data('offstyle'));
-                }
-              });
-            
-            $('.request-ctrl-btn').on('click', function() {
-            	var status = $(this).data('status');
-            	if (status == 'pending') {
-            	    //$(this).removeClass('btn-default').addClass('btn-primary').data('status', 'borrowed');
-            		$(this).removeClass('txt-pending').addClass('txt-borrowed').data('status', 'borrowed');
-            	} else if (status == 'borrowed') {
-            		//$(this).removeClass('btn-primary').addClass('btn-success').data('status', 'returned');
-            		$(this).removeClass('txt-borrowed').addClass('txt-returned').data('status', 'returned');
-            		$(this).find('.glyphicon').removeClass('glyphicon-arrow-right').addClass('glyphicon-ok');
-            	} else if (status == 'returned') {
-                    //$(this).removeClass('btn-success').addClass('btn-default').data('status', 'pending');
-                    $(this).removeClass('txt-returned').addClass('txt-pending').data('status', 'pending');
-                    $(this).find('.glyphicon').removeClass('glyphicon-ok').addClass('glyphicon-arrow-right');
-                }
-            		   
-            });
         });
     </script>
 </head>
@@ -315,30 +322,35 @@
                     <div class="request-header">
                         <strong>清單</strong>
                     </div>
+                    <!-- 
                     <div class="request-body">
-                        <!-- 
-                        <div class="material-switch pull-right">
-                            <input id="someSwitchOptionPrimary" name="someSwitchOption001" type="checkbox"/>
-                            <label for="someSwitchOptionPrimary" class="label-success"></label>
-                        </div>
-                        -->
-                        <!-- <input type="checkbox" id="test-toggle" data-toggle="toggle" data-style="pull-right" data-on="<span class='glyphicon glyphicon-arrow-right'></span>" data-onstyle="primary" data-off="<span class='glyphicon glyphicon-ok'></span>" data-offstyle="success" >-->
-                        <button type="button" id="test-toggle" class="btn request-ctrl-btn txt-pending pull-right" data-status='pending'><span class='glyphicon glyphicon-arrow-right'></span></button>
-                        <button type="button" id="test-toggle2" class="btn request-ctrl-btn txt-pending pull-right" data-status='pending'><span class='glyphicon glyphicon-arrow-right'></span></button>
+                        <button type="button" class="btn request-ctrl-btn pull-right txt-borrowed" data-toggle="button" aria-pressed="false" autocomplete="off"><span class='glyphicon glyphicon-export'></span></button>
+                        <button type="button" class="btn request-ctrl-btn pull-right txt-normal"><span class='glyphicon glyphicon-remove'></span></button>
+                        <button type="button" class="btn request-ctrl-btn pull-right txt-normal"><span class='glyphicon glyphicon-retweet'></span></button>
                         HKG81/TE/01
                         <div class="request-subheader">
                             <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> 借用中
                         </div>
                     </div>
                     <div class="request-body">
-                        <!--<input type="checkbox" id="test-toggle" data-toggle="toggle" data-style="pull-right" data-width="80" data-on="<span class='glyphicon glyphicon-arrow-left' aria-hidden='true'></span> 借出" data-onstyle="success" data-off="<span class='glyphicon glyphicon-arrow-right' aria-hidden='true'></span> 歸還" data-offstyle="info" >  -->
-                        <!--<input type="checkbox" id="test-toggle2" data-toggle="toggle" data-style="pull-right" data-on="<span class='glyphicon glyphicon-arrow-right'></span>" data-onstyle="primary" data-off="&nbsp;" data-offstyle="default" >-->
-                        <button type="button" id="test-toggle2" class="btn request-ctrl-btn txt-pending pull-right" data-status='pending'><span class='glyphicon glyphicon-arrow-right'></span></button>
+                        <button type="button" class="btn request-ctrl-btn pull-right txt-borrowed active" data-toggle="button" aria-pressed="true" autocomplete="off"><span class='glyphicon glyphicon-export'></span></button>
+                        <button type="button" class="btn request-ctrl-btn pull-right txt-normal" disabled><span class='glyphicon glyphicon-remove'></span></button>
+                        <button type="button" class="btn request-ctrl-btn pull-right txt-normal" disabled><span class='glyphicon glyphicon-retweet'></span></button>
                         HKG81/TE/02
                         <div class="request-subheader">
                             <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> 借用中
                         </div>
                     </div>
+                    <div class="request-body">
+                        <button type="button" class="btn request-ctrl-btn pull-right txt-borrowed" data-toggle="button" aria-pressed="false" autocomplete="off"><span class='glyphicon glyphicon-export'></span></button>
+                        <button type="button" class="btn request-ctrl-btn pull-right txt-normal"><span class='glyphicon glyphicon-remove'></span></button>
+                        <button type="button" class="btn request-ctrl-btn pull-right txt-normal"><span class='glyphicon glyphicon-retweet'></span></button>
+                        HKG81/TE/03
+                        <div class="request-subheader">
+                            <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> 借用中
+                        </div>
+                    </div>
+                     -->
                 </div>
             </div>
         </div>
