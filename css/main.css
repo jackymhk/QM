@@ -247,6 +247,12 @@
 	color: #666;
 }
 
+.request-subheader-grp {
+	display: inline-block;
+    margin-right: 20px;
+	white-space: nowrap;
+}
+
 .request-body {
     padding: 15px;
     border-bottom: 1px solid transparent;
@@ -474,6 +480,10 @@
 .bs-wizard > .progress > .progress-bar {
     width:0px; 
     box-shadow: none; 
+}
+
+.bs-wizard > .bs-wizard-step > .unclickable {
+	pointer-events: none;
 }
 /*
 .bs-wizard > .bs-wizard-step > .progress { 

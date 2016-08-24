@@ -23,6 +23,7 @@
         var cards = [];
         var lists = [];
         var request;
+        var request_items = [];
 
         var loadLists = function() {
             trelloGet('/boards/'+Board+'/lists',
@@ -47,38 +48,9 @@
 
             cards = data;
             
+            // Find out late items
             var lateCardUrls = getLateItems(cards);
-
-            // Find request
-            $.each(cards, function(index, card) {
-                if (card.shortLink == requestShortLink)
-                    request = card;
-            });
-
-            // Get request info
-            var dueDt = null;
-            if (request.due != null)
-                dueDt = new Date(request.due);
-
-            // Check request status
-            var pending = (request.idList == List.pending);
-            var completed = (request.idList == List.completed);
-            var overdue = (dueDt != null && dueDt < new Date() && request.badges.checkItemsChecked < request.badges.checkItems);
-            var active = (!pending && !completed && !overdue);
-
-            // Label
-            var label = '';
-            if (overdue)
-                label += '<span class="label st-label-large bg-overdue">逾時未還</span>';
-            if (pending)
-                label += '<span class="label st-label-large bg-pending">待處理</span>';
-            if (active)
-                label += '<span class="label st-label-large bg-active">進行中</span>';
-            if (completed)
-                label += '<span class="label st-label-large bg-completed">完成</span>';
-            if (label != '')
-                label = '<p>' + label + '</p>';
-
+            
             // Autolinker: utility to change url text to link
             var autolinker = new Autolinker({
                 replaceFn : function(autolinker, match) {
@@ -94,6 +66,47 @@
                     return cardUrlRemove(autolinker, match, cards);
                 }
             });
+            
+            //---------------------------------------
+            
+
+            //---------------------------------------
+            // Find request
+            $.each(cards, function(index, card) {
+                if (card.shortLink == requestShortLink)
+                    request = card;
+            });
+
+            //---------------------------------------
+            // Get request info
+            var dueDt = null;
+            if (request.due != null)
+                dueDt = new Date(request.due);
+            
+            // Check request status
+            var pending = (request.idList == List.pending);
+            var completed = (request.idList == List.completed);
+            var overdue = (dueDt != null && dueDt < new Date() && request.badges.checkItemsChecked < request.badges.checkItems);
+            var active = hasLabel(request, Label.active);
+            var borrowProcess = hasLabel(request, Label.borrowProcess);
+            
+            if (overdue)
+            	$('#request').addClass('overdue');
+
+            // Label
+            var label = '';
+            if (overdue)
+                label += '<span class="label st-label-large bg-overdue">逾時未還</span>';
+            if (pending)
+                label += '<span class="label st-label-large bg-pending">待處理</span>';
+            if (borrowProcess)
+                label += '<span class="label st-label-large bg-pending">借用處理中</span>';
+            if (active)
+                label += '<span class="label st-label-large bg-active">進行中</span>';
+            if (completed)
+                label += '<span class="label st-label-large bg-completed">完成</span>';
+            if (label != '')
+                label = '<p>' + label + '</p>';
 
             // Format Description
             var desc = request.desc;
@@ -102,14 +115,30 @@
             desc = urlRemover.link(desc); // url -> ''
             desc = desc.replace(/(<br>)+/g, '<br>'); // <br><br><br> -> <br>
             desc = desc.replace(/-------<br>-------/g, '-------'); // <br><br><br> -> <br>
+            
+            $('#request-detail').append(desc);
 
+            var borrowDt = request.name.substring(0, 10);
+            var activity = request.name.substring(12, request.name.length-1);
+            
+            var html = label +
+                   '<strong>' + activity + '</strong>' +
+                   '<div class="request-subheader">' +
+                   '<div class="request-subheader-grp"><span class="glyphicon glyphicon-time" aria-hidden="true"></span> ' + borrowDt + ' / ' + dateFormat_ymd(dueDt) + '</div>' +
+                   '<div class="request-subheader-grp"><span class="glyphicon glyphicon-check" aria-hidden="true"></span> ' + request.badges.checkItemsChecked+'/'+request.badges.checkItems + '</div>';
+            
+            $('#request-header').append(html);
+            
+            //---------------------------------------
             // Items
             if (request.checklists.length > 0) {
                 for (var i = 0; i < request.checklists[0].checkItems.length; i++) {
-                	var item = getCardByUrl(cards, request.checklists[0].checkItems[i].name);
-                	var location = getListNameById(lists, item.idList);
-                	
-                	// Check card status
+                    var item = getCardByUrl(cards, request.checklists[0].checkItems[i].name);
+                    request_items.push(item);
+                    
+                    var location = getListNameById(lists, item.idList);
+                    
+                    // Check item status
                     var borrowed = isBorrowed(item);
                     var late = ($.inArray(item.url, lateCardUrls) > -1);
                     var repair = (item.idList == List.repair);
@@ -117,78 +146,55 @@
                     var damaged = hasLabel(item, Label.damaged);
                     var broken = hasLabel(item, Label.broken);
                     
-                    // status label
+                    // item status label
                     var itemLabel = '';
                     if (borrowed)
-                    	itemLabel += '<span class="label st-label-large bg-borrowed">借出</span>';
+                        itemLabel += '<span class="label st-label-large bg-borrowed">借出</span>';
                     if (late)
-                    	itemLabel += '<span class="label st-label-large bg-late">逾時未還</span>';
+                        itemLabel += '<span class="label st-label-large bg-late">逾時未還</span>';
                     if (repair)
-                    	itemLabel += '<span class="label st-label-large bg-repair">維修中</span>';
+                        itemLabel += '<span class="label st-label-large bg-repair">維修中</span>';
                     if (drying)
-                    	itemLabel += '<span class="label st-label-large bg-drying">晾曬中</span>';
+                        itemLabel += '<span class="label st-label-large bg-drying">晾曬中</span>';
                     if (damaged)
-                    	itemLabel += '<span class="label st-label-large bg-damaged">損壞</span>';
+                        itemLabel += '<span class="label st-label-large bg-damaged">損壞</span>';
                     if (broken)
-                    	itemLabel += '<span class="label st-label-large bg-broken">不能使用</span>';
+                        itemLabel += '<span class="label st-label-large bg-broken">不能使用</span>';
                     if (itemLabel != '')
-                    	itemLabel = '<p style="margin: 0 0 2px;">' + itemLabel + '</p>';
+                        itemLabel = '<p style="margin: 0 0 2px;">' + itemLabel + '</p>';
+                        
+                    var borrowBtnDisabled = (borrowed || late) ? 'disabled' : '';
+                    var returnDt = '';
+                    if (borrowed || late) {
+                    	returnDt = getReturnDate(item.idList);
+                    }
                     
-                	var itemsDOM = '';
-                	itemsDOM += '<div class="request-body" id="' + item.shortLink + '">';
-                	itemsDOM += '<div class="pull-right">';
-                	itemsDOM += '<button type="button" class="btn request-ctrl-btn txt-normal"><span class="glyphicon glyphicon-retweet"></span></button>';
-                    itemsDOM += '<button type="button" class="btn request-ctrl-btn txt-normal"><span class="glyphicon glyphicon-remove"></span></button>';
-                	itemsDOM += '<button type="button" class="btn request-ctrl-btn txt-borrowed" data-toggle="button" aria-pressed="false" autocomplete="off"><span class="glyphicon glyphicon-export"></span></button>';
+                    var itemsDOM = '';
+                    itemsDOM += '<div class="request-body" id="' + item.shortLink + '">';
+                    itemsDOM += '<div class="pull-right">';
+                    itemsDOM += '<button type="button" class="btn request-ctrl-btn txt-normal"><span class="glyphicon glyphicon-retweet" title="更改"></span></button>';
+                    itemsDOM += '<button type="button" class="btn request-ctrl-btn txt-normal"><span class="glyphicon glyphicon-remove" title="移除"></span></button>';
+                    itemsDOM += '<button type="button" class="btn request-ctrl-btn txt-borrowed" data-toggle="button" aria-pressed="false" autocomplete="off" ' + borrowBtnDisabled + '><span class="glyphicon glyphicon-export" title="借出"></span></button>';
                     itemsDOM += '</div>';
-                    //if (request.checklists[0].checkItems[i].state == 'incomplete') {
-                    //    checklist += '<span class="glyphicon glyphicon-remove" aria-hidden="true" style="color: #d9534f"></span> ';
-                    //} else {
-                    //    checklist += '<span class="glyphicon glyphicon-ok" aria-hidden="true" style="color: #5cb85c"></span> ';
-                    //}
                     itemsDOM += item.name;
                     itemsDOM += itemLabel;
                     itemsDOM += '<div class="request-subheader">';
-                    itemsDOM += '<span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> ' + location;
+                    itemsDOM += '<div class="request-subheader-grp"><span class="glyphicon glyphicon-map-marker" title="地點/活動" aria-hidden="true"></span> ' + location + '</div>';
+                    if (borrowed || late) {
+                    	itemsDOM += '<div class="request-subheader-grp"><span class="glyphicon glyphicon-time" title="歸還日期" aria-hidden="true"></span> ' + returnDt + '</div>';	
+                    }
                     itemsDOM += '</div>';
                     itemsDOM += '</div>';
                     
                     $('#request-items').append(itemsDOM);
-                    
-                    
                 }
             }
-
-            var borrowDt = request.name.substring(0, 10);
-            var dueDt = request.due.substring(0, 10);
-            var activity = request.name.substring(12, request.name.length-1);
-
-            var html = '';
-
-            html = label +
-                   '<strong>' + activity + '</strong>' +
-                   '<div class="request-subheader">' +
-                   '<span class="glyphicon glyphicon-time" aria-hidden="true"></span> ' + borrowDt + ' / ' + dueDt +
-                   '&nbsp;&nbsp;&nbsp;&nbsp;' +
-                   '<span class="glyphicon glyphicon-check" aria-hidden="true"></span> ' + request.badges.checkItemsChecked+'/'+request.badges.checkItems;
-            $('#request-header').append(html);
-
-            $('#request-detail').append(desc);
-            
-
-            // Status
-            if (overdue)
-                $('#request').addClass('overdue');
-            if (pending)
-                $('#request').addClass('pending');
-            if (active)
-                $('#request').addClass('active');
-            if (completed)
-                $('#request').addClass('completed');
 
             // Trigger Progress Bar
             if (pending)
                 $('#progress-bar-btn-pending').triggerHandler('click');
+            else if (borrowProcess)
+                $('#progress-bar-btn-borrow').triggerHandler('click');
             else if (completed)
                 $('#progress-bar-btn-complete').triggerHandler('click');
             else if (overdue)
@@ -197,35 +203,15 @@
                 $('#progress-bar-btn-active').triggerHandler('click');
 
         }
-
-        var updateProgressIcon = function() {
-            $('.bs-wizard-step.disabled .glyphicon').removeClass('glyphicon-arrow-right').removeClass('glyphicon-ok');
-            $('.bs-wizard-step.active .glyphicon').addClass('glyphicon-arrow-right').removeClass('glyphicon-ok');
-            $('.bs-wizard-step.overdue .glyphicon').addClass('glyphicon-arrow-right').removeClass('glyphicon-ok');
-            $('.bs-wizard-step.complete .glyphicon').removeClass('glyphicon-arrow-right').addClass('glyphicon-ok');
-        }
-
-        var updateProgressStatus = function(progress_step, status) {
-            if (status == 'disabled')
-                $(progress_step).addClass('disabled').removeClass('active').removeClass('overdue').removeClass('complete');
-            else if (status == 'active')
-                $(progress_step).removeClass('disabled').addClass('active').removeClass('overdue').removeClass('complete');
-            else if (status == 'overdue')
-                $(progress_step).removeClass('disabled').removeClass('active').addClass('overdue').removeClass('complete');
-            else if (status == 'complete')
-                $(progress_step).removeClass('disabled').removeClass('active').removeClass('overdue').addClass('complete');
-        }
-
-        var updateOverdueStatus = function() {
-            if ($('#progress-step-active').hasClass('overdue')) {
-                $('#progress-step-title-active').html('逾時未還').addClass('txt-overdue');
-            } else {
-                $('#progress-step-title-active').html('進行中').removeClass('txt-overdue');
+        
+        var getReturnDate = function(idList) {
+        	for (var i = 0; i < cards.length; i++) {
+                if (cards[i].idList == idList && 
+                		(hasLabel(cards[i], Label.borrowRec) || hasLabel(cards[i], Label.repairRec))) {
+                    return cards[i].due.substring(0, 10);
+                }
             }
-        }
-
-        var updateProgressBar = function(pct) {
-            $('.bs-wizard .progress-bar').width(pct);
+        	return '';
         }
 
         $(function(){
@@ -237,32 +223,10 @@
                 $('#loader').remove();
                 failAlert("<strong>錯誤: </strong>Param is not existed.");
             }
-
-            $('#progress-bar-btn-pending').on('click', function() {
-                updateProgressStatus('#progress-step-pending', 'active');
-                updateProgressStatus('#progress-step-active', 'disabled');
-                updateProgressStatus('#progress-step-complete', 'disabled');
-                updateOverdueStatus();
-                updateProgressIcon();
-                updateProgressBar('0');
-            });
-
-            $('#progress-bar-btn-active').on('click', function() {
-                updateProgressStatus('#progress-step-pending', 'complete');
-                updateProgressStatus('#progress-step-active', $('#request').hasClass('overdue') ? 'overdue' : 'active');
-                updateProgressStatus('#progress-step-complete', 'disabled');
-                updateOverdueStatus();
-                updateProgressIcon();
-                updateProgressBar('50%');
-            });
-
-            $('#progress-bar-btn-complete').on('click', function() {
-                updateProgressStatus('#progress-step-pending', 'complete');
-                updateProgressStatus('#progress-step-active', 'complete');
-                updateProgressStatus('#progress-step-complete', 'complete');
-                updateOverdueStatus();
-                updateProgressIcon();
-                updateProgressBar('100%');
+            
+            // Progress Bar onClick action
+            $('.progress-bar-btn').on('click', function() {
+            	updateProgressBar($(this));
             });
             
         });
@@ -300,17 +264,21 @@
                     </div>
                     <div class="request-footer">
                         <div class="row bs-wizard">
-                            <div id="progress-step-pending" class="col-xs-4 bs-wizard-step complete">
+                            <div id="progress-step-1" class="col-xs-3 bs-wizard-step complete">
                                 <div class="text-center bs-wizard-stepnum">待處理</div>
-                                <a href="javascript: ;" id="progress-bar-btn-pending" class="bs-wizard-dot"><span class="glyphicon" aria-hidden="true"></span></a>
+                                <a href="javascript: ;" id="progress-bar-btn-pending" class="progress-bar-btn bs-wizard-dot unclickable" data-stepnum="1" data-totalstep="4" data-barlength="0"><span class="glyphicon" aria-hidden="true"></span></a>
                             </div>
-                            <div id="progress-step-active" class="col-xs-4 bs-wizard-step disabled">
-                                <div class="text-center bs-wizard-stepnum" id="progress-step-title-active">進行中</div>
-                                <a href="javascript: ;" id="progress-bar-btn-active" class="bs-wizard-dot"><span class="glyphicon" aria-hidden="true"></span></a>
+                            <div id="progress-step-2" class="col-xs-3 bs-wizard-step disabled">
+                                <div class="text-center bs-wizard-stepnum">借出</div>
+                                <a href="javascript: ;" id="progress-bar-btn-borrow" class="progress-bar-btn bs-wizard-dot" data-stepnum="2" data-totalstep="4" data-barlength="33%"><span class="glyphicon" aria-hidden="true"></span></a>
                             </div>
-                            <div id="progress-step-complete" class="col-xs-4 bs-wizard-step disabled">
+                            <div id="progress-step-3" class="col-xs-3 bs-wizard-step disabled">
+                                <div class="text-center bs-wizard-stepnum">進行中</div>
+                                <a href="javascript: ;" id="progress-bar-btn-active" class="progress-bar-btn bs-wizard-dot" data-stepnum="3" data-totalstep="4" data-barlength="66%" data-chkoverdue="Y"><span class="glyphicon" aria-hidden="true"></span></a>
+                            </div>
+                            <div id="progress-step-4" class="col-xs-3 bs-wizard-step disabled">
                                 <div class="text-center bs-wizard-stepnum">完成</div>
-                                <a href="javascript: ;" id="progress-bar-btn-complete" class="bs-wizard-dot"><span class="glyphicon" aria-hidden="true"></span></a>
+                                <a href="javascript: ;" id="progress-bar-btn-complete" class="progress-bar-btn bs-wizard-dot" data-stepnum="4" data-totalstep="4" data-barlength="100%"><span class="glyphicon" aria-hidden="true"></span></a>
                             </div>
                             <div class="progress"><div class="progress-bar progress-bar-success"></div></div>
                         </div>

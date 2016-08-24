@@ -25,16 +25,21 @@ var List = {
 var Label = {
     borrowRec: '5787b74784e677fd368578df', // Label - 借用記錄
     repairRec: '5787b3e184e677fd36856b72', // Label - 維修記錄
+    
     damaged: '5780d65784e677fd36737247',   // Label - 損壞
     broken: '5781209484e677fd3673e50a',    // Label - 不能使用
     cleaning: '5780d65784e677fd36737245',  // Label - 清洗中
+    
     tent: '5780d7d084e677fd3673747b',      // Label - A字營
     yurt: '578277dd84e677fd367594b9',      // Label - 蒙古包
     tentpeg: '5781336184e677fd367404f3',   // Label - 營釘
     fly: '578131ea84e677fd36740230',       // Label - 天幕
     cookset: '5781327284e677fd36740338',   // Label - Cookset
     stove: '578136e584e677fd36740a0f',     // Label - 爐頭
-    other: '578133eb84e677fd367405aa'      // Label - 其他
+    other: '578133eb84e677fd367405aa',     // Label - 其他
+    
+    borrowProcess: '57bd71a6f4a0cb79e28ec61d', // Label - 借用處理中
+    active: '57bd71e205838e073940b4b3'     // Label - 進行中
 };
 
 var ADMIN_EMAIL = 'm.jacky@gmail.com';

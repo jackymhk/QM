@@ -55,7 +55,7 @@
                 if (hasLabel(card, Label.borrowRec) || hasLabel(card, Label.repairRec)) {
                     var dueDt = null;
                     if (card.due != null)
-                        dueDt = new Date(card.due.substring(0,4), card.due.substring(5,7)-1, card.due.substring(8,10));
+                        dueDt = new Date(card.due);
 
                     // Check card status
                     var pending = (card.idList == List.pending);
@@ -127,7 +127,6 @@
                     }
 
                     var borrowDt = card.name.substring(0, 10);
-                    var dueDt = card.due.substring(0, 10);
                     var activity = card.name.substring(12, card.name.length-1);
 
                     // Build DOM
@@ -137,9 +136,8 @@
                                label +
                                '<strong>' + activity + '</strong>' +
                                '<div class="request-subheader">' +
-                               '<span class="glyphicon glyphicon-time" aria-hidden="true"></span> ' + borrowDt + ' / ' + dueDt +
-                               '&nbsp;&nbsp;&nbsp;&nbsp;' +
-                               '<span class="glyphicon glyphicon-check" aria-hidden="true"></span> ' + card.badges.checkItemsChecked+'/'+card.badges.checkItems +
+                               '<div class="request-subheader-grp"><span class="glyphicon glyphicon-time" aria-hidden="true"></span> ' + borrowDt + ' / ' + dateFormat_ymd(dueDt) + '</div>' +
+                               '<div class="request-subheader-grp"><span class="glyphicon glyphicon-check" aria-hidden="true"></span> ' + card.badges.checkItemsChecked+'/'+card.badges.checkItems + '</div>' +
                                '</div>' +
                                '</div>' +
                                '<div class="request-body">' +

@@ -160,6 +160,10 @@ function dateFormat(date) {
         +leadingZero(date.getHours())+':'+leadingZero(date.getMinutes())+':'+leadingZero(date.getSeconds());
 }
 
+function dateFormat_ymd(date) {
+	return date.getFullYear()+'-'+leadingZero(date.getMonth()+1)+'-'+leadingZero(date.getDate());
+}
+
 function leadingZero(n) {
     var paddingValue = '00';
     return String(paddingValue + n).slice(-paddingValue.length);
@@ -274,7 +278,7 @@ function getLateItems(cards) {
     $.each(cards, function(index, card) {
         var dueDt = null;
         if (card.due != null)
-            dueDt = new Date(card.due.substring(0,4), card.due.substring(5,7)-1, card.due.substring(8,10));
+            dueDt = new Date(card.due);
 
         if ( (hasLabel(card, Label.borrowRec) || hasLabel(card, Label.repairRec)) &&
                 card.idList != List.pending && card.idList != List.completed &&
@@ -292,3 +296,70 @@ function getLateItems(cards) {
     });
     return lateCardUrls;
 }
+
+/*******************
+ * Progress Bar
+ ******************/
+function updateProgressIcon() {
+    $('.bs-wizard-step.disabled .glyphicon').removeClass('glyphicon-arrow-right').removeClass('glyphicon-ok');
+    $('.bs-wizard-step.active .glyphicon').addClass('glyphicon-arrow-right').removeClass('glyphicon-ok');
+    $('.bs-wizard-step.overdue .glyphicon').addClass('glyphicon-arrow-right').removeClass('glyphicon-ok');
+    $('.bs-wizard-step.complete .glyphicon').removeClass('glyphicon-arrow-right').addClass('glyphicon-ok');
+}
+
+function updateProgressStatus(progress_step, status) {
+    if (status == 'disabled')
+        $(progress_step).addClass('disabled').removeClass('active').removeClass('overdue').removeClass('complete');
+    else if (status == 'active')
+        $(progress_step).removeClass('disabled').addClass('active').removeClass('overdue').removeClass('complete');
+    else if (status == 'overdue')
+        $(progress_step).removeClass('disabled').removeClass('active').addClass('overdue').removeClass('complete');
+    else if (status == 'complete')
+        $(progress_step).removeClass('disabled').removeClass('active').removeClass('overdue').addClass('complete');
+}
+
+function updateOverdueStatus(element) {
+    if ($(element).hasClass('overdue')) {
+        $(element + ' .bs-wizard-stepnum').html('逾時未還').addClass('txt-overdue');
+    } else {
+        $(element + ' .bs-wizard-stepnum').html('進行中').removeClass('txt-overdue');
+    }
+}
+
+function updateProgressBarWidth(pct) {
+    $('.bs-wizard .progress-bar').width(pct);
+}
+
+function updateProgressBar($element) {
+	var stepNum = $element.data('stepnum');
+	var totalStep = $element.data('totalstep');
+	var barLength = $element.data('barlength');
+	var chkOverdue = $element.data('chkoverdue');
+	
+	for (var i = 1; i < parseInt(stepNum); i++)
+		updateProgressStatus('#progress-step-'+i, 'complete');
+	
+	if (stepNum === totalStep) {
+		updateProgressStatus('#progress-step-'+stepNum, 'complete');
+	} else if (chkOverdue === 'Y') {
+		updateProgressStatus('#progress-step-'+stepNum, $('#request').hasClass('overdue') ? 'overdue' : 'active');
+	} else {
+		updateProgressStatus('#progress-step-'+stepNum, 'active');
+	}
+	
+	for (var i = parseInt(stepNum) + 1; i <= parseInt(totalStep); i++)
+        updateProgressStatus('#progress-step-'+i, 'disabled');
+    
+	for (var i = 1; i <= parseInt(totalStep); i++) {
+		if (i == parseInt(stepNum) + 1 || i == parseInt(stepNum) - 1) {
+			$('#progress-step-'+i+' .progress-bar-btn').removeClass('unclickable');
+		} else {
+			$('#progress-step-'+i+' .progress-bar-btn').addClass('unclickable');
+		} 
+	}
+	
+	updateOverdueStatus('#progress-step-3');
+	updateProgressIcon();
+	updateProgressBarWidth(barLength);
+}
+/*******************/
