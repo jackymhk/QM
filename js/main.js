@@ -70,6 +70,20 @@ function trelloPost(url, data, done, fail) {
     }
 }
 
+function trelloPut(url, data, done, fail) {
+    if (USE_PROXY) {
+        $.get(APPSCRIPT_URL, {
+            "trello_url": url,
+            "method": "put",
+            "data": JSON.stringify(data)
+        })
+        .done(done)
+        .fail(fail);
+    } else {
+       Trello.put(url, data, done, fail);
+    }
+}
+
 function sendEmail(to, cc, subject, message, done, fail) {
 	$.get(APPSCRIPT_URL, {
 		"method": "email",
@@ -297,6 +311,44 @@ function getLateItems(cards) {
     return lateCardUrls;
 }
 
+function getBorrowDate(card) {
+	//return card.name.substring(0, 10);
+	var str = card.name;
+	str = str.replace(/\] \[/g, '|');
+    str = str.replace(/\[/g, '');
+    str = str.replace(/\]/g, '');
+    var array = str.split('|');
+    if (array.length >= 1)
+    	return array[0];
+    else
+    	return null;
+}
+
+function getActivity(card) {
+	//return card.name.substring(12, card.name.length-1);
+	var str = card.name;
+	str = str.replace(/\] \[/g, '|');
+    str = str.replace(/\[/g, '');
+    str = str.replace(/\]/g, '');
+    var array = str.split('|');
+    if (array.length >= 2)
+    	return array[1];
+    else
+    	return null;
+}
+
+function getApplicant(card) {
+	var str = card.name;
+	str = str.replace(/\] \[/g, '|');
+    str = str.replace(/\[/g, '');
+    str = str.replace(/\]/g, '');
+    var array = str.split('|');
+    if (array.length >= 3)
+    	return array[2];
+    else
+    	return null;
+}
+
 /*******************
  * Progress Bar
  ******************/
@@ -336,9 +388,11 @@ function updateProgressBar($element) {
 	var barLength = $element.data('barlength');
 	var chkOverdue = $element.data('chkoverdue');
 	
+	// Update Progress Status for previous steps
 	for (var i = 1; i < parseInt(stepNum); i++)
 		updateProgressStatus('#progress-step-'+i, 'complete');
 	
+	// Update Progress Status for current step
 	if (stepNum === totalStep) {
 		updateProgressStatus('#progress-step-'+stepNum, 'complete');
 	} else if (chkOverdue === 'Y') {
@@ -347,11 +401,13 @@ function updateProgressBar($element) {
 		updateProgressStatus('#progress-step-'+stepNum, 'active');
 	}
 	
+	// Update Progress Status for next steps
 	for (var i = parseInt(stepNum) + 1; i <= parseInt(totalStep); i++)
         updateProgressStatus('#progress-step-'+i, 'disabled');
     
+	// set clickable
 	for (var i = 1; i <= parseInt(totalStep); i++) {
-		if (i == parseInt(stepNum) + 1 || i == parseInt(stepNum) - 1) {
+		if (i == parseInt(stepNum) + 1) {
 			$('#progress-step-'+i+' .progress-bar-btn').removeClass('unclickable');
 		} else {
 			$('#progress-step-'+i+' .progress-bar-btn').addClass('unclickable');

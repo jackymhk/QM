@@ -126,8 +126,8 @@
                         }
                     }
 
-                    var borrowDt = card.name.substring(0, 10);
-                    var activity = card.name.substring(12, card.name.length-1);
+                    var borrowDt = getBorrowDate(card);
+                    var activity = getActivity(card);
 
                     // Build DOM
                     var html = '<div class="col-xs-12 col-sm-6 col-md-4 '+filterClass+'">'+
