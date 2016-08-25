@@ -406,6 +406,26 @@
     position: relative;
     min-height: 72px;
 }
+/*****************************
+ * Process Box @request_adm.html
+ *****************************/
+#process-box {
+	min-width: 300px;
+	position: fixed;
+	left: 50%;
+	transform: translateX(-50%);
+	top: 100px;
+	z-index: 50;
+	-webkit-box-shadow: 4px 6px 10px -5px #999;
+    -moz-box-shadow: 4px 6px 10px -5px #999;
+    box-shadow: 4px 6px 10px -5px #999;
+}
+
+@media (min-width: 768px) {
+    #process-box {
+        top: 60px;
+    }
+}
 
 /*****************************
  * Progress Bar @request_adm.html

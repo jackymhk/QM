@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>HKG81 QM Dashboard</title>
+    <title>81st HKG QM Dashboard</title>
     <link rel="stylesheet" media="screen" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" >
     <link rel="stylesheet" type="text/css" href="css/main.css"/>
@@ -93,6 +93,12 @@
             var active = (hasLabel(request, Label.active) && !overdue);
             var borrowProcess = hasLabel(request, Label.borrowProcess);
             
+            request.custom.pending = pending;
+            request.custom.completed = completed;
+            request.custom.overdue = overdue;
+            request.custom.active = active;
+            request.custom.borrowProcess = borrowProcess;
+            
             if (overdue)
             	$('#request').addClass('overdue');
             
@@ -105,21 +111,6 @@
             	request_stage = 3;
             else if (completed)
             	request_stage = 4;
-
-            // Label
-            var label = '';
-            if (overdue)
-                label += '<span class="label st-label-large bg-overdue">逾時未還</span>';
-            if (pending)
-                label += '<span class="label st-label-large bg-pending">待處理</span>';
-            if (borrowProcess)
-                label += '<span class="label st-label-large bg-pending">借用處理中</span>';
-            if (active)
-                label += '<span class="label st-label-large bg-active">進行中</span>';
-            if (completed)
-                label += '<span class="label st-label-large bg-completed">完成</span>';
-            if (label != '')
-                label = '<p>' + label + '</p>';
 
             // Format Description
             var desc = request.desc;
@@ -139,7 +130,7 @@
             request.custom.activity = activity;
             request.custom.applicant = applicant;
             
-            var html = label +
+            var html = '<p id="request-label-grp"></p>' +
                    '<strong>' + activity + '</strong>' +
                    '<div class="request-subheader">' +
                    '<div class="request-subheader-grp"><span class="glyphicon glyphicon-time" aria-hidden="true"></span> ' + borrowDt + ' / ' + dateFormat_ymd(dueDt) + '</div>' +
@@ -219,13 +210,12 @@
             }
 
             // Trigger Progress Bar
-            $('#progress-step-'+request_stage+' .progress-bar-btn').triggerHandler('click');
+            updateProgressBar($('#progress-step-'+request_stage+' .progress-bar-btn'));
+            stageChangeUI(request_stage);
             
-            
-            stageChange(request_stage);
         }
         
-        var stageChange = function(stage) {
+        var stageChangeUI = function(stage) {
         	request_stage = stage;
         	
         	// Update control buttons
@@ -266,6 +256,20 @@
                 $('.request-ctrl-btn-return').show();
                 
             }
+        	
+        	// Update Label
+            var label = '';
+            if (request_stage == 1)
+                label += '<span class="label st-label-large bg-pending">待處理</span>';
+            if (request_stage == 2)
+                label += '<span class="label st-label-large bg-pending">借用處理中</span>';
+            if (request_stage == 3)
+                label += '<span class="label st-label-large bg-active">進行中</span>';
+            if (request.custom.overdue)
+                label += '<span class="label st-label-large bg-overdue">逾時未還</span>';
+            if (request_stage == 4)
+                label += '<span class="label st-label-large bg-completed">完成</span>';
+            $('#request-label-grp').html(label);
         }
         
         var stageInitAction = function(stage) {
@@ -289,36 +293,82 @@
         }
         
         var stage2_I_newList = function() {
+        	showProcessBox("Adding List... (Step 1 / 3)");
         	var newList = {
                 name: request.custom.activity + ' (' + request.custom.applicant + ')',
-                idBoard: Board,
+                idBoard: BoardId,
                 pos: 'bottom'
             };
             trelloPost('/lists',
                 newList,
-                stage2_II_moveRequest,
-                function() { failAlert("<strong>錯誤: </strong>Add List Failed"); }
+                function(data) {
+            		decreaseProcessBox(); 
+            		stage2_II_moveRequest(data) 
+            	},
+                function() { 
+            		decreaseProcessBox(); 
+            		failAlert("<strong>錯誤: </strong>Add List Failed"); 
+            	}
             );
         }
         
         var stage2_II_moveRequest = function(list) {
+        	showProcessBox("Moving Request... (Step 2 / 3)");
         	trelloPut('/cards/'+request.id+'/idList',
         		{ value: list.id },
-        		stage2_III_addLabel,
-                function() { failAlert("<strong>錯誤: </strong>Move Request Failed"); }
+        		function(data) {
+        			decreaseProcessBox(); 
+            		stage2_III_addLabel(data) 
+            	},
+                function() {
+            		decreaseProcessBox();
+            		failAlert("<strong>錯誤: </strong>Move Request Failed");
+            	}
             );
         }
         
         var stage2_III_addLabel = function() {
+        	showProcessBox("Adding Label... (Step 3 / 3)");
             trelloPost('/cards/'+request.id+'/idLabels',
             	{ value: Label.borrowProcess },
-            	stage2_finish,
-                function() { failAlert("<strong>錯誤: </strong>Add Label Failed"); }
+            	function(data) {
+            		decreaseProcessBox(); 
+            		stage2_finish();
+            	},
+                function() {
+            		decreaseProcessBox();
+            		failAlert("<strong>錯誤: </strong>Add Label Failed");
+            	}
             );
         }
         
         var stage2_finish = function() {
-        	
+        	hideProcessBox();
+        }
+        
+        var showProcessBox = function(msg) {
+        	var count = parseInt($('#process-msg').data('count'));
+        	if ($('#process-msg').html() != '')
+        		$('#process-msg').append('<br>'+msg);
+        	else
+        		$('#process-msg').append(msg);
+        	count++;
+        	$('#process-msg').data('count', count);
+        	$('#process-box').removeClass('hidden');
+        }
+        
+        var decreaseProcessBox = function() {
+        	var count = parseInt($('#process-msg').data('count'));
+        	count--;
+        	$('#process-msg').data('count', count);
+        }
+        
+        var hideProcessBox = function() {
+        	var count = parseInt($('#process-msg').data('count'));
+        	if (count <= 0) {
+        		$('#process-msg').html('');
+        		$('#process-box').addClass('hidden');
+        	}
         }
         
         var getReturnDate = function(idList) {
@@ -345,7 +395,7 @@
             $('.progress-bar-btn').on('click', function() {
             	updateProgressBar($(this));
             	var stage = $(this).data('stepnum');
-            	stageChange(stage); // Change UI
+            	stageChangeUI(stage); // Change UI
             	stageInitAction(stage); // perform trello actions
             });
             
@@ -356,7 +406,7 @@
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container-fluid">
             <div class="navbar-header">
-                <a class="navbar-brand" href="#">HKG81 QM</a>
+                <a class="navbar-brand" href="#">81st HKG QM</a>
             </div>
             <ul class="nav navbar-nav">
                 <li><a href="index.html">首頁</a></li>
@@ -370,6 +420,10 @@
 
         <div class="alert hidden" role="alert" id="alert-box">
             <span id="alert-msg"></span>
+        </div>
+        
+        <div class="alert alert-warning hidden" role="alert" id="process-box">
+            <div id="process-msg" data-count="0"></div>
         </div>
 
         <div id="loader" style="text-align:center;">

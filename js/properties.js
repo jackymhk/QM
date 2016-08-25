@@ -3,6 +3,7 @@ var APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyhle-PX-nb9GK_a3z0
 var USE_PROXY = true;
 
 var Board = 'OPFLEvqH';
+var BoardId = '5780d6578f40552d7f41acd7';
 
 var List = {
     inSchool: [
