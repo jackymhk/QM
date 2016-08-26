@@ -22,9 +22,9 @@
             trelloGet('/boards/'+Board+'/cards?checklists=all',
                 showCards,
                 function() {
-					$('#loader').remove();
-					failAlert("load cards fail");
-				}
+                    $('#loader').remove();
+                    failAlert("load cards fail");
+                }
             );
         };
 

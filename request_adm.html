@@ -28,10 +28,10 @@
 
         var loadLists = function() {
             trelloGet('/boards/'+Board+'/lists',
-            	function(data) { 
-            	   lists = data;
-            	   loadCards(); 
-            	},
+                function(data) { 
+                   lists = data;
+                   loadCards(); 
+                },
                 function() { failAlert("load request fail"); }
             );
         };
@@ -100,17 +100,17 @@
             request.custom.borrowProcess = borrowProcess;
             
             if (overdue)
-            	$('#request').addClass('overdue');
+                $('#request').addClass('overdue');
             
             // Request stage
             if (pending)
-            	request_stage = 1;
+                request_stage = 1;
             else if (borrowProcess)
-            	request_stage = 2;
+                request_stage = 2;
             else if (active || overdue)
-            	request_stage = 3;
+                request_stage = 3;
             else if (completed)
-            	request_stage = 4;
+                request_stage = 4;
 
             // Format Description
             var desc = request.desc;
@@ -182,30 +182,33 @@
                         
                     var returnDt = '';
                     if (borrowed || late) {
-                    	returnDt = getReturnDate(item.idList);
+                        returnDt = getReturnDate(item.idList);
                     }
                     item.custom.returnDt = returnDt;
                     
                     var itemsDOM = '';
                     itemsDOM += '<div class="request-body" id="item-' + item.shortLink + '">';
                     itemsDOM += '<div class="pull-right">';
-                    itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-change txt-normal"><span class="glyphicon glyphicon-retweet" title="更改"></span></button>';
-                    itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-remove txt-normal"><span class="glyphicon glyphicon-remove" title="移除"></span></button>';
-                    itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-borrow txt-borrowed" data-toggle="button" aria-pressed="false" autocomplete="off"><span class="glyphicon glyphicon-export" title="借出"></span></button>';
-                    itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-return txt-returned" data-toggle="button" aria-pressed="false" autocomplete="off"><span class="glyphicon glyphicon-ok" title="歸還"></span></button>';
+                    itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-change txt-normal" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-retweet" title="更改"></span></button>';
+                    itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-remove txt-normal" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-remove" title="移除"></span></button>';
+                    itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-borrow txt-borrowed" data-toggle="button" aria-pressed="false" autocomplete="off" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-export" title="借出"></span></button>';
+                    itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-return txt-returned" data-toggle="button" aria-pressed="false" autocomplete="off" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-ok" title="歸還"></span></button>';
                     itemsDOM += '</div>';
                     itemsDOM += item.name;
                     itemsDOM += itemLabel;
                     itemsDOM += '<div class="request-subheader">';
                     itemsDOM += '<div class="request-subheader-grp"><span class="glyphicon glyphicon-map-marker" title="地點/活動" aria-hidden="true"></span> ' + location + '</div>';
                     if (borrowed || late) {
-                    	itemsDOM += '<div class="request-subheader-grp"><span class="glyphicon glyphicon-time" title="歸還日期" aria-hidden="true"></span> ' + returnDt + '</div>';	
+                        itemsDOM += '<div class="request-subheader-grp"><span class="glyphicon glyphicon-time" title="歸還日期" aria-hidden="true"></span> ' + returnDt + '</div>';    
                     }
                     itemsDOM += '</div>';
                     itemsDOM += '</div>';
                     
                     $('#request-items').append(itemsDOM);
                     request_items.push(item);
+                    
+                    //
+                    $('#process-box').removeClass('hidden');
                 }
             }
 
@@ -216,39 +219,39 @@
         }
         
         var stageChangeUI = function(stage) {
-        	request_stage = stage;
-        	
-        	// Update control buttons
+            request_stage = stage;
+            
+            // Update control buttons
             if (request_stage == 1) {
-            	$('.request-ctrl-btn-change').show();
+                $('.request-ctrl-btn-change').show();
                 $('.request-ctrl-btn-remove').show();
                 $('.request-ctrl-btn-borrow').show();
                 $('.request-ctrl-btn-return').hide();
-            	
-            	$('.request-ctrl-btn-borrow').attr('disabled', true);
-            	
+                
+                $('.request-ctrl-btn-borrow').attr('disabled', true);
+                
             } else if (request_stage == 2) {
-            	$('.request-ctrl-btn-change').show();
+                $('.request-ctrl-btn-change').show();
                 $('.request-ctrl-btn-remove').show();
                 $('.request-ctrl-btn-borrow').show();
                 $('.request-ctrl-btn-return').hide();
-            	
-            	$.each(request_items, function(index, item){
-            		if (item.custom.borrowed || item.custom.late)
+                
+                $.each(request_items, function(index, item){
+                    if (item.custom.borrowed || item.custom.late)
                         $('#item-' + item.shortLink + ' .request-ctrl-btn-borrow').attr('disabled', true);
                     else
                         $('#item-' + item.shortLink + ' .request-ctrl-btn-borrow').attr('disabled', false);
-            		
-            		if (item.idList == request.idList) 
-            			$('#item-' + item.shortLink + ' .request-ctrl-btn-borrow').addClass('active').attr('aria-pressed', true);
-            	});
-            	
+                    
+                    if (item.idList == request.idList) 
+                        $('#item-' + item.shortLink + ' .request-ctrl-btn-borrow').addClass('active').attr('aria-pressed', true);
+                });
+                
             } else if (request_stage == 3) {
-            	$('.request-ctrl-btn-change').hide();
-            	$('.request-ctrl-btn-remove').hide();
-            	$('.request-ctrl-btn-borrow').hide();
-            	$('.request-ctrl-btn-return').show();
-            	
+                $('.request-ctrl-btn-change').hide();
+                $('.request-ctrl-btn-remove').hide();
+                $('.request-ctrl-btn-borrow').hide();
+                $('.request-ctrl-btn-return').show();
+                
             } else if (request_stage == 4) {
                 $('.request-ctrl-btn-change').hide();
                 $('.request-ctrl-btn-remove').hide();
@@ -256,8 +259,8 @@
                 $('.request-ctrl-btn-return').show();
                 
             }
-        	
-        	// Update Label
+            
+            // Update Label
             var label = '';
             if (request_stage == 1)
                 label += '<span class="label st-label-large bg-pending">待處理</span>';
@@ -273,18 +276,18 @@
         }
         
         var stageInitAction = function(stage) {
-        	if (request_stage == 1) {
-        	    // No action
+            if (request_stage == 1) {
+                // No action
                 
             } else if (request_stage == 2) {
                 // create new list for request
                 // move request card to new list
                 // add borrowProcess label to request card
-            	stage2_I_newList();
+                stage2_I_newList();
                 
             } else if (request_stage == 3) {
-            	// remove borrowProcess label from request card
-            	// add active label to request card
+                // remove borrowProcess label from request card
+                // add active label to request card
                 
             } else if (request_stage == 4) {
                 // remove active label from request card
@@ -293,8 +296,8 @@
         }
         
         var stage2_I_newList = function() {
-        	showProcessBox("Adding List... (Step 1 / 3)");
-        	var newList = {
+            var pid = startProcess("New List (Step 1 / 3)");
+            var newList = {
                 name: request.custom.activity + ' (' + request.custom.applicant + ')',
                 idBoard: BoardId,
                 pos: 'bottom'
@@ -302,83 +305,52 @@
             trelloPost('/lists',
                 newList,
                 function(data) {
-            		decreaseProcessBox(); 
-            		stage2_II_moveRequest(data) 
-            	},
+            	    finishProcess(pid);
+                    stage2_II_moveRequest(data);
+                },
                 function() { 
-            		decreaseProcessBox(); 
-            		failAlert("<strong>錯誤: </strong>Add List Failed"); 
-            	}
+                    failProcess(pid); 
+                }
             );
         }
         
         var stage2_II_moveRequest = function(list) {
-        	showProcessBox("Moving Request... (Step 2 / 3)");
-        	trelloPut('/cards/'+request.id+'/idList',
-        		{ value: list.id },
-        		function(data) {
-        			decreaseProcessBox(); 
-            		stage2_III_addLabel(data) 
-            	},
+            var pid = startProcess("Move Request (Step 2 / 3)");
+            trelloPut('/cards/'+request.id+'/idList',
+                { value: list.id },
+                function(data) {
+                	request.idList = list.id;
+                    finishProcess(pid);
+                    stage2_III_addLabel();
+                },
                 function() {
-            		decreaseProcessBox();
-            		failAlert("<strong>錯誤: </strong>Move Request Failed");
-            	}
+                    failProcess(pid);
+                }
             );
         }
         
         var stage2_III_addLabel = function() {
-        	showProcessBox("Adding Label... (Step 3 / 3)");
+            var pid = startProcess("Add Label (Step 3 / 3)");
             trelloPost('/cards/'+request.id+'/idLabels',
-            	{ value: Label.borrowProcess },
-            	function(data) {
-            		decreaseProcessBox(); 
-            		stage2_finish();
-            	},
+                { value: Label.borrowProcess },
+                function(data) {
+                    finishProcess(pid);
+                    clearProcess();
+                },
                 function() {
-            		decreaseProcessBox();
-            		failAlert("<strong>錯誤: </strong>Add Label Failed");
-            	}
+                    failProcess(pid);
+                }
             );
         }
         
-        var stage2_finish = function() {
-        	hideProcessBox();
-        }
-        
-        var showProcessBox = function(msg) {
-        	var count = parseInt($('#process-msg').data('count'));
-        	if ($('#process-msg').html() != '')
-        		$('#process-msg').append('<br>'+msg);
-        	else
-        		$('#process-msg').append(msg);
-        	count++;
-        	$('#process-msg').data('count', count);
-        	$('#process-box').removeClass('hidden');
-        }
-        
-        var decreaseProcessBox = function() {
-        	var count = parseInt($('#process-msg').data('count'));
-        	count--;
-        	$('#process-msg').data('count', count);
-        }
-        
-        var hideProcessBox = function() {
-        	var count = parseInt($('#process-msg').data('count'));
-        	if (count <= 0) {
-        		$('#process-msg').html('');
-        		$('#process-box').addClass('hidden');
-        	}
-        }
-        
         var getReturnDate = function(idList) {
-        	for (var i = 0; i < cards.length; i++) {
+            for (var i = 0; i < cards.length; i++) {
                 if (cards[i].idList == idList && 
-                		(hasLabel(cards[i], Label.borrowRec) || hasLabel(cards[i], Label.repairRec))) {
+                        (hasLabel(cards[i], Label.borrowRec) || hasLabel(cards[i], Label.repairRec))) {
                     return dateFormat_ymd(new Date(cards[i].due));
                 }
             }
-        	return '';
+            return '';
         }
 
         $(function(){
@@ -393,12 +365,19 @@
             
             // Progress Bar onClick action
             $('.progress-bar-btn').on('click', function() {
-            	updateProgressBar($(this));
-            	var stage = $(this).data('stepnum');
-            	stageChangeUI(stage); // Change UI
-            	stageInitAction(stage); // perform trello actions
+                updateProgressBar($(this));
+                var stage = $(this).data('stepnum');
+                stageChangeUI(stage); // Change UI
+                stageInitAction(stage); // perform trello actions
             });
             
+            $('#process-box-close-btn').on('click', function() {
+                $('#process-box').addClass('hidden');
+            });
+            
+            $('.request-ctrl-btn-borrow').on('click', function() {
+            	// Move item card to list
+            });
         });
     </script>
 </head>
@@ -422,10 +401,13 @@
             <span id="alert-msg"></span>
         </div>
         
-        <div class="alert alert-warning hidden" role="alert" id="process-box">
-            <div id="process-msg" data-count="0"></div>
-        </div>
-
+        <div class="alert alert-warning hidden process-box" role="alert" id="process-box" data-spy="affix" data-offset-top="1">
+	        <button type="button" class="close" aria-label="Close" id="process-box-close-btn">
+	            <span aria-hidden="true">&times;</span>
+	        </button>
+	        <div id="process-msg"></div>
+	    </div>
+        
         <div id="loader" style="text-align:center;">
             <img src="img/loading.gif"/>
         </div>

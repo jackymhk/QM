@@ -294,12 +294,12 @@
         }
 
         $(function(){
-        	$(".input-group.date").datepicker({
+            $(".input-group.date").datepicker({
                 format: 'yyyy-mm-dd',
                 autoclose: true
             });
-        	
-        	$("#next").on("click", function() {
+            
+            $("#next").on("click", function() {
                 if (validateFrom())
                     serializeFormAndSubmit();
             });

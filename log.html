@@ -109,8 +109,8 @@
 
             if (cardShortLink !== null) {
                 trelloAuthorize(function() {
-					loadcard(cardShortLink);
-				});
+                    loadcard(cardShortLink);
+                });
             } else {
                 $('#loader').remove();
                 failAlert("<strong>錯誤: </strong>Card ID is not existed.");
