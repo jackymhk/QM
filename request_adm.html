@@ -129,6 +129,7 @@
             request.custom.borrowDt = borrowDt;
             request.custom.activity = activity;
             request.custom.applicant = applicant;
+            request.custom.location = request.custom.activity + ' (' + request.custom.applicant + ')';
             
             var html = '<p id="request-label-grp"></p>' +
                    '<strong>' + activity + '</strong>' +
@@ -144,12 +145,16 @@
                 for (var i = 0; i < request.checklists[0].checkItems.length; i++) {
                     var item = getCardByUrl(cards, request.checklists[0].checkItems[i].name);
                     item.custom = {}; // To store custom varables
+                    // Load additional data
+                    item.custom = getAdditionalData(item);
+                    item.custom.index = i;
                     
                     var location = getListNameById(lists, item.idList);
                     item.custom.location = location;
                     
                     // Check item status
-                    var borrowed = isBorrowed(item);
+                    var borrowed = (item.idList == request.idList);
+                    var borrowedByOther = (!borrowed && isBorrowed(item));
                     var late = ($.inArray(item.url, lateCardUrls) > -1);
                     var repair = (item.idList == List.repair);
                     var drying = (item.idList == List.drying);
@@ -157,6 +162,7 @@
                     var broken = hasLabel(item, Label.broken);
                     
                     item.custom.borrowed = borrowed;
+                    item.custom.borrowedByOther = borrowedByOther;
                     item.custom.late = late;
                     item.custom.repair = repair;
                     item.custom.drying = drying;
@@ -165,7 +171,7 @@
                     
                     // item status label
                     var itemLabel = '';
-                    if (borrowed)
+                    if (borrowedByOther)
                         itemLabel += '<span class="label st-label-large bg-borrowed">借出</span>';
                     if (late)
                         itemLabel += '<span class="label st-label-large bg-late">逾時未還</span>';
@@ -181,11 +187,12 @@
                         itemLabel = '<p style="margin: 0 0 2px;">' + itemLabel + '</p>';
                         
                     var returnDt = '';
-                    if (borrowed || late) {
+                    if (borrowedByOther || late) {
                         returnDt = getReturnDate(item.idList);
                     }
                     item.custom.returnDt = returnDt;
                     
+                    // Create DOM
                     var itemsDOM = '';
                     itemsDOM += '<div class="request-body" id="item-' + item.shortLink + '">';
                     itemsDOM += '<div class="pull-right">';
@@ -197,20 +204,42 @@
                     itemsDOM += item.name;
                     itemsDOM += itemLabel;
                     itemsDOM += '<div class="request-subheader">';
-                    itemsDOM += '<div class="request-subheader-grp"><span class="glyphicon glyphicon-map-marker" title="地點/活動" aria-hidden="true"></span> ' + location + '</div>';
-                    if (borrowed || late) {
-                        itemsDOM += '<div class="request-subheader-grp"><span class="glyphicon glyphicon-time" title="歸還日期" aria-hidden="true"></span> ' + returnDt + '</div>';    
+                    itemsDOM += '<div class="request-subheader-grp item-location"><span class="glyphicon glyphicon-map-marker" title="地點/活動" aria-hidden="true"></span> <span class="txt">' + location + '</span></div>';
+                    if (borrowedByOther || late) {
+                        itemsDOM += '<div class="request-subheader-grp item-due"><span class="glyphicon glyphicon-time" title="歸還日期" aria-hidden="true"></span> <span class="txt">' + returnDt + '</span></div>';    
+                    } else {
+                    	itemsDOM += '<div class="request-subheader-grp item-due hidden"><span class="glyphicon glyphicon-time" title="歸還日期" aria-hidden="true"></span> <span class="txt"></span></div>';
                     }
                     itemsDOM += '</div>';
                     itemsDOM += '</div>';
                     
                     $('#request-items').append(itemsDOM);
+                    
                     request_items.push(item);
                     
-                    //
-                    $('#process-box').removeClass('hidden');
+                    
                 }
             }
+            
+            // Borrow Button Action
+            $('.request-ctrl-btn-borrow').on('click', function() {
+                var item = getItem($(this).data('item'));
+                if ($(this).is('.active')) {
+                	// Move item back to Original Storage List
+                    moveItem(item, item.custom.orig_loc, item.custom.orig_pos, function() {
+                        // Update item location
+                        item.custom.location = getListNameById(lists, item.custom.orig_loc);
+                        $('#item-'+item.shortLink+' .item-location .txt').html(item.custom.location);   
+                    });
+                } else {
+	                // Move item to Request's List
+	                moveItem(item, request.idList, item.custom.index+2, function() {
+	                	// Update item location
+	                    item.custom.location = request.custom.location;
+	                    $('#item-'+item.shortLink+' .item-location .txt').html(item.custom.location);	
+	                });
+                }
+            });
 
             // Trigger Progress Bar
             updateProgressBar($('#progress-step-'+request_stage+' .progress-bar-btn'));
@@ -219,7 +248,6 @@
         }
         
         var stageChangeUI = function(stage) {
-            request_stage = stage;
             
             // Update control buttons
             if (request_stage == 1) {
@@ -237,7 +265,7 @@
                 $('.request-ctrl-btn-return').hide();
                 
                 $.each(request_items, function(index, item){
-                    if (item.custom.borrowed || item.custom.late)
+                    if (item.custom.borrowedByOther || item.custom.late)
                         $('#item-' + item.shortLink + ' .request-ctrl-btn-borrow').attr('disabled', true);
                     else
                         $('#item-' + item.shortLink + ' .request-ctrl-btn-borrow').attr('disabled', false);
@@ -275,7 +303,7 @@
             $('#request-label-grp').html(label);
         }
         
-        var stageInitAction = function(stage) {
+        var stageAction = function(stage) {
             if (request_stage == 1) {
                 // No action
                 
@@ -305,7 +333,7 @@
             trelloPost('/lists',
                 newList,
                 function(data) {
-            	    finishProcess(pid);
+                    finishProcess(pid);
                     stage2_II_moveRequest(data);
                 },
                 function() { 
@@ -316,10 +344,12 @@
         
         var stage2_II_moveRequest = function(list) {
             var pid = startProcess("Move Request (Step 2 / 3)");
-            trelloPut('/cards/'+request.id+'/idList',
-                { value: list.id },
+            trelloPut('/cards/'+request.id,
+                {  idList: list.id,
+                   pos: 1
+                },
                 function(data) {
-                	request.idList = list.id;
+                    request.idList = list.id;
                     finishProcess(pid);
                     stage2_III_addLabel();
                 },
@@ -336,6 +366,24 @@
                 function(data) {
                     finishProcess(pid);
                     clearProcess();
+                    stageChangeUI(request_stage); // Change UI
+                },
+                function() {
+                    failProcess(pid);
+                }
+            );
+        }
+        
+        var moveItem = function(item, idList, pos, done) {
+            var pid = startProcess("Move Item ("+item.name+")");
+            trelloPut('/cards/'+item.id,
+                {  idList: idList,
+                   pos: pos
+                },
+                function(data) {
+                    finishProcess(pid);
+                    clearProcess();
+                    done();
                 },
                 function() {
                     failProcess(pid);
@@ -352,6 +400,15 @@
             }
             return '';
         }
+        
+        var getItem = function(shortLink) {
+            for (var i = 0; i < request_items.length; i++) {
+                if (request_items[i].shortLink == shortLink) {
+                    return request_items[i];
+                }
+            }
+            return null;
+        }
 
         $(function(){
             requestShortLink = urlParam('i');
@@ -366,18 +423,14 @@
             // Progress Bar onClick action
             $('.progress-bar-btn').on('click', function() {
                 updateProgressBar($(this));
-                var stage = $(this).data('stepnum');
-                stageChangeUI(stage); // Change UI
-                stageInitAction(stage); // perform trello actions
+                request_stage = $(this).data('stepnum');
+                stageAction(request_stage); // perform trello actions
             });
             
             $('#process-box-close-btn').on('click', function() {
                 $('#process-box').addClass('hidden');
             });
             
-            $('.request-ctrl-btn-borrow').on('click', function() {
-            	// Move item card to list
-            });
         });
     </script>
 </head>
@@ -402,11 +455,11 @@
         </div>
         
         <div class="alert alert-warning hidden process-box" role="alert" id="process-box" data-spy="affix" data-offset-top="1">
-	        <button type="button" class="close" aria-label="Close" id="process-box-close-btn">
-	            <span aria-hidden="true">&times;</span>
-	        </button>
-	        <div id="process-msg"></div>
-	    </div>
+            <button type="button" class="close" aria-label="Close" id="process-box-close-btn">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <div id="process-msg"></div>
+        </div>
         
         <div id="loader" style="text-align:center;">
             <img src="img/loading.gif"/>

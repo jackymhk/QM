@@ -168,7 +168,7 @@
                 var mailSubject = "[81st HKG QM] 物資借用申請 - " + param.activity;
                 var mailMessage =
                     "<table>" +
-                    "<tr><td><b>支部:</b></td><td>" + param.branch == 'scout' ? '童軍' : param.branch == 'venture' ? '深資童軍' : '' + "</td></tr>" +
+                    "<tr><td><b>支部:</b></td><td>" + (param.branch == 'scout' ? '童軍' : param.branch == 'venture' ? '深資童軍' : '') + "</td></tr>" +
                     "<tr><td><b>申請人:</b></td><td>" + param.applicant + "</td></tr>" +
                     "<tr><td><b>職位:</b></td><td>" + param.post + "</td></tr>" +
                     "<tr><td><b>E-mail:</b></td><td>" + param.email + "</td></tr>" +

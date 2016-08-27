@@ -177,6 +177,18 @@ function urlParam(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
+// Additional Data is stored in Description
+// wrapping by three backticks (```) at the end
+// in JSON format
+function getAdditionalData(card) {
+	var desc = card.desc;
+    var array = desc.split('```');
+    if (array.length >= 2) {
+    	return JSON.parse(array[1]);
+    }
+    return {};
+}
+
 function isEmail(email) {
     var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
     return regex.test(email);
