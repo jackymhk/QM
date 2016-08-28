@@ -84,6 +84,19 @@ function trelloPut(url, data, done, fail) {
     }
 }
 
+function trelloDelete(url, done, fail) {
+    if (USE_PROXY) {
+        $.get(APPSCRIPT_URL, {
+            "trello_url": url,
+            "method": "delete"
+        })
+        .done(done)
+        .fail(fail);
+    } else {
+       Trello.del(url, data, done, fail);
+    }
+}
+
 function sendEmail(to, cc, subject, message, done, fail) {
     $.get(APPSCRIPT_URL, {
         "method": "email",

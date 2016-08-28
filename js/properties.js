@@ -30,6 +30,7 @@ var Label = {
     damaged: '5780d65784e677fd36737247',   // Label - 損壞
     broken: '5781209484e677fd3673e50a',    // Label - 不能使用
     cleaning: '5780d65784e677fd36737245',  // Label - 清洗中
+    borrowed: '57c2b73f45cc4eef8acd26db',  // Label - 借用中
     
     tent: '5780d7d084e677fd3673747b',      // Label - A字營
     yurt: '578277dd84e677fd367594b9',      // Label - 蒙古包

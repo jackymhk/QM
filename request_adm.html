@@ -148,6 +148,7 @@
                     // Load additional data
                     item.custom = getAdditionalData(item);
                     item.custom.index = i;
+                    item.custom.idCheckItem = request.checklists[0].checkItems[i].id;
                     
                     var location = getListNameById(lists, item.idList);
                     item.custom.location = location;
@@ -240,6 +241,20 @@
 	                });
                 }
             });
+            
+            // Remove Button Action
+            $('.request-ctrl-btn-remove').on('click', function() {
+                var item = getItem($(this).data('item'));
+                // Remove Checkitem
+                removeChecklistItem(item, request.id, function() {
+                    // Remove Item DOM
+                    $('#item-'+item.shortLink).remove();
+                    request_items.splice(item.custom.index, 1); // Remove item from Array
+                    $.each(request_items, function(index, it){ // Update index
+                    	it.custom.index = index;
+                    });
+                });
+            });
 
             // Trigger Progress Bar
             updateProgressBar($('#progress-step-'+request_stage+' .progress-bar-btn'));
@@ -316,11 +331,20 @@
             } else if (request_stage == 3) {
                 // remove borrowProcess label from request card
                 // add active label to request card
+                // add borrowed label to each item
+                // add due date to each item
+                if ($('.request-ctrl-btn-borrow.active').length == $('.request-ctrl-btn-borrow').length) {
+                	stage3_I_removeLabel();
+                } else {
+                	alert('物資未完成處理');
+                	return false;
+                }
                 
             } else if (request_stage == 4) {
                 // remove active label from request card
                 // move request card to completed list
             }
+            return true;
         }
         
         var stage2_I_newList = function() {
@@ -374,12 +398,55 @@
             );
         }
         
+        var stage3_I_removeLabel = function() {
+            var pid = startProcess("Remove Label (Step 1 / 3)");
+            trelloDelete('/cards/'+request.id+'/idLabels/'+Label.borrowProcess,
+                function(data) {
+                    finishProcess(pid);
+                    clearProcess();
+                    stage3_II_addLabel();
+                },
+                function() {
+                    failProcess(pid);
+                }
+            );
+        }
+        
+        var stage3_II_addLabel = function() {
+            var pid = startProcess("Add Label (Step 2 / 3)");
+            trelloPost('/cards/'+request.id+'/idLabels',
+                { value: Label.active },
+                function(data) {
+                    finishProcess(pid);
+                    clearProcess();
+                    stageChangeUI(request_stage); // Change UI
+                },
+                function() {
+                    failProcess(pid);
+                }
+            );
+        }
+        
         var moveItem = function(item, idList, pos, done) {
             var pid = startProcess("Move Item ("+item.name+")");
             trelloPut('/cards/'+item.id,
                 {  idList: idList,
                    pos: pos
                 },
+                function(data) {
+                    finishProcess(pid);
+                    clearProcess();
+                    done();
+                },
+                function() {
+                    failProcess(pid);
+                }
+            );
+        }
+        
+        var removeChecklistItem = function(item, requestId, done) {
+            var pid = startProcess("Delete Checklist Item ("+item.name+")");
+            trelloDelete('/cards/'+requestId+'/checkItem/'+item.custom.idCheckItem,
                 function(data) {
                     finishProcess(pid);
                     clearProcess();
@@ -422,9 +489,10 @@
             
             // Progress Bar onClick action
             $('.progress-bar-btn').on('click', function() {
-                updateProgressBar($(this));
                 request_stage = $(this).data('stepnum');
-                stageAction(request_stage); // perform trello actions
+                if (stageAction(request_stage)) { // perform trello actions
+                	updateProgressBar($(this));
+                } 
             });
             
             $('#process-box-close-btn').on('click', function() {
