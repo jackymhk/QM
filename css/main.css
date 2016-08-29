@@ -319,6 +319,10 @@
     box-shadow: none;
 }
 
+.request-ctrl-btn.unclickable {
+    pointer-events: none;
+}
+
 /*****************************
  * Dashboard @index.html
  *****************************/

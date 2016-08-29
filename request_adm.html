@@ -130,11 +130,12 @@
             request.custom.activity = activity;
             request.custom.applicant = applicant;
             request.custom.location = request.custom.activity + ' (' + request.custom.applicant + ')';
+            request.custom.dueDt = dateFormat_ymd(dueDt);
             
             var html = '<p id="request-label-grp"></p>' +
                    '<strong>' + activity + '</strong>' +
                    '<div class="request-subheader">' +
-                   '<div class="request-subheader-grp"><span class="glyphicon glyphicon-time" aria-hidden="true"></span> ' + borrowDt + ' / ' + dateFormat_ymd(dueDt) + '</div>' +
+                   '<div class="request-subheader-grp"><span class="glyphicon glyphicon-time" aria-hidden="true"></span> ' + borrowDt + ' / ' + request.custom.dueDt + '</div>' +
                    '<div class="request-subheader-grp"><span class="glyphicon glyphicon-check" aria-hidden="true"></span> ' + request.badges.checkItemsChecked+'/'+request.badges.checkItems + '</div>';
             
             $('#request-header').append(html);
@@ -156,11 +157,13 @@
                     // Check item status
                     var borrowed = (item.idList == request.idList);
                     var borrowedByOther = (!borrowed && isBorrowed(item));
-                    var late = ($.inArray(item.url, lateCardUrls) > -1);
+                    //var late = ($.inArray(item.url, lateCardUrls) > -1);
+                    var late = (item.due != null && new Date(item.due) < new Date());
                     var repair = (item.idList == List.repair);
                     var drying = (item.idList == List.drying);
                     var damaged = hasLabel(item, Label.damaged);
                     var broken = hasLabel(item, Label.broken);
+                    var returned = (request.checklists[0].checkItems[i].state == 'complete');
                     
                     item.custom.borrowed = borrowed;
                     item.custom.borrowedByOther = borrowedByOther;
@@ -169,6 +172,7 @@
                     item.custom.drying = drying;
                     item.custom.damaged = damaged;
                     item.custom.broken = broken;
+                    item.custom.returned = returned;
                     
                     // item status label
                     var itemLabel = '';
@@ -188,10 +192,24 @@
                         itemLabel = '<p style="margin: 0 0 2px;">' + itemLabel + '</p>';
                         
                     var returnDt = '';
-                    if (borrowedByOther || late) {
-                        returnDt = getReturnDate(item.idList);
+                    if ( (borrowed || borrowedByOther || late)
+                    	&& (item.due != null && item.due != '')	) {
+                        //returnDt = getReturnDate(item.idList);
+                    	returnDt = dateFormat_ymd(new Date(item.due));
                     }
                     item.custom.returnDt = returnDt;
+                    
+                    var completeDt = '';
+                    if (returned) {
+                    	$.each(request.actions, function(index, action) {
+                    		if (action.type == 'updateCheckItemStateOnCard'
+                    				&& action.data.checkItem.id == item.custom.idCheckItem
+                    				&& action.data.checkItem.state == 'complete') {
+                    			completeDt = dateFormat_ymd(new Date(action.date));
+                    		}
+                    	});
+                    }
+                    item.custom.completeDt = completeDt;
                     
                     // Create DOM
                     var itemsDOM = '';
@@ -200,16 +218,25 @@
                     itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-change txt-normal" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-retweet" title="更改"></span></button>';
                     itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-remove txt-normal" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-remove" title="移除"></span></button>';
                     itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-borrow txt-borrowed" data-toggle="button" aria-pressed="false" autocomplete="off" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-export" title="借出"></span></button>';
-                    itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-return txt-returned" data-toggle="button" aria-pressed="false" autocomplete="off" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-ok" title="歸還"></span></button>';
+                    if (returned) {
+                        itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-return txt-returned active unclickable" data-toggle="button" aria-pressed="true" autocomplete="off" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-ok" title="歸還"></span></button>';
+                    } else {
+                    	itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-return txt-returned" data-toggle="button" aria-pressed="false" autocomplete="off" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-ok" title="歸還"></span></button>';
+                    }
                     itemsDOM += '</div>';
                     itemsDOM += item.name;
                     itemsDOM += itemLabel;
                     itemsDOM += '<div class="request-subheader">';
                     itemsDOM += '<div class="request-subheader-grp item-location"><span class="glyphicon glyphicon-map-marker" title="地點/活動" aria-hidden="true"></span> <span class="txt">' + location + '</span></div>';
-                    if (borrowedByOther || late) {
+                    if (!returned && returnDt != '') {
                         itemsDOM += '<div class="request-subheader-grp item-due"><span class="glyphicon glyphicon-time" title="歸還日期" aria-hidden="true"></span> <span class="txt">' + returnDt + '</span></div>';    
                     } else {
                     	itemsDOM += '<div class="request-subheader-grp item-due hidden"><span class="glyphicon glyphicon-time" title="歸還日期" aria-hidden="true"></span> <span class="txt"></span></div>';
+                    }
+                    if (completeDt != '') {
+                        itemsDOM += '<div class="request-subheader-grp item-complete"><span class="glyphicon glyphicon-check" title="實際歸還日期" aria-hidden="true"></span> <span class="txt">' + completeDt + '</span></div>';    
+                    } else {
+                        itemsDOM += '<div class="request-subheader-grp item-complete hidden"><span class="glyphicon glyphicon-check" title="實際歸還日期" aria-hidden="true"></span> <span class="txt"></span></div>';
                     }
                     itemsDOM += '</div>';
                     itemsDOM += '</div>';
@@ -255,6 +282,33 @@
                     });
                 });
             });
+            
+            // Return Button Action
+            $('.request-ctrl-btn-return').on('click', function() {
+                var item = getItem($(this).data('item'));
+                if (!$(this).is('.active')) {
+                	// Complete checklist item
+                	completeCheckItem(request, item, function() {
+                		item.custom.completeDt = dateFormat_ymd(new Date());
+                		$('#item-'+item.shortLink+' .item-due').addClass('hidden');
+                		$('#item-'+item.shortLink+' .item-complete').removeClass('hidden');
+                		$('#item-'+item.shortLink+' .item-complete .txt').html(item.custom.completeDt);
+                	});
+                	// Remove label
+                	removeLabel(item, Label.borrowed);
+                	// Remove due
+                    removeDueDate(item, function(){
+                        item.custom.returnDt = null;
+                    });
+                	// Move item back to Original Storage List
+                    moveItem(item, item.custom.orig_loc, item.custom.orig_pos, function() {
+                        // Update item location
+                        item.custom.location = getListNameById(lists, item.custom.orig_loc);
+                        $('#item-'+item.shortLink+' .item-location .txt').html(item.custom.location);
+                    });
+                    $(this).addClass('unclickable');
+                }
+            });
 
             // Trigger Progress Bar
             updateProgressBar($('#progress-step-'+request_stage+' .progress-bar-btn'));
@@ -294,6 +348,19 @@
                 $('.request-ctrl-btn-remove').hide();
                 $('.request-ctrl-btn-borrow').hide();
                 $('.request-ctrl-btn-return').show();
+                
+                $.each(request_items, function(index, item){
+                    if (!item.custom.returned && item.custom.returnDt != '') {
+                    	$('#item-' + item.shortLink + ' .item-due').removeClass('hidden');
+                        $('#item-' + item.shortLink + ' .item-due .txt').html(item.custom.returnDt);
+                    }
+                    
+                    if (item.custom.returned)
+                    	$('#item-' + item.shortLink + ' .request-ctrl-btn-return')
+                    	   .addClass('active')
+                    	   .addClass('unclickable')
+                    	   .attr('aria-pressed', true);
+                });
                 
             } else if (request_stage == 4) {
                 $('.request-ctrl-btn-change').hide();
@@ -336,14 +403,20 @@
                 if ($('.request-ctrl-btn-borrow.active').length == $('.request-ctrl-btn-borrow').length) {
                 	stage3_I_removeLabel();
                 } else {
-                	alert('物資未完成處理');
-                	return false;
-									
+                	alert('借用處理未完成。');
+                	return false;									
                 }
                 
             } else if (request_stage == 4) {
                 // remove active label from request card
                 // move request card to completed list
+                // remove request's list
+                if ($('.request-ctrl-btn-return.active').length == $('.request-ctrl-btn-return').length) {
+                	stage4_I_removeLabel();
+                } else {
+                    alert('還有物資未歸還。');
+                    return false;                                   
+                }
             }
             return true;
         }
@@ -399,8 +472,13 @@
             );
         }
         
+        var stage3_tot_step = 0;
+        var stage3_step = 1;
+        
         var stage3_I_removeLabel = function() {
-            var pid = startProcess("Remove Label (Step 1 / 3)");
+        	stage3_tot_step = (request_items.length * 2) + 2;
+        	
+            var pid = startProcess("Remove Label (Step "+(stage3_step++)+" / "+stage3_tot_step+")");
             trelloDelete('/cards/'+request.id+'/idLabels/'+Label.borrowProcess,
                 function(data) {
                     finishProcess(pid);
@@ -414,13 +492,115 @@
         }
         
         var stage3_II_addLabel = function() {
-            var pid = startProcess("Add Label (Step 2 / 3)");
+            var pid = startProcess("Add Label (Step "+(stage3_step++)+" / "+stage3_tot_step+")");
             trelloPost('/cards/'+request.id+'/idLabels',
                 { value: Label.active },
                 function(data) {
                     finishProcess(pid);
                     clearProcess();
-                    stageChangeUI(request_stage); // Change UI
+                    stage3_III_addLabelToItems();
+                },
+                function() {
+                    failProcess(pid);
+                }
+            );
+        }
+        
+        var stage3_III_addLabelToItems = function() {
+        	var complete_count = 0;
+        	$.each(request_items, function(index, item){
+        		var pid = startProcess("Add Label to "+item.name+" (Step "+(stage3_step++)+" / "+stage3_tot_step+")");
+                trelloPost('/cards/'+item.id+'/idLabels',
+                    { value: Label.borrowed },
+                    function(data) {
+                        finishProcess(pid);
+                        complete_count++;
+                        if (complete_count == request_items.length) {
+                        	stage3_IV_addDueDateToItems();
+                        }
+                    },
+                    function() {
+                        failProcess(pid);
+                    }
+                );
+        	});
+        }
+        
+        var stage3_IV_addDueDateToItems = function() {
+            var complete_count = 0;
+            $.each(request_items, function(index, item){
+                var pid = startProcess("Add Due Date to "+item.name+" (Step "+(stage3_step++)+" / "+stage3_tot_step+")");
+                trelloPut('/cards/'+item.id+'/due',
+                    { value: request.due },
+                    function(data) {
+                    	item.custom.returnDt = dateFormat_ymd(new Date(request.due));
+                        finishProcess(pid);
+                        complete_count++;
+                        if (complete_count == request_items.length) {
+                            clearProcess();
+                            stageChangeUI(request_stage); // Change UI
+                        }
+                    },
+                    function() {
+                        failProcess(pid);
+                    }
+                );
+            });
+        }
+        
+        var stage4_I_removeLabel = function() {
+            var pid = startProcess("Remove Label (Step 1 / 3)");
+            trelloDelete('/cards/'+request.id+'/idLabels/'+Label.active,
+                function(data) {
+                    finishProcess(pid);
+                    stage4_II_moveRequest();
+                },
+                function() {
+                    failProcess(pid);
+                }
+            );
+        }
+        
+        var stage4_II_moveRequest = function() {
+            var pid = startProcess("Move Request (Step 2 / 3)");
+            trelloPut('/cards/'+request.id,
+                {  idList: List.completed,
+                   pos: 'bottom'
+                },
+                function(data) {
+                    finishProcess(pid);
+                    stage4_III_removeList();
+                },
+                function() {
+                    failProcess(pid);
+                }
+            );
+        }
+        
+        var stage4_III_removeList = function() {
+            var pid = startProcess("Remove List (Step 3 / 3)");
+            trelloPut('/lists/'+request.idList+'/closed',
+                {  value: true
+                },
+                function(data) {
+                    finishProcess(pid);
+                    clearProcess();
+                },
+                function() {
+                    failProcess(pid);
+                }
+            );
+        }
+        
+        var completeCheckItem = function(request, item, done) {
+        	var pid = startProcess("Complete CheckItem ("+item.name+")");
+        	trelloPut('/cards/'+request.id+'/checkItem/'+item.custom.idCheckItem,
+                {  state: 'complete' 
+            	},
+                function(data) {
+                    finishProcess(pid);
+                    clearProcess();
+                    done();
                 },
                 function() {
                     failProcess(pid);
@@ -434,6 +614,34 @@
                 {  idList: idList,
                    pos: pos
                 },
+                function(data) {
+                    finishProcess(pid);
+                    clearProcess();
+                    done();
+                },
+                function() {
+                    failProcess(pid);
+                }
+            );
+        }
+        
+        var removeLabel = function(item, idLabel) {
+        	var pid = startProcess("Remove Label ("+item.name+")");
+            trelloDelete('/cards/'+item.id+'/idLabels/'+idLabel,
+                function(data) {
+                    finishProcess(pid);
+                    clearProcess();
+                },
+                function() {
+                    failProcess(pid);
+                }
+            );
+        }
+        
+        var removeDueDate = function(item, done) {
+        	var pid = startProcess("Remove Due Date ("+item.name+")");
+            trelloPut('/cards/'+item.id+'/due',
+                { value: null },
                 function(data) {
                     finishProcess(pid);
                     clearProcess();
