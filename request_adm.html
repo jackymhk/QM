@@ -29,17 +29,27 @@
         var loadLists = function() {
             trelloGet('/boards/'+Board+'/lists',
                 function(data) { 
-                   lists = data;
-                   loadCards(); 
+                    lists = data;
+                    loadCards(); 
                 },
-                function() { failAlert("load request fail"); }
+                function() {
+                    failAlert("load request fail");
+                }
             );
         };
         
         var loadCards = function() {
             trelloGet('/boards/'+Board+'/cards?checklists=all&actions=updateCheckItemStateOnCard',
-                showRequest,
-                function() { failAlert("load request fail"); }
+            	function(data) {
+                    showRequest(data);
+                    showRequestItems();
+                    buttonsAction();
+                    updateProgressBar($('#progress-step-'+request_stage+' .progress-bar-btn')); // Trigger Progress Bar
+                    stageChangeUI();
+                },
+                function() {
+                    failAlert("load request fail");
+                }
             );
         };
 
@@ -49,29 +59,6 @@
 
             cards = data;
             
-            // Find out late items
-            var lateCardUrls = getLateItems(cards);
-            
-            // Autolinker: utility to change url text to link
-            var autolinker = new Autolinker({
-                replaceFn : function(autolinker, match) {
-                    // Custom function to get Trello card's name from card url
-                    return cardUrlToName(autolinker, match, cards);
-                }
-            });
-
-            // Autolinker: utility to change url text to link
-            var urlRemover = new Autolinker({
-                replaceFn : function(autolinker, match) {
-                    // Custom function to remove card url
-                    return cardUrlRemove(autolinker, match, cards);
-                }
-            });
-            
-            //---------------------------------------
-            
-
-            //---------------------------------------
             // Find request
             $.each(cards, function(index, card) {
                 if (card.shortLink == requestShortLink)
@@ -88,19 +75,27 @@
             
             // Check request status
             var pending = (request.idList == List.pending);
-            var completed = (request.idList == List.completed);
-            var overdue = (dueDt != null && dueDt < new Date() && request.badges.checkItemsChecked < request.badges.checkItems);
-            var active = (hasLabel(request, Label.active) && !overdue);
             var borrowProcess = hasLabel(request, Label.borrowProcess);
+            var overdue = (!pending && !borrowProcess && dueDt != null && dueDt < new Date() && request.badges.checkItemsChecked < request.badges.checkItems);
+            var active = (hasLabel(request, Label.active) && !overdue);
+            var completed = (request.idList == List.completed);
             
+            var borrowDt = getBorrowDate(request);
+            var activity = getActivity(request);
+            var applicant = getApplicant(request);
+            
+            request.custom.dueDt = dateFormat_ymd(dueDt);
             request.custom.pending = pending;
             request.custom.completed = completed;
             request.custom.overdue = overdue;
             request.custom.active = active;
             request.custom.borrowProcess = borrowProcess;
-            
-            if (overdue)
-                $('#request').addClass('overdue');
+            request.custom.borrowDt = borrowDt;
+            request.custom.activity = activity;
+            request.custom.applicant = applicant;
+            request.custom.location = request.custom.activity + ' (' + request.custom.applicant + ')';
+            request.custom.checkedItemCount = request.badges.checkItemsChecked;
+            request.custom.itemCount = request.badges.checkItems;
             
             // Request stage
             if (pending)
@@ -116,156 +111,152 @@
             var desc = request.desc;
             desc = desc.replace(/\n\n\n/g, '<br>'); // \n\n\n -> <br>
             desc = desc.replace(/\n/g, '<br>'); // \n -> <br>
-            desc = urlRemover.link(desc); // url -> ''
+            //desc = urlRemover.link(desc); // url -> ''
             desc = desc.replace(/(<br>)+/g, '<br>'); // <br><br><br> -> <br>
             desc = desc.replace(/-------<br>-------/g, '-------'); // <br><br><br> -> <br>
             
-            $('#request-detail').append(desc);
-
-            var borrowDt = getBorrowDate(request);
-            var activity = getActivity(request);
-            var applicant = getApplicant(request);
+            if (overdue)
+                $('#request').addClass('overdue');
             
-            request.custom.borrowDt = borrowDt;
-            request.custom.activity = activity;
-            request.custom.applicant = applicant;
-            request.custom.location = request.custom.activity + ' (' + request.custom.applicant + ')';
-            request.custom.dueDt = dateFormat_ymd(dueDt);
-            
-            var html = '<p id="request-label-grp"></p>' +
-                   '<strong>' + activity + '</strong>' +
-                   '<div class="request-subheader">' +
-                   '<div class="request-subheader-grp"><span class="glyphicon glyphicon-time" aria-hidden="true"></span> ' + borrowDt + ' / ' + request.custom.dueDt + '</div>' +
-                   '<div class="request-subheader-grp"><span class="glyphicon glyphicon-check" aria-hidden="true"></span> ' + request.badges.checkItemsChecked+'/'+request.badges.checkItems + '</div>';
+            var html = '<p id="request-label-grp"></p>' 
+                + '<strong>' + activity + '</strong>' 
+                + '<div class="request-subheader">' 
+                + '<div class="request-subheader-grp"><span class="glyphicon glyphicon-time" aria-hidden="true"></span> ' + borrowDt + ' / ' + request.custom.dueDt + '</div>' 
+                + '<div class="request-subheader-grp" id="request-checked-count"><span class="glyphicon glyphicon-check" aria-hidden="true"></span> <span class="txt">' + request.custom.checkedItemCount+'/'+request.custom.itemCount+'</span></div>'
+                + '</div>';
             
             $('#request-header').append(html);
             
-            //---------------------------------------
-            // Items
-            if (request.checklists.length > 0) {
-                for (var i = 0; i < request.checklists[0].checkItems.length; i++) {
-                    var item = getCardByUrl(cards, request.checklists[0].checkItems[i].name);
-                    item.custom = {}; // To store custom varables
-                    // Load additional data
-                    item.custom = getAdditionalData(item);
-                    item.custom.index = i;
-                    item.custom.idCheckItem = request.checklists[0].checkItems[i].id;
-                    
-                    var location = getListNameById(lists, item.idList);
-                    item.custom.location = location;
-                    
-                    // Check item status
-                    var borrowed = (item.idList == request.idList);
-                    var borrowedByOther = (!borrowed && isBorrowed(item));
-                    //var late = ($.inArray(item.url, lateCardUrls) > -1);
-                    var late = (item.due != null && new Date(item.due) < new Date());
-                    var repair = (item.idList == List.repair);
-                    var drying = (item.idList == List.drying);
-                    var damaged = hasLabel(item, Label.damaged);
-                    var broken = hasLabel(item, Label.broken);
-                    var returned = (request.checklists[0].checkItems[i].state == 'complete');
-                    
-                    item.custom.borrowed = borrowed;
-                    item.custom.borrowedByOther = borrowedByOther;
-                    item.custom.late = late;
-                    item.custom.repair = repair;
-                    item.custom.drying = drying;
-                    item.custom.damaged = damaged;
-                    item.custom.broken = broken;
-                    item.custom.returned = returned;
-                    
-                    // item status label
-                    var itemLabel = '';
-                    if (borrowedByOther)
-                        itemLabel += '<span class="label st-label-large bg-borrowed">借出</span>';
-                    if (late)
-                        itemLabel += '<span class="label st-label-large bg-late">逾時未還</span>';
-                    if (repair)
-                        itemLabel += '<span class="label st-label-large bg-repair">維修中</span>';
-                    if (drying)
-                        itemLabel += '<span class="label st-label-large bg-drying">晾曬中</span>';
-                    if (damaged)
-                        itemLabel += '<span class="label st-label-large bg-damaged">損壞</span>';
-                    if (broken)
-                        itemLabel += '<span class="label st-label-large bg-broken">不能使用</span>';
-                    if (itemLabel != '')
-                        itemLabel = '<p style="margin: 0 0 2px;">' + itemLabel + '</p>';
-                        
-                    var returnDt = '';
-                    if ( (borrowed || borrowedByOther || late)
-                    	&& (item.due != null && item.due != '')	) {
-                        //returnDt = getReturnDate(item.idList);
-                    	returnDt = dateFormat_ymd(new Date(item.due));
-                    }
-                    item.custom.returnDt = returnDt;
-                    
-                    var completeDt = '';
-                    if (returned) {
-                    	$.each(request.actions, function(index, action) {
-                    		if (action.type == 'updateCheckItemStateOnCard'
-                    				&& action.data.checkItem.id == item.custom.idCheckItem
-                    				&& action.data.checkItem.state == 'complete') {
-                    			completeDt = dateFormat_ymd(new Date(action.date));
-                    		}
-                    	});
-                    }
-                    item.custom.completeDt = completeDt;
-                    
-                    // Create DOM
-                    var itemsDOM = '';
-                    itemsDOM += '<div class="request-body" id="item-' + item.shortLink + '">';
-                    itemsDOM += '<div class="pull-right">';
-                    itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-change txt-normal" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-retweet" title="更改"></span></button>';
-                    itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-remove txt-normal" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-remove" title="移除"></span></button>';
-                    itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-borrow txt-borrowed" data-toggle="button" aria-pressed="false" autocomplete="off" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-export" title="借出"></span></button>';
-                    if (returned) {
-                        itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-return txt-returned active unclickable" data-toggle="button" aria-pressed="true" autocomplete="off" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-ok" title="歸還"></span></button>';
-                    } else {
-                    	itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-return txt-returned" data-toggle="button" aria-pressed="false" autocomplete="off" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-ok" title="歸還"></span></button>';
-                    }
-                    itemsDOM += '</div>';
-                    itemsDOM += item.name;
-                    itemsDOM += itemLabel;
-                    itemsDOM += '<div class="request-subheader">';
-                    itemsDOM += '<div class="request-subheader-grp item-location"><span class="glyphicon glyphicon-map-marker" title="地點/活動" aria-hidden="true"></span> <span class="txt">' + location + '</span></div>';
-                    if (!returned && returnDt != '') {
-                        itemsDOM += '<div class="request-subheader-grp item-due"><span class="glyphicon glyphicon-time" title="歸還日期" aria-hidden="true"></span> <span class="txt">' + returnDt + '</span></div>';    
-                    } else {
-                    	itemsDOM += '<div class="request-subheader-grp item-due hidden"><span class="glyphicon glyphicon-time" title="歸還日期" aria-hidden="true"></span> <span class="txt"></span></div>';
-                    }
-                    if (completeDt != '') {
-                        itemsDOM += '<div class="request-subheader-grp item-complete"><span class="glyphicon glyphicon-check" title="實際歸還日期" aria-hidden="true"></span> <span class="txt">' + completeDt + '</span></div>';    
-                    } else {
-                        itemsDOM += '<div class="request-subheader-grp item-complete hidden"><span class="glyphicon glyphicon-check" title="實際歸還日期" aria-hidden="true"></span> <span class="txt"></span></div>';
-                    }
-                    itemsDOM += '</div>';
-                    itemsDOM += '</div>';
-                    
-                    $('#request-items').append(itemsDOM);
-                    
-                    request_items.push(item);
-                    
-                    
+            $('#request-detail').append(desc);
+        }
+        
+        //------------------------------------------------------
+        // Items
+        var showRequestItems = function() {
+        	if (request.checklists.length <= 0)
+        		return;
+            
+            for (var i = 0; i < request.checklists[0].checkItems.length; i++) {
+            	
+                var item = getCardByUrl(cards, request.checklists[0].checkItems[i].name);
+                var idCheckItem = request.checklists[0].checkItems[i].id;
+                
+                var location = getListNameById(lists, item.idList);
+                
+                // Check item status
+                var borrowed = (item.idList == request.idList);
+                var borrowedByOther = (!borrowed && isBorrowed(item));
+                var overdue = (item.due != null && new Date(item.due) < new Date());
+                var repair = (item.idList == List.repair);
+                var drying = (item.idList == List.drying);
+                var damaged = hasLabel(item, Label.damaged);
+                var broken = hasLabel(item, Label.broken);
+                var returned = (request.checklists[0].checkItems[i].state == 'complete');
+                
+                var dueDt = '';
+                if ( (borrowed || borrowedByOther || overdue)
+                        && (item.due != null && item.due != '') ) {
+                    dueDt = dateFormat_ymd(new Date(item.due));
                 }
+                
+                var completeDt = '';
+                if (returned) {
+                    $.each(request.actions, function(index, action) {
+                        if (action.type == 'updateCheckItemStateOnCard'
+                                && action.data.checkItem.id == idCheckItem
+                                && action.data.checkItem.state == 'complete') {
+                            completeDt = dateFormat_ymd(new Date(action.date));
+                        }
+                    });
+                }
+                
+                item.custom = {}; // To store custom varables
+                item.custom = getAdditionalData(item); // Load additional data
+                item.custom.index = i;
+                item.custom.idCheckItem = idCheckItem;
+                item.custom.location = location;
+                item.custom.borrowed = borrowed;
+                item.custom.borrowedByOther = borrowedByOther;
+                item.custom.overdue = overdue;
+                item.custom.repair = repair;
+                item.custom.drying = drying;
+                item.custom.damaged = damaged;
+                item.custom.broken = broken;
+                item.custom.returned = returned;
+                item.custom.dueDt = dueDt;
+                item.custom.completeDt = completeDt;
+                
+                // item status label
+                var itemLabel = '';
+                if (borrowedByOther)
+                    itemLabel += '<span class="label st-label-large bg-borrowed">借出</span>';
+                if (overdue)
+                    itemLabel += '<span class="label st-label-large bg-late">逾時未還</span>';
+                if (repair)
+                    itemLabel += '<span class="label st-label-large bg-repair">維修中</span>';
+                if (drying)
+                    itemLabel += '<span class="label st-label-large bg-drying">晾曬中</span>';
+                if (damaged)
+                    itemLabel += '<span class="label st-label-large bg-damaged">損壞</span>';
+                if (broken)
+                    itemLabel += '<span class="label st-label-large bg-broken">不能使用</span>';
+                if (itemLabel != '')
+                    itemLabel = '<p style="margin: 0 0 2px;">' + itemLabel + '</p>';
+                
+                // Create DOM
+                var itemsDOM = '';
+                itemsDOM += '<div class="request-body" id="item-' + item.shortLink + '">';
+                itemsDOM += '<div class="pull-right">';
+                itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-change txt-normal" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-retweet" title="更改"></span></button>';
+                itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-remove txt-normal" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-remove" title="移除"></span></button>';
+                itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-borrow txt-borrowed" data-toggle="button" aria-pressed="false" autocomplete="off" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-export" title="借出"></span></button>';
+                itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-return txt-returned" data-toggle="button" aria-pressed="false" autocomplete="off" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-ok" title="歸還"></span></button>';
+                itemsDOM += '</div>';
+                itemsDOM += item.name;
+                itemsDOM += itemLabel;
+                itemsDOM += '<div class="request-subheader">';
+                itemsDOM += '<div class="request-subheader-grp item-location"><span class="glyphicon glyphicon-map-marker" title="地點/活動" aria-hidden="true"></span> <span class="txt">' + location + '</span></div>';
+                itemsDOM += '<div class="request-subheader-grp item-due hidden"><span class="glyphicon glyphicon-time" title="歸還日期" aria-hidden="true"></span> <span class="txt"></span></div>';
+                itemsDOM += '<div class="request-subheader-grp item-complete hidden"><span class="glyphicon glyphicon-check" title="實際歸還日期" aria-hidden="true"></span> <span class="txt"></span></div>';
+                itemsDOM += '</div>';
+                itemsDOM += '</div>';
+                
+                $('#request-items').append(itemsDOM);
+                
+                request_items.push(item);
+                
             }
+        }
+        
+        //------------------------------------------------------
+        // 
+        var buttonsAction = function() {
             
             // Borrow Button Action
             $('.request-ctrl-btn-borrow').on('click', function() {
                 var item = getItem($(this).data('item'));
                 if ($(this).is('.active')) {
-                	// Move item back to Original Storage List
+                    // Move item back to Original Storage List
                     moveItem(item, item.custom.orig_loc, item.custom.orig_pos, function() {
                         // Update item location
+                        item.idList = item.custom.orig_loc;
                         item.custom.location = getListNameById(lists, item.custom.orig_loc);
-                        $('#item-'+item.shortLink+' .item-location .txt').html(item.custom.location);   
+                        item.custom.borrowed = false;
+                        updateItemInfo(item);
+                        $('#item-' + item.shortLink + ' .request-ctrl-btn-change').attr('disabled', false);
+                        $('#item-' + item.shortLink + ' .request-ctrl-btn-remove').attr('disabled', false);
                     });
                 } else {
-	                // Move item to Request's List
-	                moveItem(item, request.idList, item.custom.index+2, function() {
-	                	// Update item location
-	                    item.custom.location = request.custom.location;
-	                    $('#item-'+item.shortLink+' .item-location .txt').html(item.custom.location);	
-	                });
+                    // Move item to Request's List
+                    moveItem(item, request.idList, item.custom.index+2, function() {
+                        // Update item location
+                        item.idList = request.idList;
+                        item.custom.location = request.custom.location;
+                        item.custom.borrowed = true;
+                        updateItemInfo(item);
+                        $('#item-' + item.shortLink + ' .request-ctrl-btn-change').attr('disabled', true);
+                        $('#item-' + item.shortLink + ' .request-ctrl-btn-remove').attr('disabled', true);
+                    });
                 }
             });
             
@@ -276,9 +267,9 @@
                 removeChecklistItem(item, request.id, function() {
                     // Remove Item DOM
                     $('#item-'+item.shortLink).remove();
-                    request_items.splice(item.custom.index, 1); // Remove item from Array
-                    $.each(request_items, function(index, it){ // Update index
-                    	it.custom.index = index;
+                    request_items.splice(item.custom.index, 1); // Remove item from request_items
+                    $.each(request_items, function(index, otherItem){ // Update index
+                    	otherItem.custom.index = index;
                     });
                 });
             });
@@ -287,36 +278,44 @@
             $('.request-ctrl-btn-return').on('click', function() {
                 var item = getItem($(this).data('item'));
                 if (!$(this).is('.active')) {
+                    var complete_count = 0;
                 	// Complete checklist item
-                	completeCheckItem(request, item, function() {
-                		item.custom.completeDt = dateFormat_ymd(new Date());
-                		$('#item-'+item.shortLink+' .item-due').addClass('hidden');
-                		$('#item-'+item.shortLink+' .item-complete').removeClass('hidden');
-                		$('#item-'+item.shortLink+' .item-complete .txt').html(item.custom.completeDt);
-                	});
-                	// Remove label
-                	removeLabel(item, Label.borrowed);
-                	// Remove due
-                    removeDueDate(item, function(){
-                        item.custom.returnDt = null;
+                    completeCheckItem(request, item, function() {
+                        item.custom.completeDt = dateFormat_ymd(new Date());
+                        item.custom.returned = true;
+                        request.custom.checkedItemCount++;
+                        $('#request-checked-count .txt').html(request.custom.checkedItemCount+'/'+request.custom.itemCount);
+                        complete_count++;
+                        if (complete_count == 4)
+                        	updateItemInfo(item);
                     });
-                	// Move item back to Original Storage List
+                    // Remove label
+                    removeLabel(item, Label.borrowed, function() {
+                    	complete_count++;
+                    	if (complete_count == 4)
+                            updateItemInfo(item);
+                    });
+                    // Remove due
+                    removeDueDate(item, function() {
+                        item.custom.dueDt = null;
+                        complete_count++;
+                        if (complete_count == 4)
+                            updateItemInfo(item);
+                    });
+                    // Move item back to Original Storage List
                     moveItem(item, item.custom.orig_loc, item.custom.orig_pos, function() {
                         // Update item location
                         item.custom.location = getListNameById(lists, item.custom.orig_loc);
-                        $('#item-'+item.shortLink+' .item-location .txt').html(item.custom.location);
+                        complete_count++;
+                        if (complete_count == 4)
+                            updateItemInfo(item);
                     });
                     $(this).addClass('unclickable');
                 }
             });
-
-            // Trigger Progress Bar
-            updateProgressBar($('#progress-step-'+request_stage+' .progress-bar-btn'));
-            stageChangeUI(request_stage);
-            
         }
         
-        var stageChangeUI = function(stage) {
+        var stageChangeUI = function() {
             
             // Update control buttons
             if (request_stage == 1) {
@@ -334,13 +333,16 @@
                 $('.request-ctrl-btn-return').hide();
                 
                 $.each(request_items, function(index, item){
-                    if (item.custom.borrowedByOther || item.custom.late)
+                    if (item.custom.borrowedByOther || item.custom.overdue)
                         $('#item-' + item.shortLink + ' .request-ctrl-btn-borrow').attr('disabled', true);
                     else
                         $('#item-' + item.shortLink + ' .request-ctrl-btn-borrow').attr('disabled', false);
                     
-                    if (item.idList == request.idList) 
+                    if (item.idList == request.idList) {
                         $('#item-' + item.shortLink + ' .request-ctrl-btn-borrow').addClass('active').attr('aria-pressed', true);
+                        $('#item-' + item.shortLink + ' .request-ctrl-btn-change').attr('disabled', true);
+                        $('#item-' + item.shortLink + ' .request-ctrl-btn-remove').attr('disabled', true);
+                    }
                 });
                 
             } else if (request_stage == 3) {
@@ -350,16 +352,11 @@
                 $('.request-ctrl-btn-return').show();
                 
                 $.each(request_items, function(index, item){
-                    if (!item.custom.returned && item.custom.returnDt != '') {
-                    	$('#item-' + item.shortLink + ' .item-due').removeClass('hidden');
-                        $('#item-' + item.shortLink + ' .item-due .txt').html(item.custom.returnDt);
-                    }
-                    
                     if (item.custom.returned)
-                    	$('#item-' + item.shortLink + ' .request-ctrl-btn-return')
-                    	   .addClass('active')
-                    	   .addClass('unclickable')
-                    	   .attr('aria-pressed', true);
+                        $('#item-' + item.shortLink + ' .request-ctrl-btn-return')
+                           .addClass('active')
+                           .addClass('unclickable')
+                           .attr('aria-pressed', true);
                 });
                 
             } else if (request_stage == 4) {
@@ -368,51 +365,90 @@
                 $('.request-ctrl-btn-borrow').hide();
                 $('.request-ctrl-btn-return').show();
                 
+                $.each(request_items, function(index, item){
+	                if (item.custom.returned)
+	                    $('#item-' + item.shortLink + ' .request-ctrl-btn-return')
+	                       .addClass('active')
+	                       .addClass('unclickable')
+	                       .attr('aria-pressed', true);
+                });
             }
+            
+            // Update Item info
+            $.each(request_items, function(index, item){
+            	updateItemInfo(item);
+            });
             
             // Update Label
             var label = '';
-            if (request_stage == 1)
+            if (request.custom.pending)
                 label += '<span class="label st-label-large bg-pending">待處理</span>';
-            if (request_stage == 2)
+            if (request.custom.borrowProcess)
                 label += '<span class="label st-label-large bg-pending">借用處理中</span>';
-            if (request_stage == 3)
+            if (request.custom.active)
                 label += '<span class="label st-label-large bg-active">進行中</span>';
             if (request.custom.overdue)
                 label += '<span class="label st-label-large bg-overdue">逾時未還</span>';
-            if (request_stage == 4)
+            if (request.custom.completed)
                 label += '<span class="label st-label-large bg-completed">完成</span>';
             $('#request-label-grp').html(label);
         }
         
-        var stageAction = function(stage) {
+        var updateItemInfo = function(item) {
+        	// Location
+            $('#item-' + item.shortLink + ' .item-location .txt').html(item.custom.location);
+            
+            // Due Date
+            if (!item.custom.returned && item.custom.dueDt != null && item.custom.dueDt != '') {
+                $('#item-' + item.shortLink + ' .item-due').removeClass('hidden');
+                $('#item-' + item.shortLink + ' .item-due .txt').html(item.custom.dueDt);
+            }
+            
+            // Complete Date
+            if (item.custom.returned) {
+            	$('#item-' + item.shortLink + ' .item-due').addClass('hidden');
+            	$('#item-' + item.shortLink + ' .item-complete').removeClass('hidden');
+                $('#item-' + item.shortLink + ' .item-complete .txt').html(item.custom.completeDt);
+            }
+        }
+        
+        var stageAction = function() {
             if (request_stage == 1) {
                 // No action
                 
             } else if (request_stage == 2) {
+            	request.custom.pending = false;
+            	request.custom.borrowProcess = true;
+            	
                 // create new list for request
                 // move request card to new list
                 // add borrowProcess label to request card
                 stage2_I_newList();
                 
             } else if (request_stage == 3) {
+            	request.custom.borrowProcess = false;
+            	request.custom.active = true;
+            	
                 // remove borrowProcess label from request card
                 // add active label to request card
                 // add borrowed label to each item
                 // add due date to each item
                 if ($('.request-ctrl-btn-borrow.active').length == $('.request-ctrl-btn-borrow').length) {
-                	stage3_I_removeLabel();
+                    stage3_I_removeLabel();
                 } else {
-                	alert('借用處理未完成。');
-                	return false;									
+                    alert('借用處理未完成。');
+                    return false;                                    
                 }
                 
             } else if (request_stage == 4) {
+            	request.custom.active = false;
+            	request.custom.completed = true;
+                
                 // remove active label from request card
                 // move request card to completed list
                 // remove request's list
                 if ($('.request-ctrl-btn-return.active').length == $('.request-ctrl-btn-return').length) {
-                	stage4_I_removeLabel();
+                    stage4_I_removeLabel();
                 } else {
                     alert('還有物資未歸還。');
                     return false;                                   
@@ -464,7 +500,7 @@
                 function(data) {
                     finishProcess(pid);
                     clearProcess();
-                    stageChangeUI(request_stage); // Change UI
+                    stageChangeUI(); // Change UI
                 },
                 function() {
                     failProcess(pid);
@@ -476,8 +512,8 @@
         var stage3_step = 1;
         
         var stage3_I_removeLabel = function() {
-        	stage3_tot_step = (request_items.length * 2) + 2;
-        	
+            stage3_tot_step = (request_items.length * 2) + 2;
+            
             var pid = startProcess("Remove Label (Step "+(stage3_step++)+" / "+stage3_tot_step+")");
             trelloDelete('/cards/'+request.id+'/idLabels/'+Label.borrowProcess,
                 function(data) {
@@ -507,23 +543,23 @@
         }
         
         var stage3_III_addLabelToItems = function() {
-        	var complete_count = 0;
-        	$.each(request_items, function(index, item){
-        		var pid = startProcess("Add Label to "+item.name+" (Step "+(stage3_step++)+" / "+stage3_tot_step+")");
+            var complete_count = 0;
+            $.each(request_items, function(index, item){
+                var pid = startProcess("Add Label to "+item.name+" (Step "+(stage3_step++)+" / "+stage3_tot_step+")");
                 trelloPost('/cards/'+item.id+'/idLabels',
                     { value: Label.borrowed },
                     function(data) {
                         finishProcess(pid);
                         complete_count++;
                         if (complete_count == request_items.length) {
-                        	stage3_IV_addDueDateToItems();
+                            stage3_IV_addDueDateToItems();
                         }
                     },
                     function() {
                         failProcess(pid);
                     }
                 );
-        	});
+            });
         }
         
         var stage3_IV_addDueDateToItems = function() {
@@ -533,12 +569,12 @@
                 trelloPut('/cards/'+item.id+'/due',
                     { value: request.due },
                     function(data) {
-                    	item.custom.returnDt = dateFormat_ymd(new Date(request.due));
+                        item.custom.dueDt = dateFormat_ymd(new Date(request.due));
                         finishProcess(pid);
                         complete_count++;
                         if (complete_count == request_items.length) {
                             clearProcess();
-                            stageChangeUI(request_stage); // Change UI
+                            stageChangeUI(); // Change UI
                         }
                     },
                     function() {
@@ -585,6 +621,7 @@
                 function(data) {
                     finishProcess(pid);
                     clearProcess();
+                    stageChangeUI(); // Change UI
                 },
                 function() {
                     failProcess(pid);
@@ -593,10 +630,10 @@
         }
         
         var completeCheckItem = function(request, item, done) {
-        	var pid = startProcess("Complete CheckItem ("+item.name+")");
-        	trelloPut('/cards/'+request.id+'/checkItem/'+item.custom.idCheckItem,
+            var pid = startProcess("Complete CheckItem ("+item.name+")");
+            trelloPut('/cards/'+request.id+'/checkItem/'+item.custom.idCheckItem,
                 {  state: 'complete' 
-            	},
+                },
                 function(data) {
                     finishProcess(pid);
                     clearProcess();
@@ -625,12 +662,13 @@
             );
         }
         
-        var removeLabel = function(item, idLabel) {
-        	var pid = startProcess("Remove Label ("+item.name+")");
+        var removeLabel = function(item, idLabel, done) {
+            var pid = startProcess("Remove Label ("+item.name+")");
             trelloDelete('/cards/'+item.id+'/idLabels/'+idLabel,
                 function(data) {
                     finishProcess(pid);
                     clearProcess();
+                    done();
                 },
                 function() {
                     failProcess(pid);
@@ -639,7 +677,7 @@
         }
         
         var removeDueDate = function(item, done) {
-        	var pid = startProcess("Remove Due Date ("+item.name+")");
+            var pid = startProcess("Remove Due Date ("+item.name+")");
             trelloPut('/cards/'+item.id+'/due',
                 { value: null },
                 function(data) {
@@ -667,16 +705,6 @@
             );
         }
         
-        var getReturnDate = function(idList) {
-            for (var i = 0; i < cards.length; i++) {
-                if (cards[i].idList == idList && 
-                        (hasLabel(cards[i], Label.borrowRec) || hasLabel(cards[i], Label.repairRec))) {
-                    return dateFormat_ymd(new Date(cards[i].due));
-                }
-            }
-            return '';
-        }
-        
         var getItem = function(shortLink) {
             for (var i = 0; i < request_items.length; i++) {
                 if (request_items[i].shortLink == shortLink) {
@@ -699,8 +727,8 @@
             // Progress Bar onClick action
             $('.progress-bar-btn').on('click', function() {
                 request_stage = $(this).data('stepnum');
-                if (stageAction(request_stage)) { // perform trello actions
-                	updateProgressBar($(this));
+                if (stageAction()) { // perform trello actions
+                    updateProgressBar($(this));
                 } 
             });
             

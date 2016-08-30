@@ -59,10 +59,11 @@
 
                     // Check card status
                     var pending = (card.idList == List.pending);
+                    var borrowProcess = hasLabel(card, Label.borrowProcess);
+                    var overdue = (!pending && !borrowProcess && dueDt != null && dueDt < new Date() && card.badges.checkItemsChecked < card.badges.checkItems);
+                    var active = (hasLabel(card, Label.active) && !overdue);
                     var completed = (card.idList == List.completed);
-                    var overdue = (dueDt != null && dueDt < new Date() && card.badges.checkItemsChecked < card.badges.checkItems);
-                    var active = (!pending && !completed && !overdue);
-
+                    
                     // Add classes for filtering
                     var filterClass = '';
                     if (pending)
@@ -73,6 +74,8 @@
                         filterClass += ' filter-overdue';
                     if (active)
                         filterClass += ' filter-active';
+                    if (borrowProcess)
+                        filterClass += ' filter-borrowProcess';
 
                     // Label
                     var label = '';
@@ -80,6 +83,8 @@
                         label += '<span class="label st-label-large bg-overdue">逾時未還</span>';
                     if (pending)
                         label += '<span class="label st-label-large bg-pending">待處理</span>';
+                    if (borrowProcess)
+                        label += '<span class="label st-label-large bg-pending">借用處理中</span>';
                     if (active)
                         label += '<span class="label st-label-large bg-active">進行中</span>';
                     if (completed)

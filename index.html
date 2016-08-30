@@ -47,7 +47,6 @@
 
 
             // Find out overdue items
-            var OverdueCardUrls = [];
             $.each(cards, function(index, card) {
                 if ( hasLabel(card, Label.borrowRec) || hasLabel(card, Label.repairRec) ) {
                     var dueDt = null;
@@ -59,16 +58,6 @@
                     var completed = (card.idList == List.completed);
                     var overdueRequest = (dueDt != null && dueDt < new Date() && card.badges.checkItemsChecked < card.badges.checkItems);
                     var active = (!pending && !completed && !overdueRequest);
-
-                    if (overdueRequest) {
-                        if (card.checklists.length > 0) {
-                            for (var i = 0; i < card.checklists[0].checkItems.length; i++) {
-                                if (card.checklists[0].checkItems[i].state == 'incomplete') {
-                                    OverdueCardUrls.push(card.checklists[0].checkItems[i].name);
-                                }
-                            }
-                        }
-                    }
 
                     if (pending)
                         pending_count++;
@@ -84,7 +73,7 @@
                 if (!hasLabel(card, Label.borrowRec) && !hasLabel(card, Label.repairRec)) {
                     // Check card status
                     var borrowed = isBorrowed(card);
-                    var overdue = ($.inArray(card.url, OverdueCardUrls) > -1);
+                    var overdue = (card.due != null && new Date(card.due) < new Date());
                     var repair = (card.idList == List.repair);
                     var drying = (card.idList == List.drying);
                     var damaged = hasLabel(card, Label.damaged);

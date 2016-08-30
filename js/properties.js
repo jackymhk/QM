@@ -40,6 +40,10 @@ var Label = {
     stove: '578136e584e677fd36740a0f',     // Label - 爐頭
     other: '578133eb84e677fd367405aa',     // Label - 其他
     
+    tent_tent: '57c50adf0b13f6d890dd6ffc', // Label - A字營 (營)
+    tent_pole: '57c50af324d704b9819d6d1b', // Label - A字營 (營柱)
+    tent_shelter: '57c50b040b26b0b7969e5b89', // Label - A字營 (天幕)
+    
     borrowProcess: '57bd71a6f4a0cb79e28ec61d', // Label - 借用處理中
     active: '57bd71e205838e073940b4b3'     // Label - 進行中
 };

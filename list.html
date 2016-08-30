@@ -34,9 +34,6 @@
                 return a.name.localeCompare(b.name);
             });
 
-            // Find out late items
-            var lateCardUrls = getLateItems(cards);
-
             // Autolinker: utility to change url text to link
             var autolinker = new Autolinker({
                 replaceFn : function(autolinker, match) {
@@ -46,7 +43,7 @@
             });
 
             var borrowed_count = 0;
-            var late_count = 0;
+            var overdue_count = 0;
             var repair_count = 0;
             var drying_count = 0;
             var damaged_count = 0;
@@ -57,7 +54,7 @@
                 if (!hasLabel(card, Label.borrowRec) && !hasLabel(card, Label.repairRec)) {
                     // Check card status
                     var borrowed = isBorrowed(card);
-                    var late = ($.inArray(card.url, lateCardUrls) > -1);
+                    var overdue = (card.due != null && new Date(card.due) < new Date());
                     var repair = (card.idList == List.repair);
                     var drying = (card.idList == List.drying);
                     var damaged = hasLabel(card, Label.damaged);
@@ -66,8 +63,8 @@
                     // Counter
                     if (borrowed)
                         borrowed_count++;
-                    if (late)
-                        late_count++;
+                    if (overdue)
+                        overdue_count++;
                     if (repair)
                         repair_count++;
                     if (drying)
@@ -81,8 +78,8 @@
                     var filterClass = '';
                     if (borrowed)
                         filterClass += ' filter-borrowed';
-                    if (late)
-                        filterClass += ' filter-late';
+                    if (overdue)
+                        filterClass += ' filter-overdue';
                     if (repair)
                         filterClass += ' filter-repair';
                     if (drying)
@@ -91,7 +88,7 @@
                         filterClass += ' filter-damaged';
                     if (broken)
                         filterClass += ' filter-broken';
-                    if (!broken && !damaged && !drying && !repair && !late && !borrowed)
+                    if (!broken && !damaged && !drying && !repair && !overdue && !borrowed)
                         filterClass += ' filter-available';
 
                     // Add status label
@@ -104,11 +101,11 @@
                         status += '<span class="st-label bg-drying pull-right">&nbsp;</span>';
                     if (repair)
                         status += '<span class="st-label bg-repair pull-right">&nbsp;</span>';
-                    if (late)
+                    if (overdue)
                         status += '<span class="st-label bg-late pull-right">&nbsp;</span>';
                     if (borrowed)
                         status += '<span class="st-label bg-borrowed pull-right">&nbsp;</span>';
-                    if (!broken && !damaged && !drying && !repair && !late && !borrowed)
+                    if (!broken && !damaged && !drying && !repair && !overdue && !borrowed)
                         status += '<span class="glyphicon glyphicon-option-vertical pull-right" aria-hidden="true" style="color: #cccccc;"></span>';
 
 
@@ -155,7 +152,7 @@
                         var label = '';
                         if (borrowed)
                             label += '<span class="label st-label-large bg-borrowed">借出</span>';
-                        if (late)
+                        if (overdue)
                             label += '<span class="label st-label-large bg-late">逾時未還</span>';
                         if (repair)
                             label += '<span class="label st-label-large bg-repair">維修中</span>';
@@ -169,7 +166,7 @@
                             label = '<p>' + label + '</p>';
 
                         // Format Description
-                        var desc = card.desc;
+                        var desc = getDesc(card);
                         desc = desc.replace(/\n\n\n/g, '<br>'); // \n\n\n -> <br>
                         desc = desc.replace(/\n/g, '<br>'); // \n -> <br>
                         desc = autolinker.link(desc); // url -> <a href="url">url</a>
@@ -183,7 +180,7 @@
             });
 
             $('#badge-borrowed').html('('+borrowed_count+')');
-            $('#badge-late').html('('+late_count+')');
+            $('#badge-overdue').html('('+overdue_count+')');
             $('#badge-repair').html('('+repair_count+')');
             $('#badge-drying').html('('+drying_count+')');
             $('#badge-damaged').html('('+damaged_count+')');
@@ -288,7 +285,7 @@
         <div class="row" style="margin-bottom: 20px;">
             <div class="st-label-key-container col-xs-9">
                 <span class="st-label-key text-nowrap"><span class="st-label bg-borrowed">&nbsp;</span>借出 <span id="badge-borrowed">(-)</span></span>
-                <span class="st-label-key text-nowrap"><span class="st-label bg-late">&nbsp;</span>逾時未還 <span id="badge-late">(-)</span></span>
+                <span class="st-label-key text-nowrap"><span class="st-label bg-late">&nbsp;</span>逾時未還 <span id="badge-overdue">(-)</span></span>
                 <span class="st-label-key text-nowrap"><span class="st-label bg-repair">&nbsp;</span>維修中 <span id="badge-repair">(-)</span></span>
                 <span class="st-label-key text-nowrap"><span class="st-label bg-drying">&nbsp;</span>晾曬中 <span id="badge-drying">(-)</span></span>
                 <span class="st-label-key text-nowrap"><span class="st-label bg-damaged">&nbsp;</span>損壞 <span id="badge-damaged">(-)</span></span>
@@ -381,7 +378,7 @@
                             </div>
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox" id="toggle-late" class="status-toggle" data-target=".filter-late" checked>
+                                    <input type="checkbox" id="toggle-overdue" class="status-toggle" data-target=".filter-overdue" checked>
                                     <span class="label st-label-large bg-late">逾時未還</span>
                                 </label>
                             </div>

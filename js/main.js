@@ -202,6 +202,15 @@ function getAdditionalData(card) {
     return {};
 }
 
+function getDesc(card) {
+	var desc = card.desc;
+    var array = desc.split('```');
+    if (array.length >= 1) {
+    	return array[0];
+    }
+    return '';
+}
+
 function isEmail(email) {
     var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
     return regex.test(email);
@@ -228,7 +237,7 @@ function cardUrlReplace(autolinker, match, cards) {
             var anchorText = match.getAnchorText().split('/');
             if (anchorText[0] == 'trello.com' && anchorText[1] == 'c') {
                 //return '<a href="'+match.getUrl()+'">'+getCardNameByUrl(cards, match.getUrl())+'</a>';
-                return '<a href="javascript: $(\'#'+anchorText[2]+'\').triggerHandler(\'click\');">'+getCardNameByUrl(cards, match.getUrl())+'</a>';
+                return '<a href="javascript: $(\'#'+anchorText[2]+'\').triggerHandler(\'click\');">'+getCardNameByShortLink(cards, anchorText[2])+'</a>';
             } else {
                 return true;
             }
@@ -253,7 +262,7 @@ function cardUrlToName(autolinker, match, cards) {
         case 'url' :
             var anchorText = match.getAnchorText().split('/');
             if (anchorText[0] == 'trello.com' && anchorText[1] == 'c') {
-                return getCardNameByUrl(cards, match.getUrl());
+                return getCardNameByShortLink(cards, anchorText[2]);
             } else {
                 return true;
             }
@@ -300,6 +309,15 @@ function cardUrlRemove(autolinker, match, cards) {
 function getCardNameByUrl(cards, url) {
     for (var i = 0; i < cards.length; i++) {
         if (cards[i].url == url) {
+            return cards[i].name;
+        }
+    }
+    return url;
+}
+
+function getCardNameByShortLink(cards, shortLink) {
+    for (var i = 0; i < cards.length; i++) {
+        if (cards[i].shortLink == shortLink) {
             return cards[i].name;
         }
     }
