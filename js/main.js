@@ -325,8 +325,10 @@ function getCardNameByShortLink(cards, shortLink) {
 }
 
 function getCardByUrl(cards, url) {
+	url = url.substring(8); // Trim "https://"
+	var anchorText = url.split('/');
     for (var i = 0; i < cards.length; i++) {
-        if (cards[i].url == url) {
+        if (cards[i].shortLink == anchorText[2]) {
             return cards[i];
         }
     }
@@ -403,6 +405,28 @@ function getApplicant(card) {
         return array[2];
     else
         return null;
+}
+
+//Sort by status, due date, id
+function itemCompare(a, b) {
+    var order_a = a.custom.order;
+    var order_b = b.custom.order;
+    var due_a = new Date(a.due);
+    var due_b = new Date(b.due);
+    
+    if (order_a == order_b) {
+        if (due_a == due_b) {
+            return b.id.localeCompare(a.id);
+        } else if (due_b < due_a) {
+            return -1;
+        } else { 
+            return 1;
+        }
+    } else if (order_a < order_b) {
+        return -1;
+    } else {
+        return 1;
+    }   
 }
 
 /*******************
