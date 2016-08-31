@@ -117,6 +117,18 @@
             	$('.dashboard-widget-login-txt').html('登出');
             	$('.dashboard-widget-login').data('url','logout.html');
             }
+            
+            if (localStorage.trelloLogin == 'Y') {
+                trelloGet('/member/me',
+                    function(data) {
+                        $('.user-box').removeClass('hidden');
+                        $('#user-id').html(data.fullName);
+                    },
+                    function() {
+                        console.log('/member/me fail');
+                    }
+                );
+            }
         });
     </script>
 </head>

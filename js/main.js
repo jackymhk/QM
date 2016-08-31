@@ -202,17 +202,7 @@ function urlParam(name, url) {
 }
 
 $(function(){
-	if (localStorage.trelloLogin == 'Y') {
-		trelloGet('/member/me',
-			function(data) {
-				$('.user-box').removeClass('hidden');
-				$('#user-id').html(data.fullName);
-	        },
-            function() {
-	        	console.log('/member/me fail');
-            }
-        );
-	}
+	
 });
 
 // Additional Data is stored in Description
