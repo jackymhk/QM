@@ -112,6 +112,11 @@
             $('.dashboard-widget').on('click', function() {
                 window.location.href = $(this).data('url');
             });
+            
+            if (localStorage.trelloLogin == 'Y') {
+            	$('.dashboard-widget-login-txt').html('登出');
+            	$('.dashboard-widget-login').data('url','logout.html');
+            }
         });
     </script>
 </head>
