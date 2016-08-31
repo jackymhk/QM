@@ -201,6 +201,19 @@ function urlParam(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
+$(function(){
+	if (localStorage.trelloLogin == 'Y') {
+		trelloGet('/member/me',
+			function(data) {
+				$('.user-box').removeClass('hidden');
+				$('#user-id').html(data.fullname);
+	        },
+            function() {
+            }
+        );
+	}
+});
+
 // Additional Data is stored in Description
 // wrapping by three backticks (```) at the end
 // in JSON format
