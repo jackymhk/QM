@@ -206,9 +206,10 @@ $(function(){
 		trelloGet('/member/me',
 			function(data) {
 				$('.user-box').removeClass('hidden');
-				$('#user-id').html(data.fullname);
+				$('#user-id').html(data.fullName);
 	        },
             function() {
+	        	console.log('/member/me fail');
             }
         );
 	}
