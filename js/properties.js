@@ -4,6 +4,7 @@ var USE_PROXY = true;
 if (window.location.href.substring(0,4) == 'http' && localStorage.trelloLogin == 'Y') {
 	USE_PROXY = false;
 }
+console.log('USE_PROXY='+USE_PROXY);
 
 var Board = 'OPFLEvqH';
 var BoardId = '5780d6578f40552d7f41acd7';
