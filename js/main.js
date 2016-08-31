@@ -13,26 +13,37 @@ function trelloAuthorize(done, fail) {
     } else {
         warningAlert("<strong>Warning: </strong>Authorize Failed.<br>" +
             "Please get the authorization in the popup.");
-        Trello.authorize({
-            type: "popup",
-            name: "HKG81 QM",
-            scope: {
-                read: true,
-                write: true },
-            //expiration: "never",
-            expiration: "30days",
-            success: function() {
+        trelloAuthorize(
+            function() {
                 $("#alert-box").addClass("hidden");
                 $("#alert-box").removeClass("alert-warning");
                 done();
             },
-            error: function() {
+            function() {
                 $('#loader').remove();
                 failAlert("<strong>錯誤: </strong>Authorize Failed.");
                 fail();
             }
-        });
+        );
     }
+}
+
+function trelloAuthorize(done, fail) {
+	Trello.authorize({
+        type: "popup",
+        name: "81st HKG QM",
+        scope: {
+            read: true,
+            write: true },
+        //expiration: "never",
+        expiration: "30days",
+        success: function() {
+            done();
+        },
+        error: function() {
+            fail();
+        }
+    });
 }
 
 function trelloGet(url, done, fail) {
