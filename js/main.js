@@ -13,7 +13,7 @@ function trelloAuthorize(done, fail) {
     } else {
         warningAlert("<strong>Warning: </strong>Authorize Failed.<br>" +
             "Please get the authorization in the popup.");
-        trelloAuthorize(
+        trelloAuthorize2(
             function() {
                 $("#alert-box").addClass("hidden");
                 $("#alert-box").removeClass("alert-warning");
@@ -28,7 +28,7 @@ function trelloAuthorize(done, fail) {
     }
 }
 
-function trelloAuthorize(done, fail) {
+function trelloAuthorize2(done, fail) {
 	Trello.authorize({
         type: "popup",
         name: "81st HKG QM",
