@@ -123,20 +123,29 @@
 
         $(function(){
             trelloAuthorize(loadCards);
+            
+            checkLogin();
         });
     </script>
 </head>
 <body>
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container-fluid">
+            <div class="btn-group pull-right user-box hidden" style="padding-top: 10px;">
+                <button type="button" id="user-id" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                <ul class="dropdown-menu">
+                    <li><a href="admin.html">處理借用申請</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="logout.html">登出</a></li>
+                </ul>
+            </div>
             <div class="navbar-header">
                 <a class="navbar-brand" href="#">81st HKG QM</a>
             </div>
             <ul class="nav navbar-nav">
                 <li><a href="index.html">首頁</a></li>
-                <li><a href="request.html">借用申請</a></li>
+                <li class="active"><a href="request.html">借用申請</a></li>
                 <li><a href="list.html">物資清單</a></li>
-                <li class="active"><a href="admin.html">管理員專用</a></li>
             </ul>
         </div>
     </nav>
