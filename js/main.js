@@ -439,8 +439,8 @@ function getApplicant(card) {
 
 //Sort by status, due date, id
 function itemCompare(a, b) {
-    var order_a = a.custom.order;
-    var order_b = b.custom.order;
+	var order_a = (typeof a.custom === "undefined" || typeof a.custom.order === "undefined" ? 0 : a.custom.order);
+    var order_b = (typeof a.custom === "undefined" || typeof b.custom.order === "undefined" ? 0 : b.custom.order);
     var due_a = new Date(a.due);
     var due_b = new Date(b.due);
     

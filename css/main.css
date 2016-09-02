@@ -592,8 +592,7 @@
 }
 
 .item-grp {
-	padding: 15px;
-    border-bottom: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
     border-left: 1px solid #ddd;
     border-right: 1px solid #ddd;
     background-color: #f7f7f9;
@@ -602,11 +601,16 @@
 .item-grp-btn {
 	background-color: transparent;
 	border: none;
+	/*color: #337ab7;*/
 	color: #333;
+	padding: 15px;
+	width: 100%;
+	text-align: left;
 }
 
-.item-grp-btn:hover, .item-grp-btn:focus {
-    color: #666;
+.item-grp-btn:hover {
+	color: #333;
+    background-color: #f0f0f2;
 }
 
 /*****************************

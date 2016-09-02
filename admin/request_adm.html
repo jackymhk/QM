@@ -8,15 +8,15 @@
     <title>81st HKG QM Dashboard</title>
     <link rel="stylesheet" media="screen" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" >
-    <link rel="stylesheet" type="text/css" href="css/main.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/main.css"/>
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript"></script>
     <script src="https://api.trello.com/1/client.js?key=8a42b4468e08ca9f165c88d1327add61" type="text/javascript"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js" type="text/javascript"></script>
-    <script src="js/Autolinker.min.js" type="text/javascript"></script>
-    <script src="js/main.js" type="text/javascript"></script>
-    <script src="js/properties.js" type="text/javascript"></script>
+    <script src="../js/Autolinker.min.js" type="text/javascript"></script>
+    <script src="../js/main.js" type="text/javascript"></script>
+    <script src="../js/properties.js" type="text/javascript"></script>
 
     <script type="text/javascript">
         var requestShortLink;
@@ -207,10 +207,10 @@
                 var itemsDOM = '';
                 itemsDOM += '<div class="request-body" id="item-' + item.shortLink + '">';
                 itemsDOM += '<div class="pull-right">';
-                //itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-change txt-normal" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-retweet" title="更改"></span></button>';
                 itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-remove txt-normal" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-minus-sign" title="移除"></span></button>';
                 itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-borrow txt-borrowed" data-toggle="button" aria-pressed="false" autocomplete="off" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-export" title="借出"></span></button>';
-                itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-return txt-returned" data-toggle="button" aria-pressed="false" autocomplete="off" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-ok" title="歸還"></span></button>';
+                //itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-return txt-returned" data-toggle="button" aria-pressed="false" autocomplete="off" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-ok" title="歸還"></span></button>';
+                itemsDOM += '<button type="button" class="btn request-ctrl-btn request-ctrl-btn-return txt-returned" data-toggle="popover" data-item="' + item.shortLink + '"><span class="glyphicon glyphicon-ok" title="歸還"></span></button>';
                 itemsDOM += '</div>';
                 itemsDOM += item.name;
                 itemsDOM += itemLabel;
@@ -222,6 +222,14 @@
                 itemsDOM += '</div>';
                 
                 $('#request-items').append(itemsDOM);
+                
+                $('#item-' + item.shortLink + ' .request-ctrl-btn-return').popover({ 
+                    html : true,
+                    content: function() {
+                      return $("#location-selector").html();
+                    },
+                    placement: 'auto left'
+                });
                 
                 request_items.push(item);
                 
@@ -273,7 +281,7 @@
                     });
                 });
             });
-            
+            /*
             // Return Button Action
             $('.request-ctrl-btn-return').on('click', function() {
                 var item = getItem($(this).data('item'));
@@ -313,6 +321,7 @@
                     $(this).addClass('unclickable');
                 }
             });
+            */
         }
         
         var stageChangeUI = function() {
@@ -436,7 +445,7 @@
                 if ($('.request-ctrl-btn-borrow.active').length == $('.request-ctrl-btn-borrow').length) {
                     stage3_I_removeLabel();
                 } else {
-                    alert('借用處理未完成。');
+                    alertModal('借用處理未完成。');
                     return false;                                    
                 }
                 
@@ -450,7 +459,7 @@
                 if ($('.request-ctrl-btn-return.active').length == $('.request-ctrl-btn-return').length) {
                     stage4_I_removeLabel();
                 } else {
-                    alert('還有物資未歸還。');
+                	alertModal('還有物資未歸還。');
                     return false;                                   
                 }
             }
@@ -713,6 +722,11 @@
             }
             return null;
         }
+        
+        var alertModal = function(msg) {
+        	$('#alertModal .alert-msg').html(msg);
+        	$('#alertModal').modal('show');
+        }
 
         $(function(){
             requestShortLink = urlParam('i');
@@ -757,16 +771,16 @@
                 <ul class="dropdown-menu">
                     <li><a href="admin.html">處理借用申請</a></li>
                     <li role="separator" class="divider"></li>
-                    <li><a href="logout.html">登出</a></li>
+                    <li><a href="../logout.html">登出</a></li>
                 </ul>
             </div>
             <div class="navbar-header">
                 <a class="navbar-brand" href="#">81st HKG QM</a>
             </div>
             <ul class="nav navbar-nav">
-                <li><a href="index.html">首頁</a></li>
-                <li class="active"><a href="request.html">借用申請</a></li>
-                <li><a href="list.html">物資清單</a></li>
+                <li><a href="../index.html">首頁</a></li>
+                <li class="active"><a href="../request.html">借用申請</a></li>
+                <li><a href="../list.html">物資清單</a></li>
             </ul>
         </div>
     </nav>
@@ -784,6 +798,19 @@
             <div id="process-msg"></div>
         </div>
         
+        <div class="modal fade" tabindex="-1" role="dialog" id="alertModal" >
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <strong class="alert-msg"></strong>
+                        <div style="padding-right: 10px; text-align: right;">
+	                        <button type="button" class="btn btn-default" data-dismiss="modal">確定</button>
+	                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <p>
             <button type="button" class="btn btn-info" id="back-btn">
                 <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> 返回
@@ -791,7 +818,7 @@
         </p>
         
         <div id="loader" style="text-align:center;">
-            <img src="img/loading.gif"/>
+            <img src="../img/loading.gif"/>
         </div>
         <div id="requests" class="row hidden">
             <div class="col-xs-12 col-sm-6">
@@ -833,6 +860,20 @@
             </div>
         </div>
         <div style="height: 100px">&nbsp;</div>
+    </div>
+    
+    <div id="location-selector" class="hidden">
+        <form class="form-inline">
+	        <div class="form-group">
+		        <label for="location">Location</label>
+		        <select name="location" class="form-control">
+		            <option>Cupborad A</option>
+		            <option>Cupborad B</option>
+		            <option>Cupborad C</option>
+		        </select>
+	        </div>
+	        <button type="button" class="btn btn-default">Submit</button>
+        </form>
     </div>
 
 </body>
