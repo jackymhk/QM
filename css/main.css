@@ -115,7 +115,7 @@
     color: #337ab7;
 }
 
-.txt-returned.active, .txt-returned.active:hover, .txt-returned.active:focus, .txt-returned:hover, .txt-returned:focus {
+.txt-returned.active, .txt-returned.active:hover, .txt-returned.active:focus, .txt-returned:hover {
     color: #5cb85c;
 }
 
@@ -127,7 +127,7 @@
     color: #333;
 }
 
-.txt-borrowed, .txt-returned, .txt-remove, .txt-normal {
+.txt-borrowed, .txt-returned, .txt-remove, .txt-normal, .txt-returned:focus {
     color: #999;
 }
 

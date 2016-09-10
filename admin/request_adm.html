@@ -135,6 +135,11 @@
         var showRequestItems = function() {
         	if (request.checklists.length <= 0)
         		return;
+        	
+        	// Sort by pos
+            request.checklists[0].checkItems.sort(function (a, b) {
+            	return (a.pos < b.pos ? -1 : 1);
+            });
             
             for (var i = 0; i < request.checklists[0].checkItems.length; i++) {
             	
@@ -223,11 +228,11 @@
                 
                 $('#request-items').append(itemsDOM);
                 
+                var content = popoverContent(item.shortLink, item.custom.orig_loc);
+                
                 $('#item-' + item.shortLink + ' .request-ctrl-btn-return').popover({ 
                     html : true,
-                    content: function() {
-                      return $("#location-selector").html();
-                    },
+                    content: content,
                     placement: 'auto left'
                 });
                 
@@ -281,47 +286,47 @@
                     });
                 });
             });
-            /*
-            // Return Button Action
-            $('.request-ctrl-btn-return').on('click', function() {
-                var item = getItem($(this).data('item'));
-                if (!$(this).is('.active')) {
-                    var complete_count = 0;
-                	// Complete checklist item
-                    completeCheckItem(request, item, function() {
-                        item.custom.completeDt = dateFormat_ymd(new Date());
-                        item.custom.returned = true;
-                        request.custom.checkedItemCount++;
-                        $('#request-checked-count .txt').html(request.custom.checkedItemCount+'/'+request.custom.itemCount);
-                        complete_count++;
-                        if (complete_count == 4)
-                        	updateItemInfo(item);
-                    });
-                    // Remove label
-                    removeLabel(item, Label.borrowed, function() {
-                    	complete_count++;
-                    	if (complete_count == 4)
-                            updateItemInfo(item);
-                    });
-                    // Remove due
-                    removeDueDate(item, function() {
-                        item.custom.dueDt = null;
-                        complete_count++;
-                        if (complete_count == 4)
-                            updateItemInfo(item);
-                    });
-                    // Move item back to Original Storage List
-                    moveItem(item, item.custom.orig_loc, item.custom.orig_pos, function() {
-                        // Update item location
-                        item.custom.location = getListNameById(lists, item.custom.orig_loc);
-                        complete_count++;
-                        if (complete_count == 4)
-                            updateItemInfo(item);
-                    });
-                    $(this).addClass('unclickable');
-                }
+        }
+        
+        var returnItem = function(shortLink) {
+        	var targetList = $('#return-location-'+shortLink).val();
+        	var item = getItem(shortLink);
+        	var complete_count = 0;
+            // Complete checklist item
+            completeCheckItem(request, item, function() {
+                item.custom.completeDt = dateFormat_ymd(new Date());
+                item.custom.returned = true;
+                request.custom.checkedItemCount++;
+                $('#request-checked-count .txt').html(request.custom.checkedItemCount+'/'+request.custom.itemCount);
+                $('#item-' + shortLink + ' .request-ctrl-btn-return').addClass('active');
+                complete_count++;
+                if (complete_count == 4)
+                    updateItemInfo(item);
             });
-            */
+            // Remove label
+            removeLabel(item, Label.borrowed, function() {
+                complete_count++;
+                if (complete_count == 4)
+                    updateItemInfo(item);
+            });
+            // Remove due
+            removeDueDate(item, function() {
+                item.custom.dueDt = null;
+                complete_count++;
+                if (complete_count == 4)
+                    updateItemInfo(item);
+            });
+            // Move item back to Original Storage List
+            moveItem(item, targetList, 'bottom', function() {
+                // Update item location
+                item.custom.location = getListNameById(lists, item.custom.orig_loc);
+                complete_count++;
+                if (complete_count == 4)
+                    updateItemInfo(item);
+            });
+            $('#item-' + shortLink + ' .request-ctrl-btn-return')
+                .addClass('unclickable')
+                .popover('hide');
         }
         
         var stageChangeUI = function() {
@@ -721,6 +726,24 @@
                 }
             }
             return null;
+        }
+        
+        var popoverContent = function(shortLink, orig_loc) {
+        	var content = '';
+        	content += '<form class="form-inline">';
+        	content += '<div class="form-group" style="margin-right:5px;">';
+        	content += '<label for="location">歸還位置&nbsp;&nbsp;</label>&nbsp;'
+        	content += '<select id="return-location-'+shortLink+'" name="location" class="form-control">';
+        	content += '<option value="'+List.cupboardA+'" '+(List.cupboardA == orig_loc ? 'selected' : '')+'>木櫃A</option>';
+        	content += '<option value="'+List.cupboardB+'" '+(List.cupboardB == orig_loc ? 'selected' : '')+'>木櫃B</option>';
+        	content += '<option value="'+List.cupboardC+'" '+(List.cupboardC == orig_loc ? 'selected' : '')+'>木櫃C</option>';
+        	content += '<option value="'+List.cupboardOut+'" '+(List.cupboardOut == orig_loc ? 'selected' : '')+'>木櫃外</option>';
+        	content += '<option value="'+List.drying+'">校內晾曬中</option>';
+            content += '</select>';
+            content += '</div>';
+            content += '<button type="button" class="btn btn-success" onclick="returnItem(\''+shortLink+'\')">確定</button>';
+            content += '</form>';
+            return content;
         }
         
         var alertModal = function(msg) {
