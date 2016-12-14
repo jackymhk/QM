@@ -30,7 +30,8 @@
                 $('#back-btn').addClass('hidden');
                 trelloAuthorize2(
             		function() {
-            			localStorage.trelloLogin = 'Y';
+            			login();
+            			
             			$('#alert-box')
                             .removeClass('hidden')
                             .removeClass('alert-warning')

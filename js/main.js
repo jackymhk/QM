@@ -11,7 +11,7 @@ function trelloAuthorize(done, fail) {
     if (USE_PROXY) {
         done();
     } else {
-        warningAlert("<strong>Warning: </strong>Authorize Failed.<br>" +
+    	warningAlert("<strong>Warning: </strong>Authorize Failed.<br>" +
             "Please get the authorization in the popup.");
         trelloAuthorize2(
             function() {
@@ -38,10 +38,10 @@ function trelloAuthorize2(done, fail) {
         //expiration: "never",
         expiration: "30days",
         success: function() {
-            done();
+        	done();
         },
         error: function() {
-            fail();
+        	fail();
         }
     });
 }
@@ -204,7 +204,7 @@ function urlParam(name, url) {
 var username = '';
 
 function checkLogin(){
-	if (localStorage.trelloLogin == 'Y') {
+	if (isLogin()) {
         trelloGet('/member/me',
             function(data) {
                 $('.user-box').removeClass('hidden');
@@ -222,6 +222,46 @@ function checkLogin(){
 		$('.user-box').removeClass('hidden');
         $('#user-id').html('Testing');
 	}
+}
+
+function isLogin() {
+	 if (localStorage.trelloLogin === undefined || localStorage.tokenExpire === undefined || localStorage.trello_token === undefined) {
+		 console.log("Token undefined")
+		 return false;
+	 }
+	 
+	 if (localStorage.trelloLogin != 'Y') {
+		 return false;
+	 }
+	
+	 var d = localStorage.tokenExpire.split("/");
+     if (d.length != 3) {
+    	 console.log("Invalid Expire Date")
+    	 return false; 
+     }
+     
+     var now = new Date();
+     var expireDt = new Date(d[2], d[1]-1, d[0]);
+     
+     if (expireDt > now) {
+         return true;
+     } else {
+    	 console.log("Token Expired")
+    	 return false;
+     }
+}
+
+function login() {
+	var d = new Date();
+    d.setDate(d.getDate() + 30); 
+    localStorage.tokenExpire = d.getDate() + "/" + d.getMonth()+1 + "/" + d.getFullYear();
+	localStorage.trelloLogin = 'Y';
+}
+
+function logout() {
+	localStorage.removeItem('trelloLogin');
+    localStorage.removeItem('trello_token');
+    localStorage.removeItem('tokenExpire');
 }
 
 // Additional Data is stored in Description
